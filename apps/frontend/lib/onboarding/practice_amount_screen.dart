@@ -25,12 +25,17 @@ class _PracticeAmountScreenState extends ConsumerState<PracticeAmountScreen> {
         backgroundColor: Colors.blue[600],
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Progress indicator
             LinearProgressIndicator(
               value: 0.5,
@@ -217,7 +222,7 @@ class _PracticeAmountScreenState extends ConsumerState<PracticeAmountScreen> {
               ),
             ),
 
-            const Spacer(),
+            const SizedBox(height: 40),
 
             // Continue Button
             SizedBox(
@@ -243,7 +248,8 @@ class _PracticeAmountScreenState extends ConsumerState<PracticeAmountScreen> {
               ),
             ),
             const SizedBox(height: 20),
-          ],
+            ],
+          ),
         ),
       ),
     );

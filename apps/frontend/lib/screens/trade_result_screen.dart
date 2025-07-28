@@ -264,13 +264,13 @@ class _TradeResultScreenState extends ConsumerState<TradeResultScreen>
 
   void _handleViewProgress() {
     _checkForRatingPrompt(() {
-      Navigator.pushReplacementNamed(context, '/streak-tracker');
+      Navigator.pushNamed(context, '/streak-tracker');
     });
   }
 
   void _handleTradeAgain() {
     _checkForRatingPrompt(() {
-      Navigator.pushReplacementNamed(context, '/trade-entry');
+      Navigator.pushNamed(context, '/trade-entry');
     });
   }
 

@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 /// Model for user's default trade parameters
 class DefaultTradeParameters {
   final double tradeAmount;           // Default trade amount in USD
@@ -54,8 +52,6 @@ class DefaultTradeParameters {
       riskLevel: (json['riskLevel'] as num?)?.toDouble() ?? 0.5,
       enableAutoForge: json['enableAutoForge'] as bool? ?? false,
       maxSlippage: (json['maxSlippage'] as num?)?.toDouble() ?? 2.0,
-      confirmationDelayMs: json['confirmationDelayMs'] as int? ?? 3000,
-    ).copyWith(
       confirmationDelay: Duration(
         milliseconds: json['confirmationDelayMs'] as int? ?? 3000,
       ),

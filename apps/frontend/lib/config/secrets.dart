@@ -4,14 +4,14 @@
 
 // Web3Auth Configuration
 // Get your client ID from: https://dashboard.web3auth.io/
-const String WEB3AUTH_CLIENT_ID = const String.fromEnvironment(
+const String web3AuthClientId = String.fromEnvironment(
   'WEB3AUTH_CLIENT_ID',
   defaultValue: 'BPPbhL4egAYdv3vHFVQDhmueoOJKUeHJZe2X8LaMvMIq9go2GN72j6OwvheQkR2ofq8WveHJQtzNKaq0_o_xKuI',
 );
 
 // Extended Exchange API Configuration
 // Get your API key from Extended Exchange dashboard
-const String EXTENDED_EXCHANGE_API_KEY = const String.fromEnvironment(
+const String extendedExchangeApiKey = String.fromEnvironment(
   'EXTENDED_EXCHANGE_API_KEY',
   defaultValue: '', // Set via environment variable or secrets_local.dart
 );
@@ -25,5 +25,5 @@ class DemoConfig {
   static const String demoUserId = 'demo-user-12345';
   
   // Use demo config when in demo mode
-  static String get clientId => isDemoMode ? demoClientId : WEB3AUTH_CLIENT_ID;
+  static String get clientId => isDemoMode ? demoClientId : web3AuthClientId;
 } 

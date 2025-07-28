@@ -43,20 +43,6 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
       'color': Colors.orange,
       'value': 'risk_management',
     },
-    {
-      'title': 'Generate professional income',
-      'subtitle': 'Trading career goals',
-      'icon': Icons.trending_up,
-      'color': Colors.red,
-      'value': 'professional_income',
-    },
-    {
-      'title': 'Practice for fun',
-      'subtitle': 'Casual learning',
-      'icon': Icons.sports_esports,
-      'color': Colors.cyan,
-      'value': 'practice_fun',
-    },
   ];
 
   @override
@@ -68,12 +54,18 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
         backgroundColor: Colors.blue[600],
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Progress indicator
             LinearProgressIndicator(
               value: 0.75,
@@ -100,15 +92,16 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
             const SizedBox(height: 32),
 
             // Goals Grid
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.9,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: _goals.length,
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 1.0,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: _goals.length,
                 itemBuilder: (context, index) {
                   final goal = _goals[index];
                   final isSelected = _selectedGoals.contains(goal['value']);
@@ -137,46 +130,51 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: isSelected 
                                   ? goal['color'].withOpacity(0.15)
                                   : goal['color'].withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
                               goal['icon'],
                               color: goal['color'],
-                              size: 32,
+                              size: 24,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 6),
                           Text(
                             goal['title'],
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
                               color: isSelected ? Colors.blue[700] : Colors.black87,
                             ),
                             textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
                             goal['subtitle'],
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 9,
                               color: Colors.grey[600],
                             ),
                             textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           if (isSelected) ...[
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             Icon(
                               Icons.check_circle,
                               color: Colors.blue[600],
-                              size: 20,
+                              size: 16,
                             ),
                           ],
                         ],
@@ -185,7 +183,6 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                   );
                 },
               ),
-            ),
 
             const SizedBox(height: 20),
 
@@ -234,8 +231,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-          ],
+            const SizedBox(height: 40), // Increased padding for better button visibility
+            ],
+          ),
         ),
       ),
     );

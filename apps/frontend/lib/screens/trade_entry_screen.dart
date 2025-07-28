@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/simple_trade.dart';
 import '../services/simple_trading_service.dart';
+import '../services/real_trading_service.dart';
 import '../providers/trading_provider.dart';
 import '../services/exit_intent_service.dart';
 import '../services/analytics_service.dart';
@@ -17,7 +18,7 @@ class TradeEntryScreen extends ConsumerStatefulWidget {
 class _TradeEntryScreenState extends ConsumerState<TradeEntryScreen> {
   double _selectedAmount = 100;
   String _selectedDirection = 'BUY';
-  String _selectedSymbol = 'AAPL';
+  String _selectedSymbol = 'ETH-USD';
   bool _isLoading = false;
 
   @override
@@ -36,6 +37,13 @@ class _TradeEntryScreenState extends ConsumerState<TradeEntryScreen> {
         title: const Text('Place Trade'),
         backgroundColor: Colors.blue[600],
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // If this is the main screen, exit or show confirmation
+            Navigator.pushReplacementNamed(context, '/streak-tracker');
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -61,7 +69,7 @@ class _TradeEntryScreenState extends ConsumerState<TradeEntryScreen> {
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
-                      children: SimpleTradingService.getAvailableAmounts()
+                      children: RealTradingService.getAvailableAmounts()
                           .map((amount) => ChoiceChip(
                                 label: Text('\$${amount.toInt()}'),
                                 selected: _selectedAmount == amount,
@@ -145,7 +153,7 @@ class _TradeEntryScreenState extends ConsumerState<TradeEntryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Stock Symbol',
+                      'Token Pair',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -157,7 +165,7 @@ class _TradeEntryScreenState extends ConsumerState<TradeEntryScreen> {
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       ),
-                      items: SimpleTradingService.getAvailableSymbols()
+                      items: RealTradingService.getAvailableSymbols()
                           .map((symbol) => DropdownMenuItem(
                                 value: symbol,
                                 child: Text(symbol),
@@ -243,12 +251,20 @@ class _TradeEntryScreenState extends ConsumerState<TradeEntryScreen> {
     });
 
     try {
-      final trade = SimpleTradingService.createTrade(
+      // 🚀 EXECUTE REAL END-TO-END TRADE
+      debugPrint('🎯 Starting REAL END-TO-END TRADE execution');
+      debugPrint('   Amount: \$${_selectedAmount}');
+      debugPrint('   Direction: $_selectedDirection');  
+      debugPrint('   Symbol: $_selectedSymbol');
+      
+      final trade = await RealTradingService.executeRealTrade(
         amount: _selectedAmount,
         direction: _selectedDirection,
         symbol: _selectedSymbol,
       );
 
+      debugPrint('✅ REAL TRADE COMPLETED: ${trade.isRealTrade ? 'SUCCESS' : 'FALLBACK'}');
+      
       // Track successful trade start
       await AnalyticsService.trackTradeStarted(
         symbol: _selectedSymbol,
@@ -259,7 +275,7 @@ class _TradeEntryScreenState extends ConsumerState<TradeEntryScreen> {
       // Add trade to provider
       ref.read(tradingProvider.notifier).addTrade(trade);
 
-      // Navigate to result screen
+      // Navigate to result screen with real trade data
       if (mounted) {
         Navigator.pushReplacementNamed(
           context,

@@ -8,6 +8,7 @@ import 'package:starknet/starknet.dart';
 import 'package:starknet_provider/starknet_provider.dart';
 import 'package:pointycastle/pointycastle.dart';
 import 'starknet_address_service.dart';
+import '../config/contract_addresses.dart';
 
 class StarknetService {
   static const String _sepoliaRpcUrl = 'https://starknet-sepolia.public.blastapi.io/rpc/v0_7';
@@ -238,12 +239,23 @@ class StarknetService {
   Map<String, dynamic> buildTradingTransaction({
     required String tokenAddress,
     required String amount,
-    required String exchangeAddress,
-    required String operation, // 'approve' or 'trade'
+    String? exchangeAddress,
+    required String operation, // 'approve' or 'trade' or 'paymaster'
   }) {
     debugPrint('🏗️ Building trading transaction: $operation');
     
+    // Use deployed contract addresses
+    final defaultExchangeAddress = exchangeAddress ?? ContractAddresses.paymasterContract;
+    
     switch (operation.toLowerCase()) {
+      case 'paymaster':
+        // Interact with deployed paymaster contract
+        return {
+          'contractAddress': ContractAddresses.paymasterContract,
+          'entrypoint': 'get_dummy',
+          'calldata': [],
+          'operation': 'paymaster_call'
+        };
       case 'approve':
         return {
           'contractAddress': tokenAddress,

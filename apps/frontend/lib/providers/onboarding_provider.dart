@@ -60,10 +60,16 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       final prefs = await SharedPreferences.getInstance();
       final onboardingJson = prefs.getString('onboarding_data');
       
+      // For demo purposes, always start with fresh onboarding
+      // Comment this out in production and uncomment the code below
+      await prefs.remove('onboarding_data');
+      
+      /* Production code:
       if (onboardingJson != null) {
         // User has completed onboarding before
         state = state.copyWith(isCompleted: true);
       }
+      */
     } catch (e) {
       // Handle error silently
     }

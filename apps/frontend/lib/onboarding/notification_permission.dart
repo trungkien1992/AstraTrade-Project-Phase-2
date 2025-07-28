@@ -24,6 +24,10 @@ class _NotificationPermissionScreenState extends ConsumerState<NotificationPermi
         backgroundColor: Colors.blue[600],
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

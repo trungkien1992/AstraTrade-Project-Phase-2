@@ -3,7 +3,7 @@ import '../models/simple_trade.dart';
 
 class SimpleTradingService {
   static const List<String> _symbols = [
-    'AAPL', 'TSLA', 'AMZN', 'GOOGL', 'MSFT', 'NVDA', 'META', 'NFLX'
+    'BTC-USD', 'ETH-USD', 'BNB-USD', 'ADA-USD', 'SOL-USD', 'MATIC-USD', 'AVAX-USD', 'DOT-USD'
   ];
 
   static const List<double> _amounts = [50, 100, 250, 500, 1000];

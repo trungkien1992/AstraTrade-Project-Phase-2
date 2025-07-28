@@ -8,7 +8,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('App launches and shows splash screen', (WidgetTester tester) async {
-    await tester.pumpWidget(const ProviderScope(child: AstraTradeApp()));
+    await tester.pumpWidget(const ProviderScope(child: TradingPracticeApp()));
 
     // Verify splash screen elements
     expect(find.text('AstraTrade'), findsOneWidget);

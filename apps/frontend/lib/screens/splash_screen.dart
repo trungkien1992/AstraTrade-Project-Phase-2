@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
 
 import '../utils/constants.dart';
-import 'splash_screen_constellation_painters.dart';
+// import 'splash_screen_constellation_painters.dart'; // TODO: Use if needed
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

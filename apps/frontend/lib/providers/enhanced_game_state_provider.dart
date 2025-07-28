@@ -1,15 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/artifact.dart';
-import '../models/ascension_system.dart';
-import '../models/lottery.dart';
-import '../models/shield_dust.dart';
-import '../models/quantum_anomaly.dart';
+// TODO: Create missing models and services
+// import '../models/artifact.dart';
+// import '../models/ascension_system.dart';
+// import '../models/lottery.dart';
+// import '../models/shield_dust.dart';
+// import '../models/quantum_anomaly.dart';
 import '../models/leaderboard.dart';
-import '../services/artifact_service.dart';
-import '../services/lottery_service.dart';
-import '../services/quantum_anomaly_service.dart';
-import '../widgets/planet_view.dart';
+// import '../services/artifact_service.dart';
+// import '../services/lottery_service.dart';
+// import '../services/quantum_anomaly_service.dart';
+// import '../widgets/planet_view.dart';
 
 /// Enhanced game state that includes all new features
 class EnhancedGameState {
@@ -19,7 +20,7 @@ class EnhancedGameState {
   final int experience;
   final int totalXP;
   final int level;
-  final PlanetHealth planetHealth;
+  final String planetHealth; // TODO: Replace with PlanetHealth enum
   final int astroForgers;
   final bool hasGenesisIgnition;
   final String lastTradeMessage;
@@ -30,16 +31,16 @@ class EnhancedGameState {
   final double winRate;
   final CosmicTier cosmicTier;
   
-  // New features
-  final ArtifactCollection artifactCollection;
-  final PlayerAscension ascensionData;
-  final PlayerShieldDust shieldDustData;
-  final PlayerLotteryStats lotteryStats;
-  final PlayerQuantumStats quantumStats;
+  // New features - TODO: Replace with proper types
+  final Map<String, dynamic> artifactCollection; // TODO: Replace with ArtifactCollection
+  final Map<String, dynamic> ascensionData; // TODO: Replace with PlayerAscension
+  final Map<String, dynamic> shieldDustData; // TODO: Replace with PlayerShieldDust
+  final Map<String, dynamic> lotteryStats; // TODO: Replace with PlayerLotteryStats
+  final Map<String, dynamic> quantumStats; // TODO: Replace with PlayerQuantumStats
   final bool hasAscended;
   final Map<String, double> activeArtifactBonuses;
-  final QuantumAnomalyEvent? activeAnomaly;
-  final LotteryDraw? currentLottery;
+  final Map<String, dynamic>? activeAnomaly; // TODO: Replace with QuantumAnomalyEvent?
+  final Map<String, dynamic>? currentLottery; // TODO: Replace with LotteryDraw?
   final Map<String, double> anomalyEffects;
 
   const EnhancedGameState({
@@ -48,7 +49,7 @@ class EnhancedGameState {
     this.experience = 0,
     this.totalXP = 0,
     this.level = 1,
-    this.planetHealth = PlanetHealth.stable,
+    this.planetHealth = 'stable', // TODO: Replace with PlanetHealth.stable
     this.astroForgers = 1,
     this.hasGenesisIgnition = false,
     this.lastTradeMessage = "Welcome to the Enhanced Cosmic Trading Journey!",
@@ -74,11 +75,11 @@ class EnhancedGameState {
     final now = DateTime.now();
     return EnhancedGameState(
       lastActivity: now,
-      artifactCollection: ArtifactCollection.empty(playerId),
-      ascensionData: PlayerAscension.newPlayer(playerId),
-      shieldDustData: PlayerShieldDust.newPlayer(playerId),
-      lotteryStats: PlayerLotteryStats.newPlayer(playerId),
-      quantumStats: PlayerQuantumStats.newPlayer(playerId),
+      artifactCollection: <String, dynamic>{}, // TODO: Replace with ArtifactCollection.empty(playerId)
+      ascensionData: <String, dynamic>{}, // TODO: Replace with PlayerAscension.newPlayer(playerId)
+      shieldDustData: <String, dynamic>{}, // TODO: Replace with PlayerShieldDust.newPlayer(playerId)
+      lotteryStats: <String, dynamic>{}, // TODO: Replace with PlayerLotteryStats.newPlayer(playerId)
+      quantumStats: <String, dynamic>{}, // TODO: Replace with PlayerQuantumStats.newPlayer(playerId)
     );
   }
 
@@ -88,7 +89,7 @@ class EnhancedGameState {
     int? experience,
     int? totalXP,
     int? level,
-    PlanetHealth? planetHealth,
+    String? planetHealth,
     int? astroForgers,
     bool? hasGenesisIgnition,
     String? lastTradeMessage,
@@ -98,15 +99,15 @@ class EnhancedGameState {
     int? winStreak,
     double? winRate,
     CosmicTier? cosmicTier,
-    ArtifactCollection? artifactCollection,
-    PlayerAscension? ascensionData,
-    PlayerShieldDust? shieldDustData,
-    PlayerLotteryStats? lotteryStats,
-    PlayerQuantumStats? quantumStats,
+    Map<String, dynamic>? artifactCollection,
+    Map<String, dynamic>? ascensionData,
+    Map<String, dynamic>? shieldDustData,
+    Map<String, dynamic>? lotteryStats,
+    Map<String, dynamic>? quantumStats,
     bool? hasAscended,
     Map<String, double>? activeArtifactBonuses,
-    QuantumAnomalyEvent? activeAnomaly,
-    LotteryDraw? currentLottery,
+    Map<String, dynamic>? activeAnomaly,
+    Map<String, dynamic>? currentLottery,
     Map<String, double>? anomalyEffects,
   }) {
     return EnhancedGameState(

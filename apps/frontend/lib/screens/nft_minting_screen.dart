@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/nft_providers.dart';
 import '../providers/auth_provider.dart';
-import '../services/nft_service.dart';
 import '../models/nft_models.dart';
 import '../widgets/eligible_achievement_card.dart';
 

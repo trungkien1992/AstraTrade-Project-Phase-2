@@ -11,7 +11,7 @@ class ExtendedExchangeClient {
   static const Duration defaultTimeout = Duration(seconds: 15);
   
   // Real API Key for live trading
-  static const String realApiKey = const String.fromEnvironment(
+  static const String realApiKey = String.fromEnvironment(
     'EXTENDED_EXCHANGE_API_KEY',
     defaultValue: '', // Set via environment variable
   );
@@ -610,8 +610,6 @@ class ExtendedExchangeException implements Exception {
 
   @override
   String toString() {
-    return 'ExtendedExchangeException: $message' +
-      (statusCode != null ? ' (Status: $statusCode)' : '') +
-      (details != null ? ' - $details' : '');
+    return 'ExtendedExchangeException: $message${statusCode != null ? ' (Status: $statusCode)' : ''}${details != null ? ' - $details' : ''}';
   }
 }

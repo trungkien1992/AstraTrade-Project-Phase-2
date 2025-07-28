@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/game_service.dart';
-import '../widgets/planet_view.dart';
+// import '../widgets/planet_view.dart'; // TODO: Create missing widget
 import '../api/rag_api_client.dart';
 import '../providers/auth_provider.dart';
 import '../models/leaderboard.dart';

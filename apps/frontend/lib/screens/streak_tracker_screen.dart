@@ -24,7 +24,10 @@ class StreakTrackerScreen extends ConsumerWidget {
         title: const Text('Your Progress'),
         backgroundColor: Colors.blue[600],
         foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.analytics),
@@ -38,10 +41,11 @@ class StreakTrackerScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
             // Current Streak Card
             Card(
               elevation: 4,
@@ -174,7 +178,7 @@ class StreakTrackerScreen extends ConsumerWidget {
               ),
             ],
 
-            const Spacer(),
+            const SizedBox(height: 32),
 
             // Navigation Buttons
             Row(
@@ -222,8 +226,9 @@ class StreakTrackerScreen extends ConsumerWidget {
               ],
             ),
 
-            const SizedBox(height: 20),
-          ],
+            const SizedBox(height: 40), // Increased padding for better button visibility
+            ],
+          ),
         ),
       ),
     );

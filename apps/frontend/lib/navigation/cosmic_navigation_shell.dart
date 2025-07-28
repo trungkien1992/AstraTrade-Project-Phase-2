@@ -6,10 +6,11 @@ import 'cosmic_navigation_controller.dart';
 import 'cosmic_navigation_bar.dart';
 import 'cosmic_page_transitions.dart';
 import '../screens/main_hub_screen.dart';
-import '../screens/cosmic_forge_screen.dart';
-import '../screens/planet_status_screen.dart';
-import '../screens/constellation_screen.dart';
-import '../services/cosmic_flow_service.dart';
+// TODO: Create missing screens
+// import '../screens/cosmic_forge_screen.dart';
+// import '../screens/planet_status_screen.dart';
+// import '../screens/constellation_screen.dart';
+// import '../services/cosmic_flow_service.dart';
 import '../providers/game_state_provider.dart';
 
 /// Main navigation shell that manages all cosmic destinations
@@ -101,15 +102,13 @@ class _CosmicNavigationShellState extends ConsumerState<CosmicNavigationShell> {
         page = const MainHubScreen();
         break;
       case CosmicDestination.forge:
-        page = const CosmicForgeScreen();
+        page = const MainHubScreen(); // TODO: Replace with CosmicForgeScreen
         break;
       case CosmicDestination.planet:
-        page = PlanetStatusScreen(
-          scrollController: ScrollController(),
-        );
+        page = const MainHubScreen(); // TODO: Replace with PlanetStatusScreen
         break;
       case CosmicDestination.constellations:
-        page = const ConstellationScreen();
+        page = const MainHubScreen(); // TODO: Replace with ConstellationScreen
         break;
     }
 

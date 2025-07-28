@@ -27,18 +27,18 @@ void main() async {
   
   runApp(
     const ProviderScope(
-      child: TradingPracticeApp(),
+      child: AstraTradeApp(),
     ),
   );
 }
 
-class TradingPracticeApp extends StatelessWidget {
-  const TradingPracticeApp({super.key});
+class AstraTradeApp extends StatelessWidget {
+  const AstraTradeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Trading Practice - Stock Simulator',
+      title: 'AstraTrade - Cosmic DeFi Trading',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,

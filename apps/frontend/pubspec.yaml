@@ -32,6 +32,7 @@ dependencies:
   # HTTP and Network
   http: ^1.2.0
   dio: ^5.4.0
+  web_socket_channel: ^2.4.0
 
   # Storage & Persistence
   shared_preferences: ^2.2.2
@@ -43,8 +44,8 @@ dependencies:
   # JSON and Serialization
   json_annotation: ^4.9.0
 
-  # Subscription/Payments
-  purchases_flutter: ^6.29.3
+  # Subscription/Payments (temporarily disabled for iOS build issues)
+  # purchases_flutter: ^6.29.3
 
   # Basic UI
   cupertino_icons: ^1.0.8
@@ -58,6 +59,10 @@ dependencies:
   permission_handler: ^11.3.1
   vibration: ^1.8.4
   share_plus: ^11.0.0
+  
+  # Animation packages
+  lottie: ^3.1.2
+  flutter_animate: ^4.5.0
 
 dev_dependencies:
   flutter_test:

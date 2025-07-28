@@ -11,7 +11,7 @@ class SimpleTrade {
   final String id;
   final double amount;
   final String direction; // 'BUY' or 'SELL'
-  final String symbol; // 'AAPL', 'TSLA', etc.
+  final String symbol; // 'BTC-USD', 'ETH-USD', etc.
   final DateTime timestamp;
   final double? profitLoss;
   final bool isCompleted;

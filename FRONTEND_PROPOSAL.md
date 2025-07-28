@@ -1,0 +1,1 @@
+docs/architecture/frontend_proposal.md

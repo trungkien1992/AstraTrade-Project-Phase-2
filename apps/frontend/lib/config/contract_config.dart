@@ -18,7 +18,7 @@ class ContractConfig {
   static const String avnuSepoliaRpcUrl = 'https://starknet-sepolia.public.blastapi.io';
   
   // AVNU API Key - Production Key for AstraTrade
-  static const String avnuApiKey = const String.fromEnvironment(
+  static const String avnuApiKey = String.fromEnvironment(
     'AVNU_API_KEY',
     defaultValue: '', // Set via environment variable
   );
@@ -26,7 +26,7 @@ class ContractConfig {
   // Extended Exchange API Configuration
   static const String extendedExchangeBaseUrl = 'https://starknet.sepolia.extended.exchange/api/v1';
   static const String extendedExchangeMainnetUrl = 'https://starknet.extended.exchange/api/v1';
-  static const String extendedExchangeApiKey = const String.fromEnvironment(
+  static const String extendedExchangeApiKey = String.fromEnvironment(
     'EXTENDED_EXCHANGE_API_KEY',
     defaultValue: '', // Set via environment variable
   );
