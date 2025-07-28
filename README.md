@@ -49,26 +49,34 @@ AstraTrade is a **gamified perpetuals trading app** that makes complex blockchai
 ### 1. Choose Your Experience Level
 ![Trading Experience](docs/images/trading-experience.png)
 **Beginner**, **Intermediate**, or **Advanced** - personalized learning paths
+<img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-07-29 at 04 14 46" src="https://github.com/user-attachments/assets/3471effc-f53b-45fe-93af-a402627b892a" />
 
 ### 2. Set Virtual Balance
 ![Practice Amount](docs/images/practice-amount.png)
 Choose from **$50 to $10,000** virtual funds for realistic practice
+<img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-07-29 at 04 32 26" src="https://github.com/user-attachments/assets/d95be4a1-3b10-4a85-9f9f-25d68385abe1" />
+
 
 ### 3. Define Learning Goals
 ![Trading Goals](docs/images/trading-goals.png)
 Select up to **3 objectives**: fundamentals, strategies, testing, risk management
+<img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-07-29 at 05 17 32" src="https://github.com/user-attachments/assets/50a686d9-fd0e-4e87-a8e1-fe9e071f0c6c" />
 
-### 4. Ready to Trade
+
+### 4. Ready to Trade![Uploading Simulator Screenshot - iPhone 16 Plus - 2025-07-29 at 05.17.32.png…]()
 ![Setup Complete](docs/images/setup-complete.png)
 Personalized environment configured and **ready to go**
+<img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-07-29 at 04 15 38" src="https://github.com/user-attachments/assets/2ac330ec-d2c1-465d-b9e9-6e41d6534b0f" />
 
 ### 5. Execute Trades
 ![Place Trade](docs/images/place-trade.png)
 Simple interface: **Amount** → **BUY/SELL** → **Asset** → **Execute**
+<img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-07-29 at 05 41 54" src="https://github.com/user-attachments/assets/1d353690-25fe-4908-a919-96ad8bf9dffc" />
 
 ### 6. View Results
 ![Trade Result](docs/images/trade-result.png)
 Instant feedback with **performance metrics** and **progress tracking**
+<img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-07-29 at 04 15 59" src="https://github.com/user-attachments/assets/a694fc92-67e1-4df1-840a-36a1dd3c0a11" />
 
 ---
 
