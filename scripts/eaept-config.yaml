@@ -1,0 +1,220 @@
+# Enhanced EAEPT Workflow Configuration
+# Combines Express-Ask-Explore-Plan-Code-Test methodology with Claude Context Plugin
+
+# Global workflow settings
+workflow:
+  auto_orchestration_enabled: true
+  context_preservation_priority: high
+  rag_integration_enabled: true
+  performance_monitoring: true
+  astratrade_integration: true
+
+# Phase-specific configurations
+phases:
+  express:
+    name: "Express - Deep Analysis"
+    description: "Deep task analysis and context framing with cosmic perspective"
+    auto_transition_threshold: 0.85
+    context_optimization_strategy: "preserve_thinking"
+    max_duration_minutes: 15
+    token_threshold: 0.6
+    astratrade_focus:
+      - "Cosmic casino theme consistency"
+      - "Mobile 60fps performance considerations"
+      - "Flutter/FastAPI/Cairo integration patterns"
+    
+  ask:
+    name: "Ask - Interactive Clarification"
+    description: "Intelligent questioning with AstraTrade context awareness"
+    auto_transition_threshold: 0.9
+    context_optimization_strategy: "preserve_dialogue"
+    max_duration_minutes: 10
+    token_threshold: 0.5
+    astratrade_focus:
+      - "Trading system integration requirements"
+      - "Cosmic theme implementation constraints" 
+      - "Performance optimization priorities"
+      - "Cross-platform compatibility needs"
+    
+  explore:
+    name: "Explore - RAG-Powered Research"
+    description: "Comprehensive research using AstraTrade knowledge base"
+    auto_transition_threshold: 0.8
+    context_optimization_strategy: "preserve_research"
+    rag_integration: true
+    parallel_execution: true
+    max_duration_minutes: 30
+    token_threshold: 0.85
+    rag_queries:
+      - "AstraTrade development patterns for {task}"
+      - "Flutter cosmic theme implementation for {task}"
+      - "FastAPI backend patterns for {task}"
+      - "Starknet smart contract patterns for {task}"
+      - "Casino idle game mechanics for {task}"
+      - "Mobile performance optimization for {task}"
+    astratrade_focus:
+      - "Existing codebase patterns and conventions"
+      - "Cosmic casino architecture principles"
+      - "Trading system integration points"
+      - "Performance optimization strategies"
+    
+  plan:
+    name: "Plan - Implementation Strategy"
+    description: "Detailed planning with AstraTrade architecture alignment"
+    auto_transition_threshold: 0.85
+    context_optimization_strategy: "preserve_architecture"
+    max_duration_minutes: 20
+    token_threshold: 0.7
+    planning_framework:
+      - "Component analysis and design"
+      - "Integration strategy with existing systems"
+      - "Performance optimization approach"
+      - "Testing and validation strategy"
+      - "Deployment and monitoring plan"
+    astratrade_focus:
+      - "Flutter widget composition patterns"
+      - "Riverpod state management integration"
+      - "FastAPI service layer alignment"
+      - "Cairo contract integration points"
+      - "Cosmic theme consistency maintenance"
+    
+  code:
+    name: "Code - Implementation"
+    description: "Systematic implementation with real-time monitoring"
+    auto_transition_threshold: 0.8
+    context_optimization_strategy: "preserve_code"
+    parallel_execution: true
+    max_duration_minutes: 60
+    token_threshold: 0.9
+    monitoring_frequency: 300  # seconds
+    quality_gates:
+      - "Code style consistency"
+      - "Cosmic theme integration"
+      - "Performance optimization"
+      - "Error handling robustness"
+      - "Documentation completeness"
+    astratrade_focus:
+      - "Flutter best practices adherence"
+      - "FastAPI clean architecture"
+      - "Cairo contract security"
+      - "Mobile performance targets"
+      - "Real-time trading integration"
+    
+  test:
+    name: "Test - Validation & QA"
+    description: "Comprehensive testing with AstraTrade quality standards"
+    auto_transition_threshold: 0.9
+    context_optimization_strategy: "preserve_tests"
+    parallel_execution: true
+    max_duration_minutes: 30
+    token_threshold: 0.8
+    test_categories:
+      - "Unit testing (target: 90%+ coverage)"
+      - "Integration testing (cross-system)"
+      - "Performance testing (60fps mobile)"
+      - "User experience testing (cosmic theme)"
+      - "Security testing (trading systems)"
+    astratrade_focus:
+      - "Flutter widget testing"
+      - "FastAPI endpoint testing"
+      - "Cairo contract testing"
+      - "Mobile performance validation"
+      - "Trading system accuracy"
+
+# Context management settings
+context_management:
+  token_limits:
+    warning_threshold: 160000
+    optimization_threshold: 180000
+    emergency_threshold: 195000
+  
+  optimization_strategies:
+    preserve_thinking: "Maintain conceptual analysis and insights"
+    preserve_dialogue: "Keep user interactions and clarifications"
+    preserve_research: "Maintain RAG results and findings"
+    preserve_architecture: "Keep design decisions and plans"
+    preserve_code: "Maintain implementation and code blocks"
+    preserve_tests: "Keep test results and validation data"
+  
+  auto_actions:
+    compact_triggers:
+      - "High repetitive patterns (>5)"
+      - "Token usage >75% with low complexity"
+      - "Message count >30 with single topic"
+    
+    digest_triggers:
+      - "Phase completion with high confidence"
+      - "Long session duration (>45 minutes)"
+      - "High task completion count (>3)"
+    
+    hybrid_triggers:
+      - "Complex session with high token usage"
+      - "Multiple topic changes with implementation"
+
+# RAG system integration
+rag_system:
+  url: "http://localhost:8000"
+  collection: "astratrade_knowledge_base"
+  search_parameters:
+    max_results: 3
+    min_similarity: 0.25
+    timeout: 10
+  
+  query_templates:
+    development_pattern: "AstraTrade {component} development patterns for {task}"
+    implementation_guide: "{technology} implementation guide for {feature}"
+    testing_strategy: "Testing approach for {component} in AstraTrade"
+    performance_optimization: "Performance optimization for {technology} in {context}"
+    integration_pattern: "{source} to {target} integration in AstraTrade"
+
+# AstraTrade-specific settings
+astratrade:
+  project_structure:
+    frontend: "astratrade-frontend"
+    backend: "astratrade_backend" 
+    contracts: "src/contracts"
+    scripts: "scripts"
+    docs: "docs"
+  
+  technology_stack:
+    frontend: "Flutter with Riverpod"
+    backend: "FastAPI with PostgreSQL"
+    blockchain: "Starknet with Cairo"
+    theme: "Cosmic casino idle game"
+  
+  performance_targets:
+    mobile_fps: 60
+    startup_time: 2  # seconds
+    memory_usage: "optimized"
+    battery_efficiency: "high"
+  
+  development_principles:
+    - "Cosmic theme consistency"
+    - "Mobile-first performance"
+    - "Real-time trading accuracy"
+    - "Secure blockchain integration"
+    - "Comprehensive testing coverage"
+
+# Monitoring and metrics
+monitoring:
+  enabled: true
+  metrics_collection: true
+  performance_tracking: true
+  context_analytics: true
+  
+  alerts:
+    high_token_usage: true
+    long_phase_duration: true
+    low_confidence_scores: true
+    context_optimization_needed: true
+
+# Integration with existing tools
+integrations:
+  orchestrator_engine: "/Users/admin/.claude/commands/orchestrator_engine.py"
+  context_manager: "/Users/admin/AstraTrade-Project/scripts/context-manager.sh"
+  rag_backend: "/Users/admin/AstraTrade-Project/scripts/start_rag_backend.py"
+  
+  commands:
+    start_rag: "python /Users/admin/AstraTrade-Project/scripts/start_rag_backend.py"
+    context_status: "/Users/admin/AstraTrade-Project/scripts/context-manager.sh status"
+    orchestrate: "python /Users/admin/.claude/commands/orchestrator_engine.py"

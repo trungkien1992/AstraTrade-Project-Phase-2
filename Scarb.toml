@@ -1,0 +1,19 @@
+[package]
+name = "astratrade_contracts"
+version = "0.1.0"
+
+[dependencies]
+starknet = ">=2.8.0"
+
+[cairo]
+sierra-replace-ids = true
+
+[[target.starknet-contract]]
+
+[[bin]]
+name = "vault"
+path = "src/contracts/vault.cairo"
+
+[[bin]]
+name = "paymaster" 
+path = "src/contracts/paymaster.cairo" 

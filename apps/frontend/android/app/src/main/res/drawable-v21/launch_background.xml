@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AstraTrade Cosmic Launch Screen -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Deep space background matching Flutter design -->
+    <item android:drawable="#0A0A0A" />
+    
+    <!-- Background gradient for cosmic effect -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.3"
+                android:centerY="0.3"
+                android:gradientRadius="400%"
+                android:startColor="#1A1A2E"
+                android:endColor="#0A0A0F" />
+        </shape>
+    </item>
+    
+    <!-- You can insert your own image assets here -->
+    <!-- <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/launch_image" />
+    </item> -->
+</layer-list>

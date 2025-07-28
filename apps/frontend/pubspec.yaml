@@ -1,0 +1,81 @@
+name: astratrade_app
+description: "Trading Practice - Mobile Starknet Trading with Extended API"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.5.1
+  hooks_riverpod: ^2.3.6
+  flutter_hooks: ^0.20.5
+  provider: ^6.1.1
+
+  # Starknet Core SDK
+  starknet: ^0.1.2
+  starknet_provider: ^0.1.1+2
+
+  # Cryptography & Wallets
+  bip39: ^1.0.6
+  bip32: ^2.0.0
+  pointycastle: ^3.9.1
+  crypto: ^3.0.3
+
+  # Secure Storage
+  flutter_secure_storage: ^9.0.0
+
+  # HTTP and Network
+  http: ^1.2.0
+  dio: ^5.4.0
+
+  # Storage & Persistence
+  shared_preferences: ^2.2.2
+  hive_flutter: ^1.1.0
+
+  # Environment & Configuration
+  flutter_dotenv: ^5.1.0
+
+  # JSON and Serialization
+  json_annotation: ^4.9.0
+
+  # Subscription/Payments
+  purchases_flutter: ^6.29.3
+
+  # Basic UI
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.1.0
+
+  # Web3 Authentication (existing)
+  web3auth_flutter: ^3.1.0
+
+  # Mobile Native Features
+  flutter_local_notifications: ^17.2.2
+  permission_handler: ^11.3.1
+  vibration: ^1.8.4
+  share_plus: ^11.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.5.4
+  freezed: ^2.4.7
+  json_serializable: ^6.7.1
+  mocktail: ^1.0.0
+  mockito: ^5.4.6
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/animations/
+    - assets/audio/
+    - assets/images/
+    - assets/fonts/
+    - .env

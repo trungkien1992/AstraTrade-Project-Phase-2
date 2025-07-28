@@ -1,0 +1,193 @@
+# AstraTrade Security & Build Artifacts
+
+# =====================================
+# CRITICAL: Sensitive Files (NEVER COMMIT)
+# =====================================
+.env.deployment.local
+.env.production
+.env.secrets
+*.key
+*.pem
+private_keys/
+secrets/
+secrets_local.dart
+*_secrets.dart
+*.keystore
+google-services.json
+GoogleService-Info.plist
+.env.local
+
+# Environment Files (except examples)
+.env*
+!.env.example
+!.env.deployment.example
+
+# =====================================
+# Build Artifacts & Generated Files
+# =====================================
+target/
+build/
+dist/
+*.wasm
+*.json.gz
+
+# Platform-specific builds
+apps/astratrade-frontend/build/
+apps/astratrade-frontend/android/app/build/
+apps/astratrade-frontend/ios/build/
+astratrade-frontend/linux/build/
+astratrade-frontend/macos/build/
+astratrade-frontend/windows/build/
+
+# =====================================
+# Language-specific Ignores
+# =====================================
+
+# Flutter Additional
+flutter_pid.txt
+flutter_run.log
+.flutter-plugins-dependencies
+lib/generated/
+
+# Python Additional  
+*.pyc
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Development
+*.pid
+*.tmp
+demo.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+apps/astratrade-backend/venv/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+package-lock.json
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+.metadata
+pubspec.lock
+
+# Cairo/Starknet
+cairo_programs/
+*.sierra
+*.casm
+Scarb.lock
+
+# =====================================
+# Development & IDE
+# =====================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =====================================
+# Additional temporary files
+# =====================================
+*.tmp
+*.temp
+
+# =====================================
+# Logs & Temporary Files
+# =====================================
+*.log
+logs/
+deployment_logs/
+test_results/
+temp/
+tmp/
+*.tmp
+*.temp
+
+# =====================================
+# Database Files
+# =====================================
+*.db
+*.sqlite
+*.sqlite3
+
+# =====================================
+# Docker & Deployment
+# =====================================
+.dockerignore
+docker-compose.override.yml
+
+# =====================================
+# Project Structure Organization
+# =====================================
+# New structure paths
+apps/*/build/
+apps/*/venv/
+packages/*/target/
+tools/*/venv/
+packages/contracts/contracts/*/deployment_env/
+packages/contracts/contracts/*/target/
+
+# Cleanup: Old deprecated paths
+astratrade-frontend/
+astratrade_app/
+astratrade_backend/
+src/contracts/paymaster/
+Tycoon_backend_infrastructure_for_reference.md
+session_review.md
+todo.md
+
+# Documentation
+docs/architecture/
+docs/security/
+docs/development/
+docs/smart_contracts/
+docs/integrations/
+docs/README.md
+
+# =====================================
+# Mobile Platform Dependencies
+# =====================================
+# iOS
+apps/astratrade-frontend/ios/Pods/
+apps/astratrade-frontend/ios/Podfile.lock
+apps/astratrade-frontend/ios/.symlinks/
+
+# Android
+apps/astratrade-frontend/android/.gradle/
+apps/astratrade-frontend/android/app/*.jks
+apps/astratrade-frontend/android/key.properties
+apps/astratrade-frontend/android/local.propertiesdeployment_env_311/
+venv/
+venv_test/
+deployment_env_311/
+venv/
+venv_test/
