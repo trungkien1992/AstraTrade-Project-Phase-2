@@ -13,8 +13,7 @@ This repository contains the complete implementation for the StarkWare bounty "B
 │   └── contracts/         # Cairo smart contracts
 ├── docs/                  # Comprehensive documentation
 ├── scripts/               # Deployment and testing scripts
-├── tests/                 # Unit and integration tests
-├── bounty_submission/     # Bounty-specific materials
+├── tests/                 # Unit and integration 
 ├── README.md              # Main project documentation
 ├── BOUNTY_SUBMISSION_README.md  # Bounty submission overview
 ├── ROAD_MAP.md            # Project roadmap
