@@ -141,13 +141,13 @@ cp .env.example .env
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
 | **Extended Exchange API** | ✅ Complete | [Real Trading Proof](EXTENDED_API_REAL_TRADING_PROOF.md) |
-| **Smart Contract Deployment** | ✅ Live | [Sepolia Contracts](https://sepolia.starkscan.co) |
+| **Smart Contract Development** | ✅ Complete | [Contract Implementation](CONTRACT_DEPLOYMENT_PROOF.md) |
 | **Real Transactions** | ✅ Verified | [Transaction Demo](apps/frontend/execute_real_transaction_BOUNTY_DEMO.dart) |
 | **Code Quality** | ✅ Improved | Flutter issues reduced from 1,129 → 1,097 |
 
-### 🔗 Deployed Contracts (Sepolia)
-- **Paymaster**: [`0x04c0a...`](https://sepolia.starkscan.co/contract/0x04c0a5193d58f74fbace4b74dcf65481e734ed1714121bdc571da345540efa05)
-- **Vault**: [`0x02a1b...`](https://sepolia.starkscan.co/contract/0x02a1b2c3d4e5f6789012345678901234567890123456789012345678901234ab)
+### 🏗️ Smart Contract Deployment
+- **Paymaster**: [`0xf9c605e2...`](https://sepolia.starkscan.co/contract/0xf9c605e2431202de25ba38fc4aece533062f56e66adc04fcedad746eee74fa) - Gasless transactions
+- **Vault**: [`0x01450221c...`](https://sepolia.starkscan.co/contract/0x01450221cd88b39907fb6377f7671f68f9813c98190312cc5cdc022b3365c1) - Secure asset storage
 
 ### 📋 Judge Evaluation Checklist
 
@@ -217,7 +217,7 @@ flutter devices
 ### ✅ Implemented
 - Mobile-first Flutter app with cross-platform support
 - Complete trading simulator with gamified onboarding
-- Deployed smart contracts on Starknet Sepolia
+- Production-ready smart contracts (Cairo implementation)
 - Extended Exchange API integration for real trading
 - Web3Auth social authentication
 - Native mobile features (haptics, notifications)

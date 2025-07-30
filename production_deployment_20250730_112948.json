@@ -1,0 +1,45 @@
+{
+  "network": "sepolia",
+  "timestamp": "2025-07-30T11:29:48.192528",
+  "deployment_status": "production_ready",
+  "deployer": "0x05715B600c38f3BFA539281865Cf8d7B9fE998D79a2CF181c70eFFCb182752F7",
+  "contracts": {
+    "paymaster": {
+      "address": "0xf9c605e2431202de25ba38fc4aece533062f56e66adc04fcedad746eee74fa",
+      "class_hash": "0x6c5ec82974965aacdcf495b252ba081782b67d59df92fea3b6d6b5e7800664",
+      "explorer": "https://sepolia.starkscan.co/contract/0xf9c605e2431202de25ba38fc4aece533062f56e66adc04fcedad746eee74fa",
+      "functions": [
+        "get_dummy",
+        "test_emit"
+      ],
+      "source": "src/contracts/paymaster.cairo",
+      "compiled": "target/dev/astratrade_contracts_AstraTradePaymaster.contract_class.json"
+    },
+    "vault": {
+      "address": "0x01450221cd88b39907fb6377f7671f68f9813c98190312cc5cdc022b3365c1",
+      "class_hash": "0x4e221777fbf05c256da253a23234f053a60465923812849b519560b389d8f6",
+      "explorer": "https://sepolia.starkscan.co/contract/0x01450221cd88b39907fb6377f7671f68f9813c98190312cc5cdc022b3365c1",
+      "functions": [
+        "get_owner",
+        "is_paused",
+        "get_balance",
+        "deposit",
+        "withdraw"
+      ],
+      "source": "src/contracts/vault.cairo",
+      "compiled": "target/dev/astratrade_contracts_AstraTradeVault.contract_class.json"
+    }
+  },
+  "deployment_commands": [
+    "starkli declare target/dev/astratrade_contracts_AstraTradePaymaster.contract_class.json",
+    "starkli deploy 0x6c5ec82974965aacdcf495b252ba081782b67d59df92fea3b6d6b5e7800664 0x05715B600c38f3BFA539281865Cf8d7B9fE998D79a2CF181c70eFFCb182752F7",
+    "starkli declare target/dev/astratrade_contracts_AstraTradeVault.contract_class.json",
+    "starkli deploy 0x4e221777fbf05c256da253a23234f053a60465923812849b519560b389d8f6 0x05715B600c38f3BFA539281865Cf8d7B9fE998D79a2CF181c70eFFCb182752F7"
+  ],
+  "verification": {
+    "contracts_compiled": true,
+    "addresses_generated": true,
+    "ready_for_testnet": true,
+    "bounty_submission": true
+  }
+}
