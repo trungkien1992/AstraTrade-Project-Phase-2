@@ -22,7 +22,7 @@ This document provides comprehensive evidence of **LIVE trading capability** thr
 ### 🚀 **Production Components Implemented**
 
 #### **1. Production API Client**
-**File**: [`apps/frontend/lib/api/production_extended_exchange_client.dart`](apps/frontend/lib/api/production_extended_exchange_client.dart)
+**File**: [`apps/frontend/lib/api/production_extended_exchange_client.dart`](../apps/frontend/lib/api/production_extended_exchange_client.dart)
 - ✅ **HMAC Authentication** - Secure signature generation
 - ✅ **Live Order Execution** - Real trade placement capability  
 - ✅ **Market Data Integration** - Real-time price feeds
@@ -30,14 +30,14 @@ This document provides comprehensive evidence of **LIVE trading capability** thr
 - ✅ **Production Error Handling** - Retry logic and timeouts
 
 #### **2. Live Trading Service**
-**File**: [`apps/frontend/lib/services/live_trading_service.dart`](apps/frontend/lib/services/live_trading_service.dart)
+**File**: [`apps/frontend/lib/services/live_trading_service.dart`](../apps/frontend/lib/services/live_trading_service.dart)
 - ✅ **Real Trade Execution** - Actual orders on Extended Exchange
 - ✅ **Environment Configuration** - Production API key management
 - ✅ **Trading Lifecycle** - Complete order management
 - ✅ **Flutter Integration** - Native mobile trading service
 
 #### **3. Interactive Demo System**
-**File**: [`apps/frontend/lib/demos/live_trading_demo.dart`](apps/frontend/lib/demos/live_trading_demo.dart)
+**File**: [`apps/frontend/lib/demos/live_trading_demo.dart`](../apps/frontend/lib/demos/live_trading_demo.dart)
 - ✅ **Live API Testing** - Real-time connectivity verification
 - ✅ **Judge Evaluation Interface** - Interactive bounty assessment
 - ✅ **Trading Demonstration** - Live capability showcase
@@ -126,7 +126,7 @@ class LiveTradingService {
 ## 🧪 LIVE TESTING & VERIFICATION
 
 ### **Command-Line API Testing**
-**File**: [`demonstrate_live_trading.py`](demonstrate_live_trading.py)
+**File**: [`scripts/testing/test_real_extended_exchange_trading.py`](../scripts/testing/test_real_extended_exchange_trading.py)
 
 ```bash
 # Run live API connectivity test
@@ -153,7 +153,7 @@ The Flutter app includes a complete interactive demonstration that:
 5. **Provides judge evaluation interface** for bounty assessment
 
 ### **Live Test Results**
-**File**: [`live_trading_demo_20250730_113345.json`](live_trading_demo_20250730_113345.json)
+**File**: [`apps/frontend/execute_real_transaction_BOUNTY_DEMO.dart`](../apps/frontend/execute_real_transaction_BOUNTY_DEMO.dart)
 
 ```json
 {
@@ -289,9 +289,9 @@ flutter run -d chrome
 ```
 
 #### **3. Code Review**
-- **Production API Client**: `apps/frontend/lib/api/production_extended_exchange_client.dart`
-- **Live Trading Service**: `apps/frontend/lib/services/live_trading_service.dart`
-- **Integration Demo**: `apps/frontend/lib/demos/live_trading_demo.dart`
+- **Production API Client**: [`apps/frontend/lib/api/production_extended_exchange_client.dart`](../apps/frontend/lib/api/production_extended_exchange_client.dart)
+- **Live Trading Service**: [`apps/frontend/lib/services/live_trading_service.dart`](../apps/frontend/lib/services/live_trading_service.dart)
+- **Integration Demo**: [`apps/frontend/execute_real_transaction_BOUNTY_DEMO.dart`](../apps/frontend/execute_real_transaction_BOUNTY_DEMO.dart)
 
 ### **Expected Verification Results**:
 - ✅ **API Connectivity**: Extended Exchange endpoints accessible
