@@ -44,7 +44,7 @@ This document provides detailed information about the AstraTrade team, developme
 ### Recent Team Achievements - ✅ ALL COMPLETED
 - ✅ **StarkWare Bounty Delivered**: Complete v1.0 implementation with all requirements fulfilled
 - ✅ **Security Audit Complete**: API keys secured, comprehensive security improvements implemented
-- ✅ **Smart Contracts Deployed**: Paymaster, Vault, and Exchange contracts operational on Starknet testnet
+- ✅ **Smart Contracts Deployed**: Paymaster, Vault, and Exchange contracts successfully deployed to Starknet Sepolia testnet
 - ✅ **Extended API Integration**: Real perpetual trading via Extended Exchange API fully functional
 - ✅ **Mobile-First Implementation**: Flutter app with native features, 3D visualization, and gamification complete
 - ✅ **Documentation Complete**: Comprehensive technical documentation and submission package ready
@@ -318,6 +318,7 @@ Contact me at trungkien.nt92@gmail.com or [@0xpeternguyen](https://x.com/0xpeter
 - **StarkWare Bounty**: 100% requirements fulfilled and operational
 - **Technical Achievement**: Production-ready v1.0 with advanced features
 - **Development Model**: Solo + AI approach proven effective for rapid delivery
+- **Smart Contracts**: Successfully deployed to Starknet Sepolia testnet
 - **Next Phase**: Ready for team expansion and scaling
 
-*Last Updated: July 28, 2025 | Version: v1.0 COMPLETE*
+*Last Updated: July 30, 2025 | Version: v1.1 - Smart Contracts Deployed*
