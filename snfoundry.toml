@@ -1,4 +1,0 @@
-[sncast.sepolia]
-account = "admin"
-accounts-file = "./accounts.json"
-url = "https://starknet-sepolia.public.blastapi.io"
