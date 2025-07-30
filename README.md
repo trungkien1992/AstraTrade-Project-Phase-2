@@ -66,15 +66,15 @@ AstraTrade is a **gamified perpetuals trading app** that makes complex blockchai
 
 Choose **Beginner**, **Intermediate**, or **Advanced** for personalized learning
 
-### 2. Virtual Balance Setup  
-<img width="300" src="docs/images/practice-amount.png" alt="Virtual Balance" />
-
-Set practice funds from **$50 to $10,000** for realistic trading simulation
-
-### 3. Define Learning Goals
+### 2. Define Learning Goals
 <img width="300" src="docs/images/trading-goals.png" alt="Learning Goals" />
 
 Select objectives: **fundamentals**, **strategies**, **testing**, **risk management**
+
+### 3. Notification Settings
+<img width="300" src="docs/images/notification-settings.png" alt="Notification Settings" />
+
+Configure **daily practice reminders**, **progress reports**, and **market alerts**
 
 ### 4. Ready to Trade
 <img width="300" src="docs/images/setup-complete.png" alt="Setup Complete" />
@@ -85,11 +85,6 @@ Personalized environment configured and **ready for trading**
 <img width="300" src="docs/images/place-trade.png" alt="Trading Interface" />
 
 Intuitive interface: **Amount** → **BUY/SELL** → **Asset** → **Execute**
-
-### 6. View Results
-<img width="300" src="docs/images/trade-result.png" alt="Trade Results" />
-
-Instant feedback with **performance metrics** and **progress tracking**
 
 ---
 

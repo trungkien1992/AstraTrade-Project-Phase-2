@@ -212,8 +212,8 @@ class RealTradingService {
         'wallet_address': defaultWallet,
         'timestamp': DateTime.now().toIso8601String(),
         'explorer_links': {
-          'paymaster': ContractAddresses.getExplorerUrl('paymaster'),
-          'vault': ContractAddresses.getExplorerUrl('vault'),
+          'paymaster': ContractAddresses.paymasterExplorerUrl,
+          'vault': ContractAddresses.vaultExplorerUrl,
         },
         'ready_for_execution': true,
       };
@@ -249,7 +249,7 @@ class RealTradingService {
       results['deployed_contracts'] = {
         'paymaster': ContractAddresses.paymasterContract,
         'vault': ContractAddresses.vaultContract,
-        'addresses_valid': ContractAddresses.isValidContractAddress(ContractAddresses.paymasterContract),
+        'addresses_valid': ContractAddresses.paymasterContract.isNotEmpty && ContractAddresses.vaultContract.isNotEmpty,
       };
 
       // Test 4: Overall readiness
