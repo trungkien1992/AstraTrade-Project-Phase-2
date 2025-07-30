@@ -1,0 +1,10 @@
+{
+  "name": "astratrade-deployment",
+  "version": "1.0.0",
+  "description": "AstraTrade contract deployment script",
+  "main": "deploy.js",
+  "type": "module",
+  "dependencies": {
+    "starknet": "^6.17.0"
+  }
+}

@@ -2,75 +2,33 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
-import 'package:crypto/crypto.dart';
 import 'secure_storage_service.dart';
 
 /// Production-ready service for managing Extended Exchange API keys and user accounts
 class ExtendedExchangeApiService {
   static const String _baseUrl = 'http://localhost:3001/proxy/extended-exchange';
-  static const String _userRegistrationEndpoint = '/api/v1/users/register';
-  static const String _apiKeyValidationEndpoint = '/api/v1/users/validate';
-  static const String _apiKeyStatusEndpoint = '/api/v1/users/status';
   
   static String get baseUrl => _baseUrl;
   
-  /// Create a new user account with Extended Exchange and get unique API key
-  static Future<String> createUserAccount(String starknetAddress) async {
+  /// Save user's Extended Exchange API key
+  static Future<void> saveUserApiKey(String apiKey, {String? apiSecret, String? passphrase}) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl$_userRegistrationEndpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-          'X-App-Integration': 'astratrade',
-        },
-        body: jsonEncode({
-          'starknet_address': starknetAddress,
-          'user_type': 'individual',
-          'app_integration': 'astratrade',
-          'environment': kDebugMode ? 'testnet' : 'mainnet',
-        }),
+      // Store API key securely
+      await SecureStorageService.instance.storeTradingCredentials(
+        apiKey: apiKey,
+        apiSecret: apiSecret ?? '',
+        passphrase: passphrase,
       );
-
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final apiKey = data['api_key'];
-        final accountId = data['account_id'];
-        
-        if (apiKey == null || apiKey.isEmpty) {
-          throw Exception('Invalid API key received from Extended Exchange');
-        }
-        
-        // Store API key securely with wallet address as identifier
-        await SecureStorageService.instance.storeTradingCredentials(
-          apiKey: apiKey,
-          apiSecret: data['api_secret'] ?? '',
-          passphrase: data['passphrase'],
-        );
-        
-        // Store account metadata
-        await SecureStorageService.instance.storeUserData({
-          'extended_exchange_account_id': accountId,
-          'starknet_address': starknetAddress,
-          'api_key_created': DateTime.now().toIso8601String(),
-        });
-        
-        debugPrint('✅ Extended Exchange account created successfully');
-        return apiKey;
-      } else {
-        final error = jsonDecode(response.body);
-        throw Exception('Extended Exchange registration failed: ${error['message'] ?? response.statusCode}');
-      }
-    } on http.ClientException catch (e) {
-      log('❌ Network error creating Extended Exchange account: $e');
-      throw Exception('Network connection failed. Please check your internet connection.');
+      
+      debugPrint('✅ Extended Exchange API key saved successfully');
     } catch (e) {
-      log('❌ Failed to create Extended Exchange account: $e');
-      throw Exception('Account creation failed: $e');
+      log('❌ Failed to save Extended Exchange API key: $e');
+      throw Exception('Failed to save API key: $e');
     }
   }
 
-  /// Get stored API key for a specific wallet address
-  static Future<String?> getStoredApiKey(String starknetAddress) async {
+  /// Get stored API key
+  static Future<String?> getStoredApiKey() async {
     try {
       final credentials = await SecureStorageService.instance.getTradingCredentials();
       return credentials?['api_key'];
@@ -80,40 +38,38 @@ class ExtendedExchangeApiService {
     }
   }
 
-  /// Validate if an API key is active and working
+  /// Validate if an API key is active and working by making a real API call
   static Future<bool> validateApiKey(String apiKey) async {
     try {
+      // Make a simple authenticated request to verify the API key
       final response = await http.get(
-        Uri.parse('$baseUrl$_apiKeyValidationEndpoint'),
+        Uri.parse('$baseUrl/api/v1/account/balance'), // Using a real endpoint
         headers: {
           'Authorization': 'Bearer $apiKey',
           'X-App-Integration': 'astratrade',
         },
       );
 
-      return response.statusCode == 200;
+      // If we get a 200 or 403 (valid key but no permission), the key is valid
+      // If we get 401, the key is invalid
+      return response.statusCode == 200 || response.statusCode == 403;
     } catch (e) {
       log('❌ API key validation failed: $e');
       return false;
     }
   }
 
-  /// Get API key usage statistics for a user
+  /// Get API key usage statistics (placeholder - would need Extended Exchange to provide this)
   static Future<Map<String, dynamic>> getApiKeyUsage(String apiKey) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl$_apiKeyStatusEndpoint'),
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'X-App-Integration': 'astratrade',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Failed to get usage statistics: ${response.statusCode}');
-      }
+      // For now, we'll return mock data since Extended Exchange doesn't provide this endpoint
+      // In a real implementation, you would call the actual Extended Exchange endpoint
+      return {
+        'requests_today': 0,
+        'requests_limit': 1000,
+        'last_used': DateTime.now().toIso8601String(),
+        'is_active': true,
+      };
     } catch (e) {
       log('❌ Failed to get API key usage: $e');
       return {
@@ -126,11 +82,11 @@ class ExtendedExchangeApiService {
     }
   }
 
-  /// Ensure user has valid API key, create if needed
-  static Future<String> ensureUserApiKey(String starknetAddress) async {
+  /// Ensure user has valid API key, prompt for entry if needed
+  static Future<String> ensureUserApiKey() async {
     try {
       // Check if we already have a stored API key
-      final existingApiKey = await getStoredApiKey(starknetAddress);
+      final existingApiKey = await getStoredApiKey();
       if (existingApiKey != null) {
         // Validate existing key
         final isValid = await validateApiKey(existingApiKey);
@@ -138,52 +94,37 @@ class ExtendedExchangeApiService {
           debugPrint('✅ Using existing valid API key');
           return existingApiKey;
         } else {
-          debugPrint('⚠️ Existing API key invalid, creating new one');
+          debugPrint('⚠️ Existing API key invalid, please enter a new one');
+          throw Exception('Invalid API key stored. Please enter a new one.');
         }
       }
 
-      // Create new API key
-      debugPrint('🔄 Creating new Extended Exchange account...');
-      return await createUserAccount(starknetAddress);
+      // If no API key is stored, throw an exception to prompt user entry
+      throw Exception('No API key found. Please enter your Extended Exchange API key.');
     } catch (e) {
       log('❌ Failed to ensure user API key: $e');
-      throw Exception('Failed to setup trading account: $e');
+      throw Exception('API key setup required: $e');
     }
   }
 
-  /// Generate API key specifically for real trading (with user feedback)
-  /// This is called when user initiates their first real trade
-  static Future<String> generateApiKeyForTrading(String starknetAddress) async {
+  /// Prompt user to enter API key for real trading
+  static Future<String> promptForApiKey() async {
     try {
-      debugPrint('🚀 Generating API key for real trading...');
-      
-      // Check if we already have a valid API key
-      final existingApiKey = await getStoredApiKey(starknetAddress);
-      if (existingApiKey != null) {
-        final isValid = await validateApiKey(existingApiKey);
-        if (isValid) {
-          debugPrint('✅ Using existing valid API key for trading');
-          return existingApiKey;
-        }
-      }
-      
-      // Generate new API key for trading
-      debugPrint('⚡ Creating new Extended Exchange account for trading...');
-      final apiKey = await ensureUserApiKey(starknetAddress);
-      
-      debugPrint('✅ API key generated successfully for real trading');
-      return apiKey;
+      debugPrint('🚀 Please enter your Extended Exchange API key...');
+      // This would be implemented in the UI layer to prompt the user
+      // For now, we'll throw an exception to indicate user action is needed
+      throw Exception('User API key entry required');
     } catch (e) {
-      log('❌ Failed to generate API key for trading: $e');
-      throw TradingSetupException('Failed to setup trading account: $e');
+      log('❌ Failed to prompt for API key: $e');
+      throw Exception('Failed to setup trading account: ${e.toString()}');
     }
   }
 
-  /// Clear API key for specific wallet (logout/cleanup)
-  static Future<void> clearApiKey(String starknetAddress) async {
+  /// Clear API key (logout/cleanup)
+  static Future<void> clearApiKey() async {
     try {
       await SecureStorageService.instance.clearKey('trading_credentials');
-      debugPrint('✅ API key cleared for wallet: ${starknetAddress.substring(0, 10)}...');
+      debugPrint('✅ Extended Exchange API key cleared');
     } catch (e) {
       log('❌ Failed to clear API key: $e');
     }
@@ -565,9 +506,9 @@ class ExtendedExchangeException implements Exception {
   
   @override
   String toString() {
-    return 'ExtendedExchangeException: $message' +
-           (statusCode != null ? ' (Status: $statusCode)' : '') +
-           (errorCode != null ? ' (Code: $errorCode)' : '');
+    return 'ExtendedExchangeException: ${message.toString()}' +
+           (statusCode != null ? ' (Status: ${statusCode.toString()})' : '') +
+           (errorCode != null ? ' (Code: ${errorCode.toString()})' : '');
   }
 }
 
@@ -578,5 +519,5 @@ class TradingSetupException implements Exception {
   TradingSetupException(this.message);
   
   @override
-  String toString() => 'TradingSetupException: $message';
+  String toString() => 'TradingSetupException: ${message.toString()}';
 }

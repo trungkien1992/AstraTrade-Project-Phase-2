@@ -195,19 +195,20 @@ class UnifiedWalletSetupService {
     debugPrint('🔧 Setting up Extended Exchange integration...');
     
     try {
-      // TEMPORARILY DISABLED: Create individual user account with Extended Exchange
-      // Waiting for Extended Exchange team response on user registration endpoints
-      debugPrint('⚠️ Extended Exchange API integration temporarily disabled');
-      debugPrint('⚠️ Using deterministic API key for testing while waiting for response');
+      // Instead of creating an account, we'll prompt the user to enter their API key
+      debugPrint('⚠️ Extended Exchange API integration requires user to enter their own API key');
+      debugPrint('⚠️ Please prompt user to enter their Extended Exchange API key');
       
-      final apiKey = ExtendedExchangeApiService.generateDeterministicApiKey(starknetAddress);
+      // For now, we'll use a placeholder - in a real implementation, 
+      // you would prompt the user through the UI to enter their API key
+      final apiKey = await ExtendedExchangeApiService.promptForApiKey();
       
-      debugPrint('✅ Extended Exchange integration complete (fallback): ${apiKey.substring(0, 8)}...');
+      debugPrint('✅ Extended Exchange integration complete with user-provided key');
       return apiKey;
       
     } catch (e) {
-      debugPrint('❌ Extended Exchange setup failed: $e');
-      throw WalletSetupException('Failed to create Extended Exchange account: $e');
+      debugPrint('❌ Extended Exchange setup requires user action: $e');
+      throw WalletSetupException('Extended Exchange API key required: $e');
     }
   }
 
@@ -299,7 +300,7 @@ class UnifiedWalletSetupService {
   }
 
   /// Get wallet trading status
-  static Future<WalletTradingStatus> getWalletTradingStatus(String starknetAddress) async {
+  static Future<WalletTradingStatus> getWalletTradingStatus() async {
     try {
       // Check if Extended Exchange credentials exist
       final credentials = await SecureStorageService.instance.getTradingCredentials();
@@ -309,7 +310,7 @@ class UnifiedWalletSetupService {
         return WalletTradingStatus(
           isReady: false,
           hasApiKey: false,
-          message: 'No Extended Exchange API key found',
+          message: 'No Extended Exchange API key found. Please enter your API key.',
         );
       }
       
@@ -320,7 +321,7 @@ class UnifiedWalletSetupService {
         isReady: isValid,
         hasApiKey: true,
         apiKey: apiKey,
-        message: isValid ? 'Trading ready' : 'API key invalid',
+        message: isValid ? 'Trading ready' : 'API key invalid. Please enter a valid API key.',
       );
       
     } catch (e) {
@@ -342,8 +343,8 @@ class UnifiedWalletSetupService {
         return existingUser;
       }
       
-      // Generate Extended Exchange API key
-      final apiKey = await _setupExtendedExchangeIntegration(existingUser.starknetAddress);
+      // Prompt user to enter their API key
+      final apiKey = await ExtendedExchangeApiService.promptForApiKey();
       
       // Store API key
       await SecureStorageService.instance.storeTradingCredentials(

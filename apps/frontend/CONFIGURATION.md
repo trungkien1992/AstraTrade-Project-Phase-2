@@ -18,7 +18,23 @@ static const String web3AuthClientId = 'YOUR_ACTUAL_CLIENT_ID_HERE';
 static const String web3AuthDomain = 'your-actual-domain.com';
 ```
 
-### 2. Platform Configuration
+### 2. Extended Exchange API Key Setup
+
+**Step 1: Get Extended Exchange API Key**
+1. Visit the [Extended Exchange website](https://extended.exchange)
+2. Log in to your account
+3. Go to Account Settings > API Keys
+4. Create a new API key with trading permissions
+5. Copy the API key
+
+**Step 2: Enter API Key in AstraTrade**
+1. Launch AstraTrade
+2. Navigate to the main hub screen
+3. Click the "API Key" button in the user controls section
+4. Enter your Extended Exchange API key in the provided form
+5. AstraTrade will validate the key and save it securely
+
+### 3. Platform Configuration
 
 **iOS Configuration (`ios/Runner/Info.plist`):**
 Add URL scheme for Web3Auth redirects:
@@ -57,7 +73,7 @@ Add intent filter in your MainActivity:
 </activity>
 ```
 
-### 3. Environment Configuration
+### 4. Environment Configuration
 
 Update the environment in `lib/utils/constants.dart`:
 

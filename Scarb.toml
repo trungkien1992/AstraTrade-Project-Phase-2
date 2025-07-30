@@ -8,6 +8,9 @@ starknet = ">=2.8.0"
 [cairo]
 sierra-replace-ids = true
 
+[tool.cairo]
+casm = true
+
 [[target.starknet-contract]]
 
 [[bin]]

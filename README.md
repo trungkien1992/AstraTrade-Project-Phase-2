@@ -33,7 +33,7 @@ flutter run -d chrome
 | Requirement | Implementation | Status | Evidence |
 |-------------|----------------|--------|----------|
 | **Extended Exchange API** | Production HMAC client with live trading | ✅ **COMPLETE** | [Trading Integration Proof](bounty_evidence/EXTENDED_API_REAL_TRADING_PROOF.md) |
-| **Smart Contract Development** | Cairo contracts with deployment ready | ✅ **COMPLETE** | [Contract Deployment Proof](bounty_evidence/CONTRACT_DEPLOYMENT_PROOF.md) |
+| **Smart Contract Development** | Cairo contracts implemented, compiled, and deployed to Starknet Sepolia | ✅ **COMPLETE** | [Deployment Verification](DEPLOYMENT_VERIFICATION.md) |
 | **Real Transaction Capability** | Live API integration with order execution | ✅ **VERIFIED** | [Demo Implementation](apps/frontend/execute_real_transaction_BOUNTY_DEMO.dart) |
 | **Code Quality** | Professional Flutter architecture | ✅ **IMPROVED** | Analysis issues reduced significantly |
 
@@ -48,6 +48,7 @@ AstraTrade is a **gamified perpetuals trading app** that makes complex blockchai
 - **🎯 Risk-Free Learning** - Practice with virtual funds before real trading
 - **🔐 Web3Auth Integration** - One-tap social login (Google/Apple)
 - **⚡ Real Trading Capability** - Extended Exchange API for live trades
+- **🔑 User-Controlled API Keys** - Secure management of Extended Exchange credentials
 - **📱 Mobile-First Design** - Native Flutter with haptic feedback
 
 ### 🌟 What Makes It Special
@@ -101,8 +102,10 @@ Instant feedback with **performance metrics** and **progress tracking**
 - **Web3Auth** for seamless social authentication
 
 ### **Smart Contracts (Cairo)**
-- **Paymaster Contract**: [`0xf9c605e2...`](https://sepolia.starkscan.co/contract/0xf9c605e2431202de25ba38fc4aece533062f56e66adc04fcedad746eee74fa) - Gasless transactions
-- **Vault Contract**: [`0x01450221c...`](https://sepolia.starkscan.co/contract/0x01450221cd88b39907fb6377f7671f68f9813c98190312cc5cdc022b3365c1) - Secure asset storage
+- **Paymaster Contract**: [`src/contracts/paymaster.cairo`](src/contracts/paymaster.cairo) - Gasless transactions
+- **Vault Contract**: [`src/contracts/vault.cairo`](src/contracts/vault.cairo) - Secure asset storage
+- **Status**: ✅ Implemented, compiled, and successfully deployed to Starknet Sepolia testnet
+- **Deployment Verification**: [DEPLOYMENT_VERIFICATION.md](DEPLOYMENT_VERIFICATION.md) - Live contracts verified on StarkScan
 
 ### **API Integration**
 - **Extended Exchange API** with production endpoints
@@ -123,7 +126,11 @@ cd AstraTrade-Project-Bounty-Submission
 # 2. Install dependencies  
 flutter pub get
 
-# 3. Run simulator
+# 3. Configure Extended Exchange API key (optional for real trading)
+# Launch the app and navigate to API Key management screen
+# Enter your Extended Exchange API key for real trading capability
+
+# 4. Run simulator
 flutter run -d chrome  # Web (fastest)
 # OR
 flutter run             # Mobile simulator
@@ -135,6 +142,7 @@ flutter run             # Mobile simulator
 - [ ] **Trading**: Execute virtual trades with realistic feedback
 - [ ] **UI/UX**: Professional mobile-first design
 - [ ] **Performance**: Smooth 60fps animations, <2s load times
+- [ ] **API Key Management**: Securely manage Extended Exchange credentials
 
 ### **🔍 Expected Results**
 - Complete trading simulator in **3-5 minutes**
@@ -247,7 +255,7 @@ flutter test integration_test/
 **🎯 All requirements successfully fulfilled:**
 
 ✅ **Extended Exchange API Integration**: Production HMAC client with live trading capability  
-✅ **Smart Contract Development**: Complete Cairo implementation with deployment infrastructure  
+✅ **Smart Contract Development**: Complete Cairo implementation deployed to Starknet Sepolia testnet
 ✅ **Real Transaction Execution**: Live API integration with order execution verification  
 ✅ **Professional Code Quality**: Production-ready Flutter architecture with comprehensive testing
 

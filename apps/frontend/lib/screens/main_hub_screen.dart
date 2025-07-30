@@ -2095,13 +2095,27 @@ class _MainHubScreenState extends ConsumerState<MainHubScreen> {
     }
   }
 
-  /// Build user control section with consolidated sign out button
+  /// Build user control section with API key management and sign out buttons
   Widget _buildUserControls() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          ElevatedButton.icon(
+            onPressed: () => _manageApiKey(context),
+            icon: const Icon(Icons.key, size: 18),
+            label: const Text('API Key'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[700],
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
           ElevatedButton.icon(
             onPressed: () => _signOut(context, ref),
             icon: const Icon(Icons.logout, size: 18),
@@ -2188,6 +2202,11 @@ class _MainHubScreenState extends ConsumerState<MainHubScreen> {
         ],
       ),
     );
+  }
+  
+  /// Manage Extended Exchange API Key
+  void _manageApiKey(BuildContext context) {
+    Navigator.of(context).pushNamed('/extended-exchange-api-key');
   }
 
   /// Show forge parameters overlay for hold-to-reveal interaction

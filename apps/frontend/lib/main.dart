@@ -4,6 +4,7 @@ import 'screens/trade_entry_screen.dart';
 import 'screens/trade_result_screen.dart';
 import 'screens/streak_tracker_screen.dart';
 import 'screens/analytics_dashboard_screen.dart';
+import 'screens/extended_exchange_api_key_screen.dart';
 import 'models/simple_trade.dart';
 import 'services/subscription_service.dart';
 import 'services/analytics_service.dart';
@@ -53,6 +54,7 @@ class AstraTradeApp extends StatelessWidget {
         '/trade-entry': (context) => const TradeEntryScreen(),
         '/streak-tracker': (context) => const StreakTrackerScreen(),
         '/analytics': (context) => const AnalyticsDashboardScreen(),
+        '/extended-exchange-api-key': (context) => const ExtendedExchangeApiKeyScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/trade-result') {
