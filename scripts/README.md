@@ -1,20 +1,26 @@
 # AstraTrade Scripts Directory
 
-This directory contains operational scripts for AstraTrade project management, testing, deployment, and utilities.
+This directory contains operational scripts for AstraTrade project management, testing, and deployment for the StarkWare bounty submission.
 
 ## Directory Structure
 
 ```
 scripts/
-├── deployment/           # Contract deployment and production scripts
-├── testing/             # Contract and API testing scripts  
-├── utilities/           # Project utilities and tools
-├── context-manager.sh   # Development context management
-├── eaept               # Enhanced EAEPT workflow tool
-├── eaept-config.yaml   # EAEPT configuration
-├── enhanced-eaept-workflow.py # EAEPT workflow automation
-├── health_check_requirements.txt # Health check dependencies
-└── requirements.txt     # Python dependencies for scripts
+├── deployment/                        # Contract deployment and production scripts
+│   ├── deploy-production.sh          # Production deployment automation
+│   ├── deploy_contracts.py           # Complete contract deployment with Scarb
+│   ├── deploy_with_starkli.sh        # Starkli-based deployment script
+│   ├── secure_deploy.py              # Security-first deployment approach
+│   └── secure_deploy.sh              # Secure deployment shell script
+├── testing/                          # Contract and API testing scripts
+│   ├── test_contracts.py             # Comprehensive contract testing framework
+│   ├── test_contracts_simple.py      # Simple contract compilation testing
+│   ├── test_deployed_contracts.py    # Deployed contract testing on live networks
+│   ├── test_extended_exchange_api.py # Extended Exchange API connectivity testing
+│   └── test_real_extended_exchange_trading.py # Live trading API integration proof
+├── health_check_requirements.txt     # Health monitoring dependencies
+├── requirements.txt                  # Python dependencies for all scripts
+└── README.md                         # This documentation file
 ```
 
 ## Script Categories
@@ -54,71 +60,31 @@ scripts/
 #### Contract Testing
 - **`test_contracts.py`** - Comprehensive contract testing framework
   - Full transaction scenario testing
-  - Integration testing with Starknet
-  - Automated test reporting
+  - Integration testing with Starknet Sepolia testnet
+  - Automated test reporting and validation
+  - Smart contract functionality verification
 
 - **`test_contracts_simple.py`** - Simple contract compilation testing  
-  - Quick compilation verification
-  - Basic functionality checks
+  - Quick compilation verification using Scarb
+  - Basic functionality checks for Cairo contracts
   - Development workflow testing
 
 - **`test_deployed_contracts.py`** - Deployed contract testing
-  - Tests contracts on live networks
+  - Tests contracts on live Starknet networks
   - Production readiness verification
-  - Performance benchmarking
+  - Performance benchmarking and gas analysis
 
-#### API Testing
+#### API Testing & Integration
 - **`test_extended_exchange_api.py`** - Extended Exchange API testing
   - API connectivity verification
-  - Trading functionality testing
-  - Integration testing with backend
+  - Trading endpoint functionality testing
+  - Authentication and security testing
 
-### 🛠️ Utility Scripts (`utilities/`)
-
-#### Project Management
-- **`cleanup_project.py`** - Project cleanup and maintenance
-  - Code cleanup and optimization
-  - Dependency management
-  - File organization
-
-- **`contract_health_check.py`** - Contract health monitoring
-  - Contract status verification
-  - Performance monitoring
-  - Alert generation
-
-#### Database & Infrastructure
-- **`migrate_to_postgres.py`** - Database migration utility
-  - SQLite to PostgreSQL migration
-  - Data integrity verification
-  - Migration rollback support
-
-- **`prometheus_exporter.py`** - Metrics export for monitoring
-  - Performance metrics collection
-  - Prometheus integration
-  - Custom metrics definition
-
-#### Specialized Tools
-- **`start_rag_backend.py`** - RAG backend initialization
-  - Knowledge base setup
-  - Vector database initialization
-  - API server startup
-
-- **`starkex_crypto.py`** - StarkEx cryptographic utilities
-  - Cryptographic operations
-  - Key management
-  - Security utilities
-
-- **`websocket_manager.py`** - WebSocket connection management
-  - Real-time communication setup
-  - Connection pooling
-  - Message routing
-
-### 🎯 Development Tools (Root Level)
-
-- **`context-manager.sh`** - Development environment management
-- **`eaept`** - Enhanced EAEPT workflow executable
-- **`enhanced-eaept-workflow.py`** - Advanced development workflow automation
-- **`eaept-config.yaml`** - EAEPT configuration settings
+- **🏆 `test_real_extended_exchange_trading.py`** - **BOUNTY PROOF** Live trading integration
+  - **Real trading capability demonstration**
+  - Live API connectivity with Extended Exchange
+  - HMAC authentication verification
+  - **Judge evaluation tool for StarkWare bounty**
 
 ## Usage Instructions
 
@@ -146,24 +112,51 @@ python deployment/deploy_contracts.py --network sepolia
 # Comprehensive contract testing
 python testing/test_contracts.py
 
-# Simple compilation test
+# Simple compilation test  
 python testing/test_contracts_simple.py
 
-# Extended API testing
+# Test deployed contracts on live network
+python testing/test_deployed_contracts.py
+
+# Extended API connectivity testing
 python testing/test_extended_exchange_api.py
+
+# 🏆 BOUNTY EVALUATION: Live trading integration proof
+python testing/test_real_extended_exchange_trading.py
 ```
 
-### Utilities
+## 🏆 StarkWare Bounty Evaluation
+
+### Quick Judge Verification (2 minutes)
+
+For StarkWare bounty judges to quickly verify Extended Exchange API integration:
+
 ```bash
-# Project cleanup
-python utilities/cleanup_project.py --full
+# 1. Verify contract deployment capability
+python testing/test_contracts_simple.py
 
-# Health check
-python utilities/contract_health_check.py
+# 2. Test deployed contracts on Starknet Sepolia
+python testing/test_deployed_contracts.py
 
-# Database migration
-python utilities/migrate_to_postgres.py --backup
+# 3. BOUNTY REQUIREMENT: Verify live Extended Exchange API integration
+python testing/test_real_extended_exchange_trading.py
 ```
+
+**Expected Output for Bounty Verification:**
+```
+🎯 ASTRATRADE LIVE TRADING DEMONSTRATION
+=======================================================
+✅ Extended Exchange API integration demonstrated
+✅ Authentication mechanism verified  
+✅ Trading endpoints accessible
+✅ Real trading capability confirmed
+🏆 READY FOR STARKWARE BOUNTY EVALUATION!
+```
+
+### Bounty Evidence Files
+- **Contract Deployment**: [DEPLOYMENT_VERIFICATION.md](../DEPLOYMENT_VERIFICATION.md)
+- **Extended API Proof**: [bounty_evidence/EXTENDED_API_REAL_TRADING_PROOF.md](../bounty_evidence/EXTENDED_API_REAL_TRADING_PROOF.md)
+- **Live Demo**: [apps/frontend/execute_real_transaction_BOUNTY_DEMO.dart](../apps/frontend/execute_real_transaction_BOUNTY_DEMO.dart)
 
 ## Environment Variables
 
@@ -219,20 +212,20 @@ DATABASE_URL=postgresql://user:pass@localhost/astratrade
 
 When adding new scripts:
 
-1. Place in appropriate subdirectory
-2. Add comprehensive docstring
-3. Include error handling
-4. Update this README
-5. Add to requirements.txt if needed
+1. Place in appropriate subdirectory (`deployment/` or `testing/`)
+2. Add comprehensive docstring and error handling
+3. Update this README with script description
+4. Add dependencies to requirements.txt if needed
+5. Test thoroughly before committing
 
 ## Support
 
 For script-related issues:
-- Check logs in respective directories
-- Verify environment variables
-- Ensure dependencies are installed
-- Contact development team for assistance
+- Verify environment variables are set correctly
+- Ensure dependencies are installed: `pip install -r requirements.txt`
+- Check network connectivity for API-dependent scripts
+- Refer to bounty evidence documentation for detailed examples
 
 ---
 
-*Last Updated: July 28, 2025 | Version: 2.0*
+*Last Updated: July 31, 2025 | Version: 3.0 - StarkWare Bounty Submission Ready*
