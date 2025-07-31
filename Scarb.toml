@@ -19,4 +19,12 @@ path = "src/contracts/vault.cairo"
 
 [[bin]]
 name = "paymaster" 
-path = "src/contracts/paymaster.cairo" 
+path = "src/contracts/paymaster.cairo"
+
+[[bin]]
+name = "exchange"
+path = "src/contracts/exchange.cairo"
+
+[[bin]]
+name = "exchange_v2"
+path = "src/contracts/exchange_v2.cairo" 
