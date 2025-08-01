@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(starkli class-hash-at:*)",
+      "Bash(grep:*)",
+      "Bash(starkli:*)",
+      "Bash(python3 -m pip install:*)",
+      "Bash(python3:*)",
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(python:*)",
+      "Bash(git add:*)",
+      "Bash(mv:*)"
+    ],
+    "deny": []
+  }
+}

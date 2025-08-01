@@ -42,5 +42,31 @@ temp/
 tmp/
 *.temp
 
-# Claude sessions
-sessions/
+# Development sessions (keep docs, ignore temp files)
+docs/development-sessions/claude-sessions/sessions/*.temp
+docs/development-sessions/backup-sessions/*.temp
+
+# Test artifacts
+**/test-results/
+**/coverage/
+**/.pytest_cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+**/target/
+**/build/
+**/dist/
+
+# Environment files
+.env.local
+.env.development
+.env.test
+secrets_local.*
+
+# Development cleanup
+DEVELOPMENT_CLEANUP_PLAN.md

@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:starknet/starknet.dart';
+import '../config/contract_addresses.dart';
 import '../models/paymaster_data.dart';
 
 class AstraTradePaymasterService {
@@ -707,7 +708,7 @@ class ContractCall {
 
 final paymasterServiceProvider = Provider<AstraTradePaymasterService>((ref) {
   return AstraTradePaymasterService(
-    contractAddress: '0x...', // Replace with actual deployed contract address
+    contractAddress: ContractAddresses.paymasterContract, // ✅ Updated with deployed address
     client: StarknetClient(), // Configure with appropriate network
   );
 });

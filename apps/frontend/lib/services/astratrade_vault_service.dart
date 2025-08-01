@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:starknet/starknet.dart';
+import '../config/contract_addresses.dart';
 import '../models/vault_data.dart';
 import '../models/asset_config.dart';
 import '../models/vault_benefits.dart';
@@ -614,7 +615,7 @@ class AstraTradeVaultService {
 
 final vaultServiceProvider = Provider<AstraTradeVaultService>((ref) {
   return AstraTradeVaultService(
-    contractAddress: '0x...', // Replace with actual deployed contract address
+    contractAddress: ContractAddresses.vaultContract, // ✅ Updated with deployed address
     client: StarknetClient(), // Configure with appropriate network
   );
 });

@@ -11,15 +11,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:starknet/starknet.dart';
 import '../config/starknet_config.dart';
+import '../config/contract_addresses.dart';
 import '../models/trade_result.dart';
 import '../models/user_progression.dart';
 import '../models/trading_position.dart';
 import '../models/trading_pair.dart';
 
 class AstraTradeExchangeV2Service {
-  static const String CONTRACT_ADDRESS = 'YOUR_DEPLOYED_CONTRACT_ADDRESS_HERE'; // Will be updated after deployment
+  static const String CONTRACT_ADDRESS = ContractAddresses.exchangeContract; // ✅ Updated with deployed address
   
   final StarknetProvider _provider;
   final Account _account;
@@ -767,3 +769,22 @@ class LevelUpEvent extends ExchangeEvent {
     required DateTime timestamp,
   }) : super(type: 'LevelUp', timestamp: timestamp);
 }
+
+// === Riverpod Providers ===
+
+final exchangeServiceProvider = Provider<AstraTradeExchangeV2Service>((ref) {
+  return AstraTradeExchangeV2Service(
+    provider: StarknetProvider(), // Configure with appropriate network
+    account: Account(), // Configure with user account
+  );
+});
+
+final userTradingDataProvider = FutureProvider.family<UserProgression, String>((ref, userAddress) async {
+  final service = ref.read(exchangeServiceProvider);
+  return service.getUserProgression(userAddress);
+});
+
+final tradingPositionsProvider = FutureProvider.family<List<TradingPosition>, String>((ref, userAddress) async {
+  final service = ref.read(exchangeServiceProvider);
+  return service.getUserPositions(userAddress);
+});
