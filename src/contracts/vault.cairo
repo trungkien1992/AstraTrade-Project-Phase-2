@@ -262,6 +262,10 @@ mod AstraTradeVault {
                 user_data.deposit_streak = 1;
             }
             
+            // Store values before moving struct
+            let new_total_value = user_data.total_collateral_value;
+            let health_factor = user_data.health_factor;
+            
             self.user_vault_data.entry(caller).write(user_data);
             
             // Update global stats
@@ -272,9 +276,9 @@ mod AstraTradeVault {
                 user: caller,
                 asset,
                 amount,
-                new_total_value: user_data.total_collateral_value,
+                new_total_value,
                 xp_earned,
-                health_factor: user_data.health_factor,
+                health_factor,
             });
             
             true
@@ -299,6 +303,7 @@ mod AstraTradeVault {
             let mut user_data = self.user_vault_data.entry(caller).read();
             user_data.total_collateral_value = self._calculate_total_collateral_value(caller);
             user_data.health_factor = new_health_factor;
+            let remaining_value = user_data.total_collateral_value;
             self.user_vault_data.entry(caller).write(user_data);
             
             // Update asset totals
@@ -314,7 +319,7 @@ mod AstraTradeVault {
                 user: caller,
                 asset,
                 amount,
-                remaining_value: user_data.total_collateral_value,
+                remaining_value,
                 health_factor: new_health_factor,
             });
             
@@ -474,7 +479,12 @@ mod AstraTradeVault {
             let mut user_data = self.user_vault_data.entry(caller).read();
             
             // Check if tier is already unlocked
-            let tier_mask = 1_u8.shl(tier);
+            let tier_mask = if tier == 0 { 1_u8 } 
+                           else if tier == 1 { 2_u8 }
+                           else if tier == 2 { 4_u8 }
+                           else if tier == 3 { 8_u8 }
+                           else if tier == 4 { 16_u8 }
+                           else { 1_u8 };
             if (user_data.unlocked_tiers & tier_mask) != 0 {
                 return false; // Already unlocked
             }
@@ -484,7 +494,7 @@ mod AstraTradeVault {
             assert(user_data.total_xp_earned >= xp_cost, 'Insufficient XP');
             
             // Unlock tier
-            user_data.unlocked_tiers |= tier_mask;
+            user_data.unlocked_tiers = user_data.unlocked_tiers | tier_mask;
             user_data.total_xp_earned -= xp_cost;
             self.user_vault_data.entry(caller).write(user_data);
             

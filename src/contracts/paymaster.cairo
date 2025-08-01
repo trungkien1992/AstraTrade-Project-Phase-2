@@ -331,6 +331,10 @@ mod AstraTradePaymaster {
                 });
             }
             
+            // Store values before moving structs
+            let tier_level = user_data.gas_tier_level;
+            let remaining_allowance = user_allowance.daily_limit - user_allowance.used_today;
+            
             // Update storage
             self.user_gas_allowances.entry(user).write(user_allowance);
             self.user_gas_data.entry(user).write(user_data);
@@ -346,8 +350,8 @@ mod AstraTradePaymaster {
                 gas_sponsored: gas_limit,
                 transaction_type,
                 xp_earned,
-                remaining_allowance: user_allowance.daily_limit - user_allowance.used_today,
-                tier_level: user_data.gas_tier_level,
+                remaining_allowance,
+                tier_level,
             });
             
             true
@@ -357,7 +361,7 @@ mod AstraTradePaymaster {
                                         gas_estimate: u64, signature: Span<felt252>) -> bool {
             // Validate transaction can be sponsored
             let user_allowance = self.user_gas_allowances.entry(user).read();
-            let user_data = self.user_gas_data.entry(user).read();
+            let _user_data = self.user_gas_data.entry(user).read();
             
             // Check gas allowance
             if user_allowance.used_today + gas_estimate > user_allowance.daily_limit {
@@ -437,17 +441,18 @@ mod AstraTradePaymaster {
             
             // Calculate refill multiplier based on tier
             let tier_multiplier = self.tier_gas_multipliers.entry(user_data.gas_tier_level).read();
-            let bonus_amount = (amount.into() * tier_multiplier.into()) / 10000;
+            let bonus_amount = (amount.into() * tier_multiplier.into()) / 10000_u256;
             let total_refill = amount + bonus_amount.try_into().unwrap_or(0);
             
             // Update daily limit (can exceed base limit with refills)
             user_allowance.daily_limit += total_refill;
+            let new_daily_limit = user_allowance.daily_limit;
             self.user_gas_allowances.entry(user).write(user_allowance);
             
             self.emit(GasAllowanceRefilled {
                 user,
                 amount_added: total_refill,
-                new_daily_limit: user_allowance.daily_limit,
+                new_daily_limit,
                 refill_source: 'manual_refill',
             });
             
@@ -509,7 +514,7 @@ mod AstraTradePaymaster {
                 _ => 10,
             };
             
-            let xp_earned = (base_xp.into() * tier_xp_multiplier) / 10;
+            let xp_earned = (base_xp.into() * tier_xp_multiplier) / 10_u256;
             let final_xp = xp_earned.try_into().unwrap_or(0);
             
             user_data.total_xp_from_gas_savings += final_xp;
@@ -538,13 +543,18 @@ mod AstraTradePaymaster {
             user_data.gas_tier_level = tier;
             
             // Unlock premium features bitmask
-            user_data.premium_features_unlocked |= match tier {
-                1 => 0b00000001, // Priority processing
-                2 => 0b00000011, // Priority + batch transactions
-                3 => 0b00000111, // All above + emergency access
-                4 => 0b00001111, // All above + VIP support
-                _ => 0,
+            let tier_features = if tier == 1 {
+                0b00000001_u8 // Priority processing
+            } else if tier == 2 {
+                0b00000011_u8 // Priority + batch transactions
+            } else if tier == 3 {
+                0b00000111_u8 // All above + emergency access
+            } else if tier == 4 {
+                0b00001111_u8 // All above + VIP support
+            } else {
+                0_u8
             };
+            user_data.premium_features_unlocked = user_data.premium_features_unlocked | tier_features;
             
             // Upgrade gas allowance
             let mut user_allowance = self.user_gas_allowances.entry(caller).read();
@@ -656,7 +666,7 @@ mod AstraTradePaymaster {
                 user: caller,
                 gas_credits_earned: total_reward,
                 trading_volume: trading_stats.volume_24h,
-                streak_bonus: (streak_bonus * 10000) / volume_gas_reward,
+                streak_bonus: ((streak_bonus * 10000) / volume_gas_reward).try_into().unwrap_or(0),
                 referral_bonus,
             });
             
@@ -857,7 +867,7 @@ mod AstraTradePaymaster {
                 _ => 10,
             };
             
-            ((base_xp.into() * type_multiplier) / 10).try_into().unwrap_or(0)
+            ((base_xp.into() * type_multiplier) / 10_u256).try_into().unwrap_or(0)
         }
 
         fn _calculate_user_tier(self: @ContractState, total_xp: u32) -> u8 {
@@ -876,12 +886,16 @@ mod AstraTradePaymaster {
             allowance.monthly_limit = benefits.monthly_gas_allowance;
             
             // Priority boost for higher tiers
-            allowance.priority_boost = match tier {
-                4 => 20000, // Diamond: 2.0x priority
-                3 => 15000, // Platinum: 1.5x priority
-                2 => 12000, // Gold: 1.2x priority
-                1 => 11000, // Silver: 1.1x priority
-                _ => 10000, // Basic: 1.0x priority
+            allowance.priority_boost = if tier == 4 {
+                20000 // Diamond: 2.0x priority
+            } else if tier == 3 {
+                15000 // Platinum: 1.5x priority
+            } else if tier == 2 {
+                12000 // Gold: 1.2x priority
+            } else if tier == 1 {
+                11000 // Silver: 1.1x priority
+            } else {
+                10000 // Basic: 1.0x priority
             };
         }
 
@@ -905,7 +919,7 @@ mod AstraTradePaymaster {
                 return 10000;
             }
             
-            ((progress_in_tier.into() * 10000) / tier_span.into()).try_into().unwrap_or(0)
+            ((progress_in_tier.into() * 10000_u256) / tier_span.into()).try_into().unwrap_or(0)
         }
 
         fn _execute_calls(self: @ContractState, calls: Span<Call>) -> felt252 {
