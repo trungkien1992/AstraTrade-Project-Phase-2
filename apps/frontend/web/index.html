@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="AstraTrade - Cosmic Perpetuals Trading">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="AstraTrade">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>AstraTrade</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: white;
+      font-family: 'Arial', sans-serif;
+    }
+
+    #loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #333;
+      border-top: 4px solid #7B2CBF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #loading-text {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #7B2CBF;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading indicator -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading AstraTrade...</div>
+  </div>
+
+  <!-- Web3Auth Modal SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@web3auth/modal@6.2.0/dist/modal.umd.min.js"></script>
+  
+  <!-- Web3Auth Configuration -->
+  <script>
+    let web3auth = null;
+    let provider = null;
+
+    // Initialize Web3Auth
+    async function initWeb3Auth(config) {
+      try {
+        console.log('🌐 Initializing Web3Auth with config:', config);
+        
+        const { Web3Auth } = window.Modal;
+        
+        web3auth = new Web3Auth({
+          clientId: config.clientId,
+          web3AuthNetwork: config.web3AuthNetwork,
+          chainConfig: config.chainConfig,
+          uiConfig: config.uiConfig,
+        });
+        
+        await web3auth.initModal();
+        
+        console.log('✅ Web3Auth initialized successfully');
+        return true;
+      } catch (error) {
+        console.error('❌ Web3Auth initialization failed:', error);
+        throw error;
+      }
+    }
+
+    // Generic login function
+    async function loginWithProvider(providerType, extraParams = {}) {
+      try {
+        if (!web3auth) {
+          throw new Error('Web3Auth not initialized');
+        }
+
+        console.log(`🚀 Starting ${providerType} login...`);
+        
+        provider = await web3auth.connect();
+        
+        if (!provider) {
+          throw new Error(`${providerType} login failed`);
+        }
+
+        console.log(`✅ ${providerType} login successful`);
+        return true;
+      } catch (error) {
+        console.error(`❌ ${providerType} login failed:`, error);
+        throw error;
+      }
+    }
+
+    // Provider-specific login functions
+    async function loginWithGoogle() {
+      return loginWithProvider('Google');
+    }
+
+    async function loginWithApple() {
+      return loginWithProvider('Apple');
+    }
+
+    async function loginWithDiscord() {
+      return loginWithProvider('Discord');
+    }
+
+    async function loginWithTwitter() {
+      return loginWithProvider('Twitter');
+    }
+
+    async function loginWithGitHub() {
+      return loginWithProvider('GitHub');
+    }
+
+    async function loginWithEmail(params) {
+      return loginWithProvider('Email', params);
+    }
+
+    // Get user information
+    async function getWeb3AuthUserInfo() {
+      try {
+        if (!web3auth || !web3auth.connected) {
+          throw new Error('User not authenticated');
+        }
+
+        const userInfo = await web3auth.getUserInfo();
+        console.log('📋 User info retrieved:', userInfo);
+        return userInfo;
+      } catch (error) {
+        console.error('❌ Failed to get user info:', error);
+        throw error;
+      }
+    }
+
+    // Get private key
+    async function getWeb3AuthPrivateKey() {
+      try {
+        if (!provider) {
+          throw new Error('Provider not available');
+        }
+
+        const privateKey = await provider.request({
+          method: "private_key"
+        });
+        
+        console.log('🔑 Private key retrieved');
+        return privateKey;
+      } catch (error) {
+        console.error('❌ Failed to get private key:', error);
+        throw error;
+      }
+    }
+
+    // Logout
+    async function logoutWeb3Auth() {
+      try {
+        if (!web3auth) {
+          console.log('⚠️ Web3Auth not initialized, nothing to logout');
+          return;
+        }
+
+        await web3auth.logout();
+        provider = null;
+        
+        console.log('✅ Logout successful');
+      } catch (error) {
+        console.error('❌ Logout failed:', error);
+        throw error;
+      }
+    }
+
+    // Hide loading screen when Flutter app is ready
+    window.addEventListener('flutter-first-frame', function () {
+      const loading = document.getElementById('loading');
+      if (loading) {
+        loading.remove();
+      }
+    });
+  </script>
+
+  <script>
+    var serviceWorkerVersion = null;
+    var scriptLoaded = false;
+    function loadMainDartJs() {
+      if (scriptLoaded) {
+        return;
+      }
+      scriptLoaded = true;
+      var scriptTag = document.createElement('script');
+      scriptTag.src = 'main.dart.js';
+      scriptTag.type = 'application/javascript';
+      document.body.append(scriptTag);
+    }
+
+    if ('serviceWorker' in navigator) {
+      // Service workers are supported. Use them.
+      window.addEventListener('load', function () {
+        // Wait for registration to finish before dropping the <script> tag.
+        // Otherwise, the browser will load the script multiple times,
+        // potentially different versions.
+        var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
+        navigator.serviceWorker.register(serviceWorkerUrl)
+          .then((reg) => {
+            function waitForActivation(serviceWorker) {
+              serviceWorker.addEventListener('statechange', () => {
+                if (serviceWorker.state == 'activated') {
+                  console.log('Installed new service worker.');
+                  loadMainDartJs();
+                }
+              });
+            }
+            if (!reg.active && (reg.installing || reg.waiting)) {
+              // No active web worker and we have installed or are installing
+              // one for the first time. Simply wait for it to activate.
+              waitForActivation(reg.installing || reg.waiting);
+            } else if (!reg.active.scriptURL.endsWith(serviceWorkerVersion)) {
+              // When the app updates the serviceWorkerVersion changes, so we
+              // need to ask the service worker to update.
+              console.log('New service worker available.');
+              reg.update();
+              waitForActivation(reg.installing);
+            } else {
+              // Existing service worker is still good.
+              console.log('Loading app from service worker.');
+              loadMainDartJs();
+            }
+          });
+
+        // If service worker doesn't succeed in a reasonable amount of time,
+        // fallback to plaint <script> tag.
+        setTimeout(() => {
+          if (!scriptLoaded) {
+            console.warn(
+              'Failed to load app from service worker. Falling back to plain <script> tag.',
+            );
+            loadMainDartJs();
+          }
+        }, 4000);
+      });
+    } else {
+      // Service workers not supported. Just drop the <script> tag.
+      loadMainDartJs();
+    }
+  </script>
+</body>
+</html>
