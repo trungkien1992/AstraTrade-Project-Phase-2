@@ -50,9 +50,22 @@ dependencies:
   # Basic UI
   cupertino_icons: ^1.0.8
   google_fonts: ^6.1.0
+  audioplayers: ^6.0.0
+  candlesticks: ^2.1.0
+  flutter_background_service: ^5.0.1
+  accessibility_tools: ^2.6.0
+  flutter_image_compress: ^2.1.0
+  image: ^4.0.17
+  hex: ^0.2.0
+  path_provider: ^2.0.11
+  device_info_plus: ^9.0.2
 
-  # Web3 Authentication (existing)
-  web3auth_flutter: ^3.1.0
+  # Web3 Authentication (upgraded to v6.2.0)
+  web3auth_flutter: ^6.2.0
+
+  # Authentication & Security
+  local_auth: ^2.2.0
+  url_launcher: ^6.2.3
 
   # Mobile Native Features
   flutter_local_notifications: ^17.2.2
