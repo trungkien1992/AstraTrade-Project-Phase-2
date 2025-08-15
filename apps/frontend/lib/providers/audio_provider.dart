@@ -16,23 +16,17 @@ final audioVolumeProvider = StateProvider<double>((ref) => 0.7);
 final audioSettingsProvider = Provider<AudioSettings>((ref) {
   final isEnabled = ref.watch(audioEnabledProvider);
   final volume = ref.watch(audioVolumeProvider);
-  
-  return AudioSettings(
-    isEnabled: isEnabled,
-    volume: volume,
-  );
+
+  return AudioSettings(isEnabled: isEnabled, volume: volume);
 });
 
 /// Audio settings model
 class AudioSettings {
   final bool isEnabled;
   final double volume;
-  
-  AudioSettings({
-    required this.isEnabled,
-    required this.volume,
-  });
-  
+
+  AudioSettings({required this.isEnabled, required this.volume});
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -48,11 +42,12 @@ class AudioSettings {
 /// Notifier for managing audio state
 class AudioNotifier extends StateNotifier<AudioSettings> {
   final AudioService _audioService;
-  
-  AudioNotifier(this._audioService) : super(AudioSettings(isEnabled: true, volume: 0.7)) {
+
+  AudioNotifier(this._audioService)
+    : super(AudioSettings(isEnabled: true, volume: 0.7)) {
     _audioService.initialize();
   }
-  
+
   /// Toggle audio on/off
   void toggleAudio() {
     final newState = AudioSettings(
@@ -62,7 +57,7 @@ class AudioNotifier extends StateNotifier<AudioSettings> {
     state = newState;
     _audioService.setEnabled(newState.isEnabled);
   }
-  
+
   /// Set audio volume
   void setVolume(double volume) {
     final newState = AudioSettings(
@@ -72,7 +67,7 @@ class AudioNotifier extends StateNotifier<AudioSettings> {
     state = newState;
     _audioService.setVolume(newState.volume);
   }
-  
+
   /// Play cosmic sound with current settings
   Future<void> playSound(String soundType) async {
     if (state.isEnabled) {
@@ -82,7 +77,8 @@ class AudioNotifier extends StateNotifier<AudioSettings> {
 }
 
 /// Provider for audio notifier
-final audioNotifierProvider = StateNotifierProvider<AudioNotifier, AudioSettings>((ref) {
-  final audioService = ref.watch(audioServiceProvider);
-  return AudioNotifier(audioService);
-});
+final audioNotifierProvider =
+    StateNotifierProvider<AudioNotifier, AudioSettings>((ref) {
+      final audioService = ref.watch(audioServiceProvider);
+      return AudioNotifier(audioService);
+    });

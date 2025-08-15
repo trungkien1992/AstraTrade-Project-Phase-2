@@ -18,7 +18,8 @@ class CosmicNavigationShell extends ConsumerStatefulWidget {
   const CosmicNavigationShell({super.key});
 
   @override
-  ConsumerState<CosmicNavigationShell> createState() => _CosmicNavigationShellState();
+  ConsumerState<CosmicNavigationShell> createState() =>
+      _CosmicNavigationShellState();
 }
 
 class _CosmicNavigationShellState extends ConsumerState<CosmicNavigationShell> {
@@ -33,7 +34,9 @@ class _CosmicNavigationShellState extends ConsumerState<CosmicNavigationShell> {
     print('🚀 CosmicNavigationShell - build called');
     final navigationState = ref.watch(cosmicNavigationProvider);
     final currentDestination = navigationState.currentDestination;
-    print('🚀 CosmicNavigationShell - Navigation state loaded: $currentDestination');
+    print(
+      '🚀 CosmicNavigationShell - Navigation state loaded: $currentDestination',
+    );
 
     return PopScope(
       canPop: false,
@@ -42,7 +45,7 @@ class _CosmicNavigationShellState extends ConsumerState<CosmicNavigationShell> {
           final handled = ref
               .read(cosmicNavigationProvider.notifier)
               .handleBackNavigation();
-          
+
           if (!handled) {
             // If navigation couldn't handle it, allow system back
             Navigator.of(context).pop();
@@ -59,33 +62,36 @@ class _CosmicNavigationShellState extends ConsumerState<CosmicNavigationShell> {
                 gradient: RadialGradient(
                   center: Alignment.topRight,
                   radius: 2.0,
-                  colors: [
-                    Color(0xFF1A1A2E),
-                    Color(0xFF0A0A0F),
-                  ],
+                  colors: [Color(0xFF1A1A2E), Color(0xFF0A0A0F)],
                 ),
               ),
             ),
-            
+
             // Main content with nested navigation
             IndexedStack(
               index: currentDestination.index,
               children: CosmicDestination.values.map((destination) {
                 return Navigator(
                   key: navigationState.navigatorKeys[destination],
-                  onGenerateRoute: (settings) => _generateRoute(destination, settings),
+                  onGenerateRoute: (settings) =>
+                      _generateRoute(destination, settings),
                   onGenerateInitialRoutes: (navigator, initialRoute) {
-                    return [_generateRoute(destination, RouteSettings(name: initialRoute))];
+                    return [
+                      _generateRoute(
+                        destination,
+                        RouteSettings(name: initialRoute),
+                      ),
+                    ];
                   },
                 );
               }).toList(),
             ),
           ],
         ),
-        
+
         // Bottom navigation bar
         bottomNavigationBar: const CosmicNavigationBar(),
-        
+
         // Floating action button for quick actions
         floatingActionButton: _buildFloatingActionButton(currentDestination),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -94,9 +100,12 @@ class _CosmicNavigationShellState extends ConsumerState<CosmicNavigationShell> {
   }
 
   /// Generate routes for each destination navigator
-  Route<dynamic> _generateRoute(CosmicDestination destination, RouteSettings settings) {
+  Route<dynamic> _generateRoute(
+    CosmicDestination destination,
+    RouteSettings settings,
+  ) {
     Widget page;
-    
+
     switch (destination) {
       case CosmicDestination.hub:
         page = const MainHubScreen();
@@ -186,9 +195,9 @@ class _CosmicNavigationShellState extends ConsumerState<CosmicNavigationShell> {
     final currentNavigatorKey = ref
         .read(cosmicNavigationProvider.notifier)
         .getCurrentNavigatorContext();
-    
+
     if (currentNavigatorKey == null) return;
-    
+
     switch (action) {
       case 'quick_trade':
         // Navigate to trading screen or show quick trade dialog
@@ -238,7 +247,7 @@ class _CosmicNavigationShellState extends ConsumerState<CosmicNavigationShell> {
     try {
       // Perform the actual trade using the game state provider
       await ref.read(gameStateProvider.notifier).performQuickTrade();
-      
+
       // Show success message
       if (mounted) {
         final gameState = ref.read(gameStateProvider);
@@ -312,10 +321,7 @@ class _CosmicNavigationShellState extends ConsumerState<CosmicNavigationShell> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A2E),
-        title: const Text(
-          'Auto Forge',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Auto Forge', style: TextStyle(color: Colors.white)),
         content: const Text(
           'Auto forge feature coming soon!',
           style: TextStyle(color: Colors.grey),

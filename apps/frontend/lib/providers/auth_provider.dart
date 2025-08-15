@@ -6,7 +6,9 @@ import '../services/auth_service.dart';
 import '../config/starknet_config.dart';
 
 // Re-enabled: Starknet service integration
-final authServiceProvider = Provider((ref) => AuthService(ref.watch(dynamicStarknetServiceProvider)));
+final authServiceProvider = Provider(
+  (ref) => AuthService(ref.watch(dynamicStarknetServiceProvider)),
+);
 
 class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
   final AuthService _authService;
@@ -21,10 +23,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
     try {
       log('🔍 Starting authentication check...');
       state = const AsyncValue.loading();
-      
+
       final hasWalletData = await _authService.hasStoredWalletData();
       log('📱 Has stored wallet data: $hasWalletData');
-      
+
       if (hasWalletData) {
         // User has stored wallet data, recreate User object without triggering Web3Auth
         final user = await _authService.restoreUserFromStoredData();
@@ -49,13 +51,93 @@ class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
   Future<void> signInWithGoogle() async {
     try {
       state = const AsyncValue.loading();
-      
+
       final user = await _authService.signInWithGoogle();
       state = AsyncValue.data(user);
-      
+
       log('User signed in successfully: ${user.email}');
     } catch (e) {
-      log('Sign-in failed: $e');
+      log('Google sign-in failed: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    }
+  }
+
+  /// Sign in with Apple using Web3Auth
+  Future<void> signInWithApple() async {
+    try {
+      state = const AsyncValue.loading();
+
+      final user = await _authService.signInWithApple();
+      state = AsyncValue.data(user);
+
+      log('Apple user signed in successfully: ${user.email}');
+    } catch (e) {
+      log('Apple sign-in failed: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    }
+  }
+
+  /// Sign in with Discord using Web3Auth
+  Future<void> signInWithDiscord() async {
+    try {
+      state = const AsyncValue.loading();
+
+      final user = await _authService.signInWithDiscord();
+      state = AsyncValue.data(user);
+
+      log('Discord user signed in successfully: ${user.email}');
+    } catch (e) {
+      log('Discord sign-in failed: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    }
+  }
+
+  /// Sign in with Twitter using Web3Auth
+  Future<void> signInWithTwitter() async {
+    try {
+      state = const AsyncValue.loading();
+
+      final user = await _authService.signInWithTwitter();
+      state = AsyncValue.data(user);
+
+      log('Twitter user signed in successfully: ${user.email}');
+    } catch (e) {
+      log('Twitter sign-in failed: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    }
+  }
+
+  /// Sign in with GitHub using Web3Auth
+  Future<void> signInWithGitHub() async {
+    try {
+      state = const AsyncValue.loading();
+
+      final user = await _authService.signInWithGitHub();
+      state = AsyncValue.data(user);
+
+      log('GitHub user signed in successfully: ${user.email}');
+    } catch (e) {
+      log('GitHub sign-in failed: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    }
+  }
+
+  /// Sign in with Email/Password using Web3Auth
+  Future<void> signInWithEmail(String email, String password) async {
+    try {
+      state = const AsyncValue.loading();
+
+      final user = await _authService.signInWithEmail(email, password);
+      state = AsyncValue.data(user);
+
+      log('Email user signed in successfully: ${user.email}');
+    } catch (e) {
+      log('Email sign-in failed: $e');
       state = AsyncValue.error(e, StackTrace.current);
       rethrow;
     }
@@ -64,7 +146,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
   /// Sign out the current user
   Future<void> signOut() async {
     log('🚪 Starting sign out process from auth provider...');
-    
+
     try {
       await _authService.signOut();
       log('✅ Auth service sign out completed');
@@ -72,7 +154,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
       log('⚠️ Auth service sign out failed: $e');
       // Don't throw - continue with state cleanup
     }
-    
+
     // Always clear the state regardless of auth service result
     try {
       state = const AsyncValue.data(null);
@@ -80,7 +162,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
     } catch (e) {
       log('⚠️ Failed to clear auth state: $e');
     }
-    
+
     log('✅ Sign out process completed successfully');
     // Never throw exceptions from signOut
   }
@@ -109,7 +191,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
   Future<void> refreshSession() async {
     await _checkExistingSession();
   }
-  
+
   /// Set user directly (used after wallet import)
   void setUser(User user) {
     state = AsyncValue.data(user);
@@ -117,7 +199,9 @@ class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
   }
 }
 
-final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<User?>>((ref) {
+final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<User?>>((
+  ref,
+) {
   return AuthNotifier(ref.watch(authServiceProvider));
 });
 

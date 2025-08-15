@@ -39,14 +39,7 @@ class CosmicHapticFeedback {
 }
 
 /// Legacy haptic feedback types
-enum HapticType {
-  selection,
-  light,
-  medium,
-  heavy,
-  success,
-  error
-}
+enum HapticType { selection, light, medium, heavy, success, error }
 
 /// Legacy haptic feedback class for backwards compatibility
 class HapticFeedback {

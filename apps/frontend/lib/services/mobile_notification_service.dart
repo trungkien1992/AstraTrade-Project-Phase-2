@@ -14,30 +14,30 @@ class MobileNotificationService {
   static final _instance = MobileNotificationService._internal();
   factory MobileNotificationService() => _instance;
   MobileNotificationService._internal();
-  
+
   static const String _channelId = 'astratrade_notifications';
   static const String _channelName = 'AstraTrade';
-  static const String _channelDescription = 'Trading alerts and progress notifications';
-  
-  final FlutterLocalNotificationsPlugin _localNotifications = 
+  static const String _channelDescription =
+      'Trading alerts and progress notifications';
+
+  final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
-  
+
   bool _isInitialized = false;
   bool _notificationsEnabled = true;
-  
+
   /// Initialize notification service
   Future<bool> initialize() async {
     if (_isInitialized) return true;
-    
+
     try {
       await _requestPermissions();
       await _initializeLocalNotifications();
       await _loadSettings();
-      
+
       _isInitialized = true;
       debugPrint('📱 Mobile notification service initialized');
       return true;
-      
     } catch (e) {
       debugPrint('❌ Failed to initialize notifications: $e');
       return false;
@@ -57,23 +57,25 @@ class MobileNotificationService {
 
   /// Initialize local notifications
   Future<void> _initializeLocalNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-    
+
     const initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
-    
+
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
-    
+
     // Create notification channel for Android
     if (Platform.isAndroid) {
       await _createNotificationChannel();
@@ -90,10 +92,11 @@ class MobileNotificationService {
       enableVibration: true,
       vibrationPattern: Int64List.fromList([0, 250, 250, 250]),
     );
-    
+
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(androidChannel);
   }
 
@@ -120,7 +123,7 @@ class MobileNotificationService {
   /// Handle notification tap
   void _onNotificationTapped(NotificationResponse response) {
     debugPrint('📱 Notification tapped: ${response.payload}');
-    
+
     // Handle different notification types based on payload
     final payload = response.payload;
     if (payload != null) {
@@ -140,17 +143,15 @@ class MobileNotificationService {
     required bool isProfit,
   }) async {
     if (!_isInitialized || !_notificationsEnabled) return;
-    
+
     try {
-      final title = isProfit 
-          ? '🎉 Profitable Trade!'
-          : '📊 Trade Completed';
-      
+      final title = isProfit ? '🎉 Profitable Trade!' : '📊 Trade Completed';
+
       final profit = trade.profitLoss ?? 0.0;
       final body = isProfit
           ? 'Great job! You made \$${profit.toStringAsFixed(2)} on ${trade.symbol}'
           : 'Trade completed for ${trade.symbol}. P&L: \$${profit.toStringAsFixed(2)}';
-      
+
       await _localNotifications.show(
         _generateNotificationId(),
         title,
@@ -164,7 +165,7 @@ class MobileNotificationService {
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
             color: isProfit ? Colors.green : Colors.blue,
-            vibrationPattern: isProfit 
+            vibrationPattern: isProfit
                 ? Int64List.fromList([0, 100, 100, 100]) // Celebration pattern
                 : Int64List.fromList([0, 200]), // Simple pattern
           ),
@@ -177,9 +178,8 @@ class MobileNotificationService {
         ),
         payload: 'trade:${trade.id}',
       );
-      
+
       debugPrint('📱 Trade notification sent: ${trade.id}');
-      
     } catch (e) {
       debugPrint('❌ Failed to show trade notification: $e');
     }
@@ -191,11 +191,11 @@ class MobileNotificationService {
     required int xpGained,
   }) async {
     if (!_isInitialized || !_notificationsEnabled) return;
-    
+
     try {
       final title = '🏆 Achievement Unlocked!';
       final body = '${achievement.name}\n+${xpGained} XP earned';
-      
+
       await _localNotifications.show(
         _generateNotificationId(),
         title,
@@ -225,9 +225,8 @@ class MobileNotificationService {
         ),
         payload: 'achievement:${achievement.id}',
       );
-      
+
       debugPrint('📱 Achievement notification sent: ${achievement.id}');
-      
     } catch (e) {
       debugPrint('❌ Failed to show achievement notification: $e');
     }
@@ -240,11 +239,11 @@ class MobileNotificationService {
     required String rank,
   }) async {
     if (!_isInitialized || !_notificationsEnabled) return;
-    
+
     try {
       final title = '⬆️ Level Up!';
       final body = 'Congratulations! You reached Level $newLevel\nRank: $rank';
-      
+
       await _localNotifications.show(
         _generateNotificationId(),
         title,
@@ -258,7 +257,14 @@ class MobileNotificationService {
             priority: Priority.max,
             icon: '@mipmap/ic_launcher',
             color: Colors.purple,
-            vibrationPattern: Int64List.fromList([0, 100, 50, 100, 50, 200]), // Level up celebration
+            vibrationPattern: Int64List.fromList([
+              0,
+              100,
+              50,
+              100,
+              50,
+              200,
+            ]), // Level up celebration
             styleInformation: BigTextStyleInformation(
               body,
               contentTitle: title,
@@ -274,9 +280,8 @@ class MobileNotificationService {
         ),
         payload: 'levelup:$newLevel',
       );
-      
+
       debugPrint('📱 Level up notification sent: $oldLevel → $newLevel');
-      
     } catch (e) {
       debugPrint('❌ Failed to show level up notification: $e');
     }
@@ -289,16 +294,14 @@ class MobileNotificationService {
     required bool isMilestone,
   }) async {
     if (!_isInitialized || !_notificationsEnabled) return;
-    
+
     try {
-      final title = isMilestone 
-          ? '🔥 Streak Milestone!'
-          : '📅 Daily Bonus';
-      
+      final title = isMilestone ? '🔥 Streak Milestone!' : '📅 Daily Bonus';
+
       final body = isMilestone
           ? 'Amazing! $streakDays day streak achieved!\n+${xpReward} XP bonus'
           : 'Day $streakDays login streak\n+${xpReward} XP earned';
-      
+
       await _localNotifications.show(
         _generateNotificationId(),
         title,
@@ -308,7 +311,9 @@ class MobileNotificationService {
             _channelId,
             _channelName,
             channelDescription: _channelDescription,
-            importance: isMilestone ? Importance.high : Importance.defaultImportance,
+            importance: isMilestone
+                ? Importance.high
+                : Importance.defaultImportance,
             priority: isMilestone ? Priority.high : Priority.defaultPriority,
             icon: '@mipmap/ic_launcher',
             color: isMilestone ? Colors.orange : Colors.blue,
@@ -325,9 +330,8 @@ class MobileNotificationService {
         ),
         payload: 'daily:$streakDays',
       );
-      
+
       debugPrint('📱 Daily streak notification sent: $streakDays days');
-      
     } catch (e) {
       debugPrint('❌ Failed to show daily streak notification: $e');
     }
@@ -341,7 +345,7 @@ class MobileNotificationService {
     Color? color,
   }) async {
     if (!_isInitialized || !_notificationsEnabled) return;
-    
+
     try {
       await _localNotifications.show(
         _generateNotificationId(),
@@ -366,9 +370,8 @@ class MobileNotificationService {
         ),
         payload: 'alert:${symbol ?? 'general'}',
       );
-      
+
       debugPrint('📱 Trading alert sent: $title');
-      
     } catch (e) {
       debugPrint('❌ Failed to show trading alert: $e');
     }
@@ -380,11 +383,11 @@ class MobileNotificationService {
     required int minute,
   }) async {
     if (!_isInitialized || !_notificationsEnabled) return;
-    
+
     try {
       // Cancel existing daily reminder
       await _localNotifications.cancel(9999);
-      
+
       // Schedule new daily reminder
       await _localNotifications.periodicallyShow(
         9999,
@@ -408,9 +411,8 @@ class MobileNotificationService {
         ),
         payload: 'daily_reminder',
       );
-      
+
       debugPrint('📱 Daily reminder scheduled for $hour:$minute');
-      
     } catch (e) {
       debugPrint('❌ Failed to schedule daily reminder: $e');
     }
@@ -420,11 +422,11 @@ class MobileNotificationService {
   Future<void> setNotificationsEnabled(bool enabled) async {
     _notificationsEnabled = enabled;
     await _saveSettings();
-    
+
     if (!enabled) {
       await cancelAllNotifications();
     }
-    
+
     debugPrint('📱 Notifications ${enabled ? 'enabled' : 'disabled'}');
   }
 
@@ -436,10 +438,7 @@ class MobileNotificationService {
 
   /// Get notification settings
   Map<String, dynamic> getSettings() {
-    return {
-      'enabled': _notificationsEnabled,
-      'initialized': _isInitialized,
-    };
+    return {'enabled': _notificationsEnabled, 'initialized': _isInitialized};
   }
 
   /// Generate unique notification ID

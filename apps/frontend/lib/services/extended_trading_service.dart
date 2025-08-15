@@ -10,9 +10,12 @@ import 'unified_wallet_setup_service.dart';
 /// Provides seamless real perpetual trading while maintaining SimpleTrade compatibility
 class ExtendedTradingService {
   static const List<String> _defaultSymbols = [
-    'BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD'
+    'BTC-USD',
+    'ETH-USD',
+    'SOL-USD',
+    'AVAX-USD',
   ];
-  
+
   /// Place a real perpetual trade via Extended Exchange API
   static Future<SimpleTrade> placePerpetualTrade({
     required double amount,
@@ -22,12 +25,16 @@ class ExtendedTradingService {
     double? price,
   }) async {
     try {
-      debugPrint('🚀 Placing real perpetual trade: $amount $direction ${symbol ?? 'BTC-USD'}');
-      
+      debugPrint(
+        '🚀 Placing real perpetual trade: $amount $direction ${symbol ?? 'BTC-USD'}',
+      );
+
       // Get API key and ensure user is set up for trading
       final starknetAddress = await _getUserStarknetAddress();
-      final apiKey = await ExtendedExchangeApiService.ensureUserApiKey(starknetAddress);
-      
+      final apiKey = await ExtendedExchangeApiService.ensureUserApiKey(
+        starknetAddress,
+      );
+
       // Prepare order data
       final orderData = {
         'symbol': symbol ?? 'BTC-USD',
@@ -37,13 +44,14 @@ class ExtendedTradingService {
         if (price != null) 'price': price,
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       };
-      
+
       // Generate Stark signature for the order using mobile-native SDK
-      final starkSignature = await UnifiedWalletSetupService.signTransactionForExtendedAPI(
-        orderData: orderData,
-      );
+      final starkSignature =
+          await UnifiedWalletSetupService.signTransactionForExtendedAPI(
+            orderData: orderData,
+          );
       debugPrint('✅ Using mobile-native signature generation');
-      
+
       // Place the order via Extended API
       final orderResult = await ExtendedExchangeApiService.placePerpetualOrder(
         apiKey: apiKey,
@@ -54,10 +62,12 @@ class ExtendedTradingService {
         price: orderData['price'] as double?,
         starkSignature: starkSignature,
       );
-      
+
       // Create SimpleTrade from Extended API response
       final trade = SimpleTrade(
-        id: orderResult['order_id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        id:
+            orderResult['order_id']?.toString() ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
         amount: amount,
         direction: direction.toUpperCase(),
         symbol: symbol ?? 'BTC-USD',
@@ -68,13 +78,12 @@ class ExtendedTradingService {
         fillPrice: orderResult['fill_price']?.toDouble(),
         unrealizedPnL: 0.0, // Will be updated when position is tracked
       );
-      
+
       debugPrint('✅ Real perpetual trade placed: ${trade.id}');
       return trade;
-      
     } catch (e) {
       log('❌ Failed to place perpetual trade: $e');
-      
+
       // Return failed trade for UI consistency
       return SimpleTrade(
         id: 'failed_${DateTime.now().millisecondsSinceEpoch}',
@@ -88,7 +97,7 @@ class ExtendedTradingService {
       );
     }
   }
-  
+
   /// Get position for a symbol and update trade with real P&L
   static Future<SimpleTrade> updateTradeWithPosition(SimpleTrade trade) async {
     try {
@@ -96,21 +105,23 @@ class ExtendedTradingService {
         // No Extended order ID, can't track position
         return trade;
       }
-      
+
       final starknetAddress = await _getUserStarknetAddress();
-      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(starknetAddress);
-      
+      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(
+        starknetAddress,
+      );
+
       if (apiKey == null) {
         log('⚠️ No API key found for position tracking');
         return trade;
       }
-      
+
       // Get position from Extended API
       final position = await ExtendedExchangeApiService.getPosition(
         apiKey: apiKey,
         symbol: trade.symbol,
       );
-      
+
       // Update trade with real position data
       return trade.copyWith(
         profitLoss: position['unrealized_pnl']?.toDouble(),
@@ -118,36 +129,39 @@ class ExtendedTradingService {
         isCompleted: !(position['is_open'] ?? false),
         lastUpdate: DateTime.now(),
       );
-      
     } catch (e) {
       log('❌ Failed to update trade with position: $e');
       return trade;
     }
   }
-  
+
   /// Get all open positions from Extended API
   static Future<List<Map<String, dynamic>>> getAllPositions() async {
     try {
       final starknetAddress = await _getUserStarknetAddress();
-      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(starknetAddress);
-      
+      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(
+        starknetAddress,
+      );
+
       if (apiKey == null) {
         return [];
       }
-      
+
       return await ExtendedExchangeApiService.getAllPositions(apiKey: apiKey);
     } catch (e) {
       log('❌ Failed to get all positions: $e');
       return [];
     }
   }
-  
+
   /// Get account balance from Extended API
   static Future<Map<String, dynamic>> getAccountBalance() async {
     try {
       final starknetAddress = await _getUserStarknetAddress();
-      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(starknetAddress);
-      
+      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(
+        starknetAddress,
+      );
+
       if (apiKey == null) {
         return {
           'total_balance': 0.0,
@@ -156,7 +170,7 @@ class ExtendedTradingService {
           'error': 'No API key found',
         };
       }
-      
+
       return await ExtendedExchangeApiService.getAccountBalance(apiKey: apiKey);
     } catch (e) {
       log('❌ Failed to get account balance: $e');
@@ -168,17 +182,19 @@ class ExtendedTradingService {
       };
     }
   }
-  
+
   /// Cancel an order via Extended API
   static Future<bool> cancelOrder(String orderId) async {
     try {
       final starknetAddress = await _getUserStarknetAddress();
-      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(starknetAddress);
-      
+      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(
+        starknetAddress,
+      );
+
       if (apiKey == null) {
         return false;
       }
-      
+
       // Generate signature for cancellation
       final cancelSignature = await StarkSignatureService.signAccountOperation(
         operation: 'cancel_order',
@@ -187,20 +203,20 @@ class ExtendedTradingService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
         },
       );
-      
+
       final result = await ExtendedExchangeApiService.cancelOrder(
         apiKey: apiKey,
         orderId: orderId,
         starkSignature: cancelSignature,
       );
-      
+
       return result['success'] == true;
     } catch (e) {
       log('❌ Failed to cancel order: $e');
       return false;
     }
   }
-  
+
   /// Get real-time market data for a symbol
   static Future<Map<String, dynamic>> getMarketData(String symbol) async {
     try {
@@ -216,7 +232,7 @@ class ExtendedTradingService {
       };
     }
   }
-  
+
   /// Get available trading symbols from Extended API
   static Future<List<String>> getAvailableSymbols() async {
     try {
@@ -227,7 +243,7 @@ class ExtendedTradingService {
       return _defaultSymbols;
     }
   }
-  
+
   /// Check if Extended Exchange API is available
   static Future<bool> isServiceAvailable() async {
     try {
@@ -237,26 +253,30 @@ class ExtendedTradingService {
       return false;
     }
   }
-  
+
   /// Setup user for real trading (generate API key + Stark keys)
   static Future<Map<String, dynamic>> setupUserForTrading() async {
     try {
       debugPrint('🔧 Setting up user for real trading...');
-      
+
       final starknetAddress = await _getUserStarknetAddress();
-      
+
       // Ensure Stark keys are generated
       final starkKeys = await StarkSignatureService.ensureStarkKeys();
-      
+
       // Generate API key for trading
-      final apiKey = await ExtendedExchangeApiService.generateApiKeyForTrading(starknetAddress);
-      
+      final apiKey = await ExtendedExchangeApiService.generateApiKeyForTrading(
+        starknetAddress,
+      );
+
       // Validate the setup
-      final isValidApi = await ExtendedExchangeApiService.validateApiKey(apiKey);
+      final isValidApi = await ExtendedExchangeApiService.validateApiKey(
+        apiKey,
+      );
       final hasStarkKeys = starkKeys['private_key']?.isNotEmpty == true;
-      
+
       debugPrint('✅ Trading setup complete');
-      
+
       return {
         'success': isValidApi && hasStarkKeys,
         'api_key_valid': isValidApi,
@@ -265,23 +285,24 @@ class ExtendedTradingService {
       };
     } catch (e) {
       log('❌ Failed to setup user for trading: $e');
-      return {
-        'success': false,
-        'error': e.toString(),
-      };
+      return {'success': false, 'error': e.toString()};
     }
   }
-  
+
   /// Get trading status and capabilities
   static Future<Map<String, dynamic>> getTradingStatus() async {
     try {
       final starknetAddress = await _getUserStarknetAddress();
-      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(starknetAddress);
+      final apiKey = await ExtendedExchangeApiService.getStoredApiKey(
+        starknetAddress,
+      );
       final hasStarkKeys = await StarkSignatureService.getPrivateKey() != null;
-      
+
       final isServiceUp = await isServiceAvailable();
-      final isApiValid = apiKey != null ? await ExtendedExchangeApiService.validateApiKey(apiKey) : false;
-      
+      final isApiValid = apiKey != null
+          ? await ExtendedExchangeApiService.validateApiKey(apiKey)
+          : false;
+
       return {
         'ready_for_trading': isServiceUp && isApiValid && hasStarkKeys,
         'service_available': isServiceUp,
@@ -291,31 +312,33 @@ class ExtendedTradingService {
       };
     } catch (e) {
       log('❌ Failed to get trading status: $e');
-      return {
-        'ready_for_trading': false,
-        'error': e.toString(),
-      };
+      return {'ready_for_trading': false, 'error': e.toString()};
     }
   }
-  
+
   // ========================================
   // HELPER METHODS
   // ========================================
-  
+
   /// Get user's Starknet address (placeholder for actual wallet integration)
   static Future<String> _getUserStarknetAddress() async {
     try {
       // Try to get from secure storage first
-      final storedAddress = await SecureStorageService.instance.getValue('starknet_address');
+      final storedAddress = await SecureStorageService.instance.getValue(
+        'starknet_address',
+      );
       if (storedAddress != null && storedAddress.isNotEmpty) {
         return storedAddress;
       }
-      
+
       // Generate a mock address for testing
       // In production, this would come from Starknet.dart wallet
       const mockAddress = '0x1234567890abcdef1234567890abcdef12345678';
-      await SecureStorageService.instance.storeValue('starknet_address', mockAddress);
-      
+      await SecureStorageService.instance.storeValue(
+        'starknet_address',
+        mockAddress,
+      );
+
       debugPrint('⚠️ Using mock Starknet address for testing');
       return mockAddress;
     } catch (e) {
@@ -324,7 +347,7 @@ class ExtendedTradingService {
       return '0x1234567890abcdef1234567890abcdef12345678';
     }
   }
-  
+
   /// Parse order status from Extended API response
   static OrderStatus _parseOrderStatus(String? status) {
     switch (status?.toLowerCase()) {
@@ -350,7 +373,7 @@ class ExtendedTradingConfig {
   static const double maxTradeAmount = 10000.0; // Maximum $10k trade for MVP
   static const List<String> supportedOrderTypes = ['MARKET', 'LIMIT'];
   static const Duration orderTimeout = Duration(minutes: 5);
-  
+
   /// Get trading limits for user level
   static Map<String, double> getTradingLimits(String userLevel) {
     switch (userLevel.toLowerCase()) {
@@ -386,9 +409,9 @@ class ExtendedTradingConfig {
 class ExtendedTradingException implements Exception {
   final String message;
   final String? orderData;
-  
+
   ExtendedTradingException(this.message, {this.orderData});
-  
+
   @override
   String toString() {
     return 'ExtendedTradingException: $message${orderData != null ? ' (Order: $orderData)' : ''}';

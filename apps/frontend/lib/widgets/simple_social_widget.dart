@@ -11,7 +11,7 @@ import '../models/simple_gamification.dart';
 class SimpleSocialWidget extends StatefulWidget {
   final bool showChallenges;
   final VoidCallback? onChallengeCreated;
-  
+
   const SimpleSocialWidget({
     super.key,
     this.showChallenges = true,
@@ -27,7 +27,7 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
   final _socialService = SimpleSocialService();
   final _challengesService = FriendChallengesService();
   final _hapticService = MobileHapticService();
-  
+
   late TabController _tabController;
   bool _isLoading = false;
   List<FriendChallenge> _activeChallenges = [];
@@ -76,10 +76,7 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Colors.blue[50]!,
-              Colors.green[50]!,
-            ],
+            colors: [Colors.blue[50]!, Colors.green[50]!],
           ),
         ),
         child: Column(
@@ -124,15 +121,15 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
             children: [
               Text(
                 'Social Features',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 'Share achievements and challenge friends',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
             ],
           ),
@@ -145,18 +142,9 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
     return TabBar(
       controller: _tabController,
       tabs: const [
-        Tab(
-          icon: Icon(Icons.share),
-          text: 'Share',
-        ),
-        Tab(
-          icon: Icon(Icons.emoji_events),
-          text: 'Challenges',
-        ),
-        Tab(
-          icon: Icon(Icons.leaderboard),
-          text: 'Friends',
-        ),
+        Tab(icon: Icon(Icons.share), text: 'Share'),
+        Tab(icon: Icon(Icons.emoji_events), text: 'Challenges'),
+        Tab(icon: Icon(Icons.leaderboard), text: 'Friends'),
       ],
     );
   }
@@ -166,49 +154,53 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
       builder: (context, gamification, child) {
         final recentAchievements = gamification.getRecentAchievements();
         final rankInfo = gamification.getRankInfo();
-        
+
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Share Your Progress',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              
+
               // Share level progress
               _buildShareButton(
                 title: 'Share Level Progress',
-                subtitle: 'Level ${rankInfo['level']} • ${rankInfo['total_xp']} XP',
+                subtitle:
+                    'Level ${rankInfo['level']} • ${rankInfo['total_xp']} XP',
                 icon: Icons.trending_up,
                 color: Colors.blue,
                 onTap: () => _shareLevelProgress(gamification),
               ),
-              
+
               // Share recent achievements
               if (recentAchievements.isNotEmpty) ...{
                 const SizedBox(height: 8),
                 Text(
                   'Recent Achievements',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                ...recentAchievements.take(3).map((achievement) =>
-                  _buildShareButton(
-                    title: 'Share "${achievement.name}"',
-                    subtitle: achievement.description,
-                    icon: Icons.military_tech,
-                    color: Colors.amber,
-                    onTap: () => _shareAchievement(achievement, gamification),
-                  ),
-                ),
+                ...recentAchievements
+                    .take(3)
+                    .map(
+                      (achievement) => _buildShareButton(
+                        title: 'Share "${achievement.name}"',
+                        subtitle: achievement.description,
+                        icon: Icons.military_tech,
+                        color: Colors.amber,
+                        onTap: () =>
+                            _shareAchievement(achievement, gamification),
+                      ),
+                    ),
               },
-              
+
               // Share trading stats
               const SizedBox(height: 8),
               _buildShareButton(
@@ -234,9 +226,9 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
           children: [
             Text(
               'Friend Challenges',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             ElevatedButton.icon(
               onPressed: _showCreateChallengeDialog,
@@ -245,25 +237,28 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 minimumSize: const Size(0, 32),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        
+
         Expanded(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _activeChallenges.isEmpty
-                  ? _buildEmptyChallenges()
-                  : ListView.builder(
-                      itemCount: _activeChallenges.length,
-                      itemBuilder: (context, index) {
-                        return _buildChallengeCard(_activeChallenges[index]);
-                      },
-                    ),
+              ? _buildEmptyChallenges()
+              : ListView.builder(
+                  itemCount: _activeChallenges.length,
+                  itemBuilder: (context, index) {
+                    return _buildChallengeCard(_activeChallenges[index]);
+                  },
+                ),
         ),
       ],
     );
@@ -275,12 +270,12 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
       children: [
         Text(
           'Friends Leaderboard',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-        
+
         Expanded(
           child: ListView.builder(
             itemCount: 5, // Sample friends
@@ -337,10 +332,7 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                 ],
               ),
@@ -389,7 +381,10 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.blue[100],
                     borderRadius: BorderRadius.circular(10),
@@ -425,7 +420,10 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     minimumSize: const Size(0, 28),
                   ),
                   child: const Text('Join', style: TextStyle(fontSize: 12)),
@@ -446,10 +444,10 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
       {'name': 'Emma', 'level': 7, 'xp': 980},
       {'name': 'You', 'level': 6, 'xp': 850},
     ];
-    
+
     final friend = sampleFriends[index];
     final isCurrentUser = friend['name'] == 'You';
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -488,15 +486,14 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
                 Text(
                   friend['name'] as String,
                   style: TextStyle(
-                    fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.w500,
+                    fontWeight: isCurrentUser
+                        ? FontWeight.bold
+                        : FontWeight.w500,
                   ),
                 ),
                 Text(
                   'Level ${friend['level']} • ${friend['xp']} XP',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
             ),
@@ -514,7 +511,9 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
   }
 
   // Action methods
-  Future<void> _shareLevelProgress(SimpleGamificationProvider gamification) async {
+  Future<void> _shareLevelProgress(
+    SimpleGamificationProvider gamification,
+  ) async {
     final rankInfo = gamification.getRankInfo();
     await _socialService.shareLevelUp(
       newLevel: rankInfo['level'],
@@ -523,7 +522,10 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
     );
   }
 
-  Future<void> _shareAchievement(Achievement achievement, SimpleGamificationProvider gamification) async {
+  Future<void> _shareAchievement(
+    Achievement achievement,
+    SimpleGamificationProvider gamification,
+  ) async {
     final rankInfo = gamification.getRankInfo();
     await _socialService.shareAchievement(
       achievement: achievement,
@@ -532,7 +534,9 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
     );
   }
 
-  Future<void> _shareTradingStats(SimpleGamificationProvider gamification) async {
+  Future<void> _shareTradingStats(
+    SimpleGamificationProvider gamification,
+  ) async {
     final stats = gamification.getTradingStats();
     await _socialService.shareStreak(
       streakDays: stats['streak_days'],
@@ -543,9 +547,9 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
 
   Future<void> _showCreateChallengeDialog() async {
     await _hapticService.mediumTap();
-    
+
     final templates = _challengesService.getChallengeTemplates();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -558,7 +562,10 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
             itemBuilder: (context, index) {
               final template = templates[index];
               return ListTile(
-                leading: Text(template['icon'], style: const TextStyle(fontSize: 20)),
+                leading: Text(
+                  template['icon'],
+                  style: const TextStyle(fontSize: 20),
+                ),
                 title: Text(template['title']),
                 subtitle: Text(template['description']),
                 onTap: () async {
@@ -587,13 +594,13 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
       targetValue: template['targetValue'],
       duration: template['duration'],
     );
-    
+
     await _socialService.createFriendChallenge(
       challengeType: template['title'],
       targetValue: template['targetValue'],
       duration: template['duration'],
     );
-    
+
     await _loadChallenges();
     widget.onChallengeCreated?.call();
   }
@@ -605,7 +612,7 @@ class _SimpleSocialWidgetState extends State<SimpleSocialWidget>
 
   Future<void> _challengeFriend(String friendName) async {
     await _hapticService.lightTap();
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Challenge sent to $friendName!'),

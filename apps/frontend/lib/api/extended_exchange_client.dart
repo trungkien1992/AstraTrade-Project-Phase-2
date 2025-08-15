@@ -6,10 +6,11 @@ import 'package:flutter/foundation.dart';
 /// Handles order placement and trading operations with proper authentication
 class ExtendedExchangeClient {
   // Proxy configuration for local development
-  static const String baseUrl = 'http://localhost:3001/proxy/extended-exchange/api/v1';
+  static const String baseUrl =
+      'http://localhost:3001/proxy/extended-exchange/api/v1';
   static const String signingDomain = 'starknet.sepolia.extended.exchange';
   static const Duration defaultTimeout = Duration(seconds: 15);
-  
+
   // Real API Key for live trading
   static const String realApiKey = String.fromEnvironment(
     'EXTENDED_EXCHANGE_API_KEY',
@@ -24,12 +25,12 @@ class ExtendedExchangeClient {
     required String apiKey,
     http.Client? httpClient,
     String userAgent = 'AstraTrade-Flutter/1.0.0',
-  })  : _apiKey = apiKey,
-        _httpClient = httpClient ?? http.Client(),
-        _userAgent = userAgent;
+  }) : _apiKey = apiKey,
+       _httpClient = httpClient ?? http.Client(),
+       _userAgent = userAgent;
 
   /// Place a real trading order with signed payload
-  /// 
+  ///
   /// This method sends a properly authenticated order request to Extended Exchange
   /// with both API key and Stark signature authentication.
   Future<ExtendedOrderResponse> placeOrder({
@@ -44,7 +45,7 @@ class ExtendedExchangeClient {
     bool postOnly = false,
   }) async {
     final uri = Uri.parse('$baseUrl/orders');
-    
+
     final orderPayload = {
       'market': market,
       'side': side,
@@ -92,16 +93,10 @@ class ExtendedExchangeClient {
   /// Get account balance information
   Future<ExtendedBalanceResponse> getBalance() async {
     final uri = Uri.parse('$baseUrl/user/balance');
-    
+
     try {
       final response = await _httpClient
-          .get(
-            uri,
-            headers: {
-              'X-Api-Key': _apiKey,
-              'User-Agent': _userAgent,
-            },
-          )
+          .get(uri, headers: {'X-Api-Key': _apiKey, 'User-Agent': _userAgent})
           .timeout(defaultTimeout);
 
       if (response.statusCode == 200) {
@@ -125,16 +120,10 @@ class ExtendedExchangeClient {
   /// Get current positions
   Future<List<ExtendedPosition>> getPositions() async {
     final uri = Uri.parse('$baseUrl/user/positions');
-    
+
     try {
       final response = await _httpClient
-          .get(
-            uri,
-            headers: {
-              'X-Api-Key': _apiKey,
-              'User-Agent': _userAgent,
-            },
-          )
+          .get(uri, headers: {'X-Api-Key': _apiKey, 'User-Agent': _userAgent})
           .timeout(defaultTimeout);
 
       if (response.statusCode == 200) {
@@ -161,7 +150,7 @@ class ExtendedExchangeClient {
   /// Get market information for a specific trading pair
   Future<ExtendedMarket> getMarket(String marketName) async {
     final uri = Uri.parse('$baseUrl/info/markets?market=$marketName');
-    
+
     try {
       final response = await _httpClient
           .get(
@@ -204,7 +193,7 @@ class ExtendedExchangeClient {
   /// Get all available markets with real-time data
   Future<List<ExtendedMarket>> getAllMarkets() async {
     final uri = Uri.parse('$baseUrl/info/markets');
-    
+
     try {
       final response = await _httpClient
           .get(
@@ -247,13 +236,7 @@ class ExtendedExchangeClient {
     try {
       final uri = Uri.parse('$baseUrl/info/markets');
       final response = await _httpClient
-          .get(
-            uri,
-            headers: {
-              'X-Api-Key': _apiKey,
-              'User-Agent': _userAgent,
-            },
-          )
+          .get(uri, headers: {'X-Api-Key': _apiKey, 'User-Agent': _userAgent})
           .timeout(const Duration(seconds: 5));
       return response.statusCode == 200;
     } catch (e) {
@@ -267,13 +250,7 @@ class ExtendedExchangeClient {
     final uri = Uri.parse('$baseUrl/orderbook?market=$marketName');
     try {
       final response = await _httpClient
-          .get(
-            uri,
-            headers: {
-              'X-Api-Key': _apiKey,
-              'User-Agent': _userAgent,
-            },
-          )
+          .get(uri, headers: {'X-Api-Key': _apiKey, 'User-Agent': _userAgent})
           .timeout(defaultTimeout);
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -288,7 +265,8 @@ class ExtendedExchangeClient {
     } catch (e) {
       if (e is ExtendedExchangeException) rethrow;
       throw ExtendedExchangeException(
-        'Network error during order book retrieval:  [${e.toString()}]');
+        'Network error during order book retrieval:  [${e.toString()}]',
+      );
     }
   }
 
@@ -304,17 +282,17 @@ class ExtendedOrderResponse {
   final ExtendedOrderData? data;
   final ExtendedError? error;
 
-  ExtendedOrderResponse({
-    required this.status,
-    this.data,
-    this.error,
-  });
+  ExtendedOrderResponse({required this.status, this.data, this.error});
 
   factory ExtendedOrderResponse.fromJson(Map<String, dynamic> json) {
     return ExtendedOrderResponse(
       status: json['status'] ?? '',
-      data: json['data'] != null ? ExtendedOrderData.fromJson(json['data']) : null,
-      error: json['error'] != null ? ExtendedError.fromJson(json['error']) : null,
+      data: json['data'] != null
+          ? ExtendedOrderData.fromJson(json['data'])
+          : null,
+      error: json['error'] != null
+          ? ExtendedError.fromJson(json['error'])
+          : null,
     );
   }
 
@@ -369,17 +347,17 @@ class ExtendedBalanceResponse {
   final ExtendedBalanceData? data;
   final ExtendedError? error;
 
-  ExtendedBalanceResponse({
-    required this.status,
-    this.data,
-    this.error,
-  });
+  ExtendedBalanceResponse({required this.status, this.data, this.error});
 
   factory ExtendedBalanceResponse.fromJson(Map<String, dynamic> json) {
     return ExtendedBalanceResponse(
       status: json['status'] ?? '',
-      data: json['data'] != null ? ExtendedBalanceData.fromJson(json['data']) : null,
-      error: json['error'] != null ? ExtendedError.fromJson(json['error']) : null,
+      data: json['data'] != null
+          ? ExtendedBalanceData.fromJson(json['data'])
+          : null,
+      error: json['error'] != null
+          ? ExtendedError.fromJson(json['error'])
+          : null,
     );
   }
 
@@ -468,7 +446,7 @@ class ExtendedMarket {
 
   factory ExtendedMarket.fromJson(Map<String, dynamic> json) {
     final tradingConfig = json['tradingConfig'] ?? {};
-    
+
     return ExtendedMarket(
       name: json['name'] ?? '',
       baseAsset: json['assetName'] ?? '',
@@ -517,7 +495,8 @@ class ExtendedMarketStats {
       bidPrice: json['bidPrice']?.toString() ?? '0',
       dailyVolume: json['dailyVolume']?.toString() ?? '0',
       dailyPriceChange: json['dailyPriceChange']?.toString() ?? '0',
-      dailyPriceChangePercentage: json['dailyPriceChangePercentage']?.toString() ?? '0',
+      dailyPriceChangePercentage:
+          json['dailyPriceChangePercentage']?.toString() ?? '0',
       dailyHigh: json['dailyHigh']?.toString() ?? '0',
       dailyLow: json['dailyLow']?.toString() ?? '0',
       openInterest: json['openInterest']?.toString() ?? '0',
@@ -584,10 +563,7 @@ class ExtendedError {
   final int code;
   final String message;
 
-  ExtendedError({
-    required this.code,
-    required this.message,
-  });
+  ExtendedError({required this.code, required this.message});
 
   factory ExtendedError.fromJson(Map<String, dynamic> json) {
     return ExtendedError(
@@ -602,11 +578,7 @@ class ExtendedExchangeException implements Exception {
   final int? statusCode;
   final String? details;
 
-  ExtendedExchangeException(
-    this.message, {
-    this.statusCode,
-    this.details,
-  });
+  ExtendedExchangeException(this.message, {this.statusCode, this.details});
 
   @override
   String toString() {

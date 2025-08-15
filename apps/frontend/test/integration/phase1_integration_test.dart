@@ -5,9 +5,11 @@ import 'package:astratrade_app/widgets/cosmic_haptic_button.dart';
 
 void main() {
   group('Phase 1 Integration Tests', () {
-    testWidgets('Cosmic Animation Service Integration', (WidgetTester tester) async {
+    testWidgets('Cosmic Animation Service Integration', (
+      WidgetTester tester,
+    ) async {
       bool animationTriggered = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -38,9 +40,11 @@ void main() {
       expect(animationTriggered, isTrue);
     });
 
-    testWidgets('Cosmic Haptic Button Integration', (WidgetTester tester) async {
+    testWidgets('Cosmic Haptic Button Integration', (
+      WidgetTester tester,
+    ) async {
       bool buttonPressed = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -65,7 +69,7 @@ void main() {
 
     testWidgets('Multiple Animation Types', (WidgetTester tester) async {
       int animationCount = 0;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -104,10 +108,10 @@ void main() {
 
       await tester.tap(find.text('Level Up'));
       await tester.pump();
-      
+
       await tester.tap(find.text('Trade'));
       await tester.pump();
-      
+
       await tester.tap(find.text('Harvest'));
       await tester.pump();
 

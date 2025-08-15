@@ -1,5 +1,5 @@
 /// AstraTrade Paymaster Service for Flutter Integration
-/// 
+///
 /// Provides complete gasless transaction management:
 /// - Mobile-optimized gas sponsorship with tier system
 /// - Real-time gas allowance tracking and refills
@@ -18,13 +18,18 @@ import '../models/paymaster_data.dart';
 class AstraTradePaymasterService {
   final String contractAddress;
   final StarknetClient client;
-  
+
   // Event signatures for real-time listening
-  static const String _transactionSponsoredSignature = '0x1234567890abcdef'; // Replace with actual signature
-  static const String _gasAllowanceRefilledSignature = '0x1234567890abcdeg'; // Replace with actual signature
-  static const String _gasTierUpgradedSignature = '0x1234567890abcdeh'; // Replace with actual signature
-  static const String _gasRewardsClaimedSignature = '0x1234567890abcdei'; // Replace with actual signature
-  static const String _emergencyGasAllocatedSignature = '0x1234567890abcdej'; // Replace with actual signature
+  static const String _transactionSponsoredSignature =
+      '0x1234567890abcdef'; // Replace with actual signature
+  static const String _gasAllowanceRefilledSignature =
+      '0x1234567890abcdeg'; // Replace with actual signature
+  static const String _gasTierUpgradedSignature =
+      '0x1234567890abcdeh'; // Replace with actual signature
+  static const String _gasRewardsClaimedSignature =
+      '0x1234567890abcdei'; // Replace with actual signature
+  static const String _emergencyGasAllocatedSignature =
+      '0x1234567890abcdej'; // Replace with actual signature
 
   AstraTradePaymasterService({
     required this.contractAddress,
@@ -42,7 +47,7 @@ class AstraTradePaymasterService {
     try {
       final contractAddr = Felt.fromHex(contractAddress);
       final userAddr = Felt.fromHex(userAddress);
-      
+
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('sponsor_user_transaction'),
@@ -57,12 +62,16 @@ class AstraTradePaymasterService {
         request: CallRequest(
           contractAddress: contractAddr,
           entryPointSelector: getSelectorByName('sponsor_user_transaction'),
-          calldata: [userAddr, Felt(BigInt.from(gasLimit)), Felt(BigInt.from(transactionType))],
+          calldata: [
+            userAddr,
+            Felt(BigInt.from(gasLimit)),
+            Felt(BigInt.from(transactionType)),
+          ],
         ),
       );
 
       final success = response.first.toHex() == '0x1';
-      
+
       if (success) {
         // Listen for TransactionSponsored event
         final sponsorEvent = await _waitForEvent(
@@ -108,7 +117,9 @@ class AstraTradePaymasterService {
       final response = await client.call(
         request: CallRequest(
           contractAddress: contractAddr,
-          entryPointSelector: getSelectorByName('validate_paymaster_transaction'),
+          entryPointSelector: getSelectorByName(
+            'validate_paymaster_transaction',
+          ),
           calldata: [
             userAddr,
             Felt(BigInt.from(gasEstimate)),
@@ -134,27 +145,40 @@ class AstraTradePaymasterService {
     try {
       final contractAddr = Felt.fromHex(contractAddress);
       final userAddr = Felt.fromHex(userAddress);
-      
+
       // Convert calls to the format expected by the contract
-      final contractCalls = calls.map((call) => Call(
-        to: Felt.fromHex(call.contractAddress),
-        selector: getSelectorByName(call.functionName),
-        calldata: call.calldata.map((data) => Felt.fromHex(data)).toList(),
-      )).toList();
+      final contractCalls = calls
+          .map(
+            (call) => Call(
+              to: Felt.fromHex(call.contractAddress),
+              selector: getSelectorByName(call.functionName),
+              calldata: call.calldata
+                  .map((data) => Felt.fromHex(data))
+                  .toList(),
+            ),
+          )
+          .toList();
 
       // In a real implementation, this would use account abstraction
       // to execute the sponsored transaction
-      final callsData = contractCalls.map((call) => [
-        call.to,
-        call.selector,
-        Felt(BigInt.from(call.calldata.length)),
-        ...call.calldata,
-      ]).expand((x) => x).toList();
+      final callsData = contractCalls
+          .map(
+            (call) => [
+              call.to,
+              call.selector,
+              Felt(BigInt.from(call.calldata.length)),
+              ...call.calldata,
+            ],
+          )
+          .expand((x) => x)
+          .toList();
 
       final response = await client.call(
         request: CallRequest(
           contractAddress: contractAddr,
-          entryPointSelector: getSelectorByName('execute_sponsored_transaction'),
+          entryPointSelector: getSelectorByName(
+            'execute_sponsored_transaction',
+          ),
           calldata: [
             userAddr,
             Felt(BigInt.from(callsData.length)),
@@ -209,14 +233,11 @@ class AstraTradePaymasterService {
     try {
       final contractAddr = Felt.fromHex(contractAddress);
       final userAddr = Felt.fromHex(userAddress);
-      
+
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('refill_gas_allowance'),
-        calldata: [
-          userAddr,
-          Felt(BigInt.from(amount)),
-        ],
+        calldata: [userAddr, Felt(BigInt.from(amount))],
       );
 
       final response = await client.execute(
@@ -311,14 +332,11 @@ class AstraTradePaymasterService {
     try {
       final contractAddr = Felt.fromHex(contractAddress);
       final userAddr = Felt.fromHex(userAddress);
-      
+
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('earn_gas_refund_xp'),
-        calldata: [
-          userAddr,
-          Felt(BigInt.from(gasSaved)),
-        ],
+        calldata: [userAddr, Felt(BigInt.from(gasSaved))],
       );
 
       final response = await client.execute(
@@ -344,7 +362,7 @@ class AstraTradePaymasterService {
   }) async {
     try {
       final contractAddr = Felt.fromHex(contractAddress);
-      
+
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('unlock_premium_gas_features'),
@@ -417,7 +435,7 @@ class AstraTradePaymasterService {
   }) async {
     try {
       final contractAddr = Felt.fromHex(contractAddress);
-      
+
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('claim_trading_gas_rewards'),
@@ -484,7 +502,9 @@ class AstraTradePaymasterService {
       final response = await client.call(
         request: CallRequest(
           contractAddress: contractAddr,
-          entryPointSelector: getSelectorByName('validate_external_gas_payment'),
+          entryPointSelector: getSelectorByName(
+            'validate_external_gas_payment',
+          ),
           calldata: [
             userAddr,
             Felt(BigInt.from(dataSpan.length)),
@@ -513,15 +533,11 @@ class AstraTradePaymasterService {
       final contractAddr = Felt.fromHex(contractAddress);
       final userAddr = Felt.fromHex(userAddress);
       final providerFelt = _stringToFelt(provider);
-      
+
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('sync_external_gas_credits'),
-        calldata: [
-          userAddr,
-          Felt(BigInt.from(credits)),
-          providerFelt,
-        ],
+        calldata: [userAddr, Felt(BigInt.from(credits)), providerFelt],
       );
 
       final response = await client.execute(
@@ -565,10 +581,10 @@ class AstraTradePaymasterService {
   Stream<PaymasterEvent> monitorUserGasEvents(String userAddress) async* {
     // In a real implementation, this would use WebSocket or polling
     // to monitor contract events in real-time
-    
+
     while (true) {
       await Future.delayed(const Duration(seconds: 3));
-      
+
       try {
         // Poll for recent gas events
         final events = await _getRecentGasEvents(userAddress);
@@ -588,7 +604,10 @@ class AstraTradePaymasterService {
         getUserGasAllowance(userAddress),
         getUserGasTier(userAddress),
         getRemainingSponsoredGas(userAddress),
-        calculateGasRefundRate(userAddress: userAddress, tradingVolume: BigInt.zero),
+        calculateGasRefundRate(
+          userAddress: userAddress,
+          tradingVolume: BigInt.zero,
+        ),
       ]);
 
       return UserGasData(
@@ -611,27 +630,27 @@ class AstraTradePaymasterService {
   Felt _stringToFelt(String str) {
     final bytes = utf8.encode(str);
     BigInt value = BigInt.zero;
-    
+
     for (int i = 0; i < bytes.length && i < 31; i++) {
       value += BigInt.from(bytes[i]) << (8 * (bytes.length - 1 - i));
     }
-    
+
     return Felt(value);
   }
 
   /// Wait for specific event to be emitted
   Future<Map<String, dynamic>?> _waitForEvent(
     String transactionHash,
-    String eventSignature,
-    {Duration timeout = const Duration(seconds: 30)}
-  ) async {
+    String eventSignature, {
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
     final startTime = DateTime.now();
-    
+
     while (DateTime.now().difference(startTime) < timeout) {
       try {
         // In real implementation, query transaction receipt for events
         await Future.delayed(const Duration(milliseconds: 500));
-        
+
         // Mock event data - replace with actual event parsing
         return {
           'transaction_hash': transactionHash,
@@ -645,7 +664,7 @@ class AstraTradePaymasterService {
         await Future.delayed(const Duration(seconds: 1));
       }
     }
-    
+
     return null;
   }
 
@@ -669,24 +688,36 @@ class AstraTradePaymasterService {
   /// Get gas tier color
   static String getGasTierColor(int tier) {
     switch (tier) {
-      case 0: return '#9E9E9E'; // Basic - Gray
-      case 1: return '#C0C0C0'; // Silver
-      case 2: return '#FFD700'; // Gold
-      case 3: return '#E5E4E2'; // Platinum
-      case 4: return '#B9F2FF'; // Diamond
-      default: return '#9E9E9E';
+      case 0:
+        return '#9E9E9E'; // Basic - Gray
+      case 1:
+        return '#C0C0C0'; // Silver
+      case 2:
+        return '#FFD700'; // Gold
+      case 3:
+        return '#E5E4E2'; // Platinum
+      case 4:
+        return '#B9F2FF'; // Diamond
+      default:
+        return '#9E9E9E';
     }
   }
 
   /// Get gas tier name
   static String getGasTierName(int tier) {
     switch (tier) {
-      case 0: return 'Basic';
-      case 1: return 'Silver';
-      case 2: return 'Gold'; 
-      case 3: return 'Platinum';
-      case 4: return 'Diamond';
-      default: return 'Unknown';
+      case 0:
+        return 'Basic';
+      case 1:
+        return 'Silver';
+      case 2:
+        return 'Gold';
+      case 3:
+        return 'Platinum';
+      case 4:
+        return 'Diamond';
+      default:
+        return 'Unknown';
     }
   }
 }
@@ -708,22 +739,31 @@ class ContractCall {
 
 final paymasterServiceProvider = Provider<AstraTradePaymasterService>((ref) {
   return AstraTradePaymasterService(
-    contractAddress: ContractAddresses.paymasterContract, // ✅ Updated with deployed address
+    contractAddress:
+        ContractAddresses.paymasterContract, // ✅ Updated with deployed address
     client: StarknetClient(), // Configure with appropriate network
   );
 });
 
-final userGasDataProvider = FutureProvider.family<UserGasData, String>((ref, userAddress) async {
+final userGasDataProvider = FutureProvider.family<UserGasData, String>((
+  ref,
+  userAddress,
+) async {
   final service = ref.read(paymasterServiceProvider);
   return service.getUserGasData(userAddress);
 });
 
-final gasEventsProvider = StreamProvider.family<PaymasterEvent, String>((ref, userAddress) {
+final gasEventsProvider = StreamProvider.family<PaymasterEvent, String>((
+  ref,
+  userAddress,
+) {
   final service = ref.read(paymasterServiceProvider);
   return service.monitorUserGasEvents(userAddress);
 });
 
-final platformGasMetricsProvider = FutureProvider<PlatformGasMetrics>((ref) async {
+final platformGasMetricsProvider = FutureProvider<PlatformGasMetrics>((
+  ref,
+) async {
   final service = ref.read(paymasterServiceProvider);
   return service.getPlatformGasMetrics();
 });
@@ -732,7 +772,7 @@ final platformGasMetricsProvider = FutureProvider<PlatformGasMetrics>((ref) asyn
 extension GasTierExtension on int {
   String get tierName => AstraTradePaymasterService.getGasTierName(this);
   String get tierColor => AstraTradePaymasterService.getGasTierColor(this);
-  
+
   bool get hasEmergencyAccess => this >= 2; // Gold tier and above
   bool get hasPriorityProcessing => this >= 1; // Silver tier and above
   bool get hasBatchTransactions => this >= 2; // Gold tier and above

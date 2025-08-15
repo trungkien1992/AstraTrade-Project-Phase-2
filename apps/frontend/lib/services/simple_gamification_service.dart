@@ -12,17 +12,17 @@ class SimpleGamificationService {
   static const String _storageKey = 'player_progress';
   static const String _achievementsKey = 'player_achievements';
   static const String _eventsKey = 'xp_events';
-  
+
   PlayerProgress? _currentProgress;
   final List<Achievement> _allAchievements = [];
   final List<XPGainEvent> _recentEvents = [];
-  
+
   /// Get current player progress
   PlayerProgress? get currentProgress => _currentProgress;
-  
+
   /// Get all available achievements
   List<Achievement> get allAchievements => List.unmodifiable(_allAchievements);
-  
+
   /// Get recent XP events
   List<XPGainEvent> get recentEvents => List.unmodifiable(_recentEvents);
 
@@ -36,17 +36,16 @@ class SimpleGamificationService {
         await _loadRecentEvents();
         return existingProgress;
       }
-      
+
       // Create new player progress
       final newProgress = PlayerProgress.newPlayer(playerId);
       _currentProgress = newProgress;
-      
+
       await _savePlayerProgress(newProgress);
       await _initializeAchievements();
-      
+
       debugPrint('🎮 Initialized simple gamification for player: $playerId');
       return newProgress;
-      
     } catch (e) {
       log('Error initializing gamification: $e');
       throw GamificationException('Failed to initialize gamification system');
@@ -65,7 +64,7 @@ class SimpleGamificationService {
       final profitBonus = isProfitable ? 15 : 0;
       final amountBonus = (amount / 10).round().clamp(0, 50);
       final totalXP = baseXP + profitBonus + amountBonus;
-      
+
       final event = XPGainEvent(
         eventId: 'practice_${DateTime.now().millisecondsSinceEpoch}',
         playerId: playerId,
@@ -73,7 +72,9 @@ class SimpleGamificationService {
         xpGained: totalXP,
         tradingPointsGained: 0,
         practicePointsGained: 5 + (isProfitable ? 5 : 0),
-        description: isProfitable ? 'Profitable Practice Trade! 📈' : 'Practice Trade Complete 📊',
+        description: isProfitable
+            ? 'Profitable Practice Trade! 📈'
+            : 'Practice Trade Complete 📊',
         timestamp: DateTime.now(),
         metadata: {
           'trade_amount': amount,
@@ -82,13 +83,12 @@ class SimpleGamificationService {
           ...?metadata,
         },
       );
-      
+
       await _applyXPGain(event);
       await _checkAchievements();
-      
+
       debugPrint('🎯 Practice trade XP awarded: ${totalXP}XP');
       return event;
-      
     } catch (e) {
       log('Error awarding practice XP: $e');
       throw GamificationException('Failed to award practice XP');
@@ -109,15 +109,19 @@ class SimpleGamificationService {
       final amountBonus = (amount / 5).round().clamp(0, 200);
       final profitBonus2 = (profit.abs() * 10).round().clamp(0, 500);
       final totalXP = baseXP + profitBonus + amountBonus + profitBonus2;
-      
+
       final event = XPGainEvent(
         eventId: 'real_${DateTime.now().millisecondsSinceEpoch}',
         playerId: playerId,
-        source: isProfitable ? XPGainSource.profitableTrade : XPGainSource.realTrade,
+        source: isProfitable
+            ? XPGainSource.profitableTrade
+            : XPGainSource.realTrade,
         xpGained: totalXP,
         tradingPointsGained: 25 + (isProfitable ? 75 : 0),
         practicePointsGained: 0,
-        description: isProfitable ? 'Profitable Real Trade! 🚀' : 'Real Trade Complete 💼',
+        description: isProfitable
+            ? 'Profitable Real Trade! 🚀'
+            : 'Real Trade Complete 💼',
         timestamp: DateTime.now(),
         metadata: {
           'trade_amount': amount,
@@ -127,13 +131,14 @@ class SimpleGamificationService {
           ...?metadata,
         },
       );
-      
+
       await _applyXPGain(event);
       await _checkAchievements();
-      
-      debugPrint('💰 Real trade XP awarded: ${totalXP}XP, ${event.tradingPointsGained}TP');
+
+      debugPrint(
+        '💰 Real trade XP awarded: ${totalXP}XP, ${event.tradingPointsGained}TP',
+      );
       return event;
-      
     } catch (e) {
       log('Error awarding real trade XP: $e');
       throw GamificationException('Failed to award real trade XP');
@@ -144,7 +149,7 @@ class SimpleGamificationService {
   Future<XPGainEvent?> awardDailyLogin(String playerId) async {
     try {
       if (_currentProgress == null) return null;
-      
+
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
       final lastActive = DateTime(
@@ -152,24 +157,26 @@ class SimpleGamificationService {
         _currentProgress!.lastActiveDate.month,
         _currentProgress!.lastActiveDate.day,
       );
-      
+
       // Check if already claimed today
       if (lastActive.isAtSameMomentAs(today)) {
         return null; // Already claimed today
       }
-      
+
       // Calculate new streak
       final yesterday = today.subtract(const Duration(days: 1));
-      final newStreak = lastActive.isAtSameMomentAs(yesterday) 
-          ? _currentProgress!.streakDays + 1 
+      final newStreak = lastActive.isAtSameMomentAs(yesterday)
+          ? _currentProgress!.streakDays + 1
           : 1; // Reset if gap
-      
+
       final dailyReward = DailyReward.calculateReward(newStreak);
-      
+
       final event = XPGainEvent(
         eventId: 'daily_${DateTime.now().millisecondsSinceEpoch}',
         playerId: playerId,
-        source: newStreak > 1 ? XPGainSource.streakBonus : XPGainSource.dailyLogin,
+        source: newStreak > 1
+            ? XPGainSource.streakBonus
+            : XPGainSource.dailyLogin,
         xpGained: dailyReward.xpReward,
         tradingPointsGained: dailyReward.tradingPointsReward,
         practicePointsGained: 0,
@@ -181,7 +188,7 @@ class SimpleGamificationService {
           'bonus_rewards': dailyReward.bonusRewards,
         },
       );
-      
+
       // Update streak and last active date
       _currentProgress = _currentProgress!.copyWith(
         streakDays: newStreak,
@@ -189,16 +196,20 @@ class SimpleGamificationService {
         stats: {
           ..._currentProgress!.stats,
           'days_active': _currentProgress!.stats['days_active']! + 1,
-          'best_streak': math.max(_currentProgress!.stats['best_streak']!, newStreak),
+          'best_streak': math.max(
+            _currentProgress!.stats['best_streak']!,
+            newStreak,
+          ),
         },
       );
-      
+
       await _applyXPGain(event);
       await _checkAchievements();
-      
-      debugPrint('📅 Daily login bonus: ${dailyReward.xpReward}XP (streak: $newStreak)');
+
+      debugPrint(
+        '📅 Daily login bonus: ${dailyReward.xpReward}XP (streak: $newStreak)',
+      );
       return event;
-      
     } catch (e) {
       log('Error awarding daily login: $e');
       return null;
@@ -209,16 +220,16 @@ class SimpleGamificationService {
   Future<List<Achievement>> _checkAchievements() async {
     try {
       if (_currentProgress == null) return [];
-      
+
       final newAchievements = <Achievement>[];
       final stats = _currentProgress!.stats;
-      
+
       for (final achievement in _allAchievements) {
         // Skip if already earned
         if (_currentProgress!.achievements.contains(achievement.id)) continue;
-        
+
         bool earned = false;
-        
+
         switch (achievement.type) {
           case AchievementType.firstTrade:
             earned = stats['total_trades']! >= 1;
@@ -245,15 +256,14 @@ class SimpleGamificationService {
             // Handle special events separately
             break;
         }
-        
+
         if (earned) {
           newAchievements.add(achievement);
           await _awardAchievement(achievement);
         }
       }
-      
+
       return newAchievements;
-      
     } catch (e) {
       log('Error checking achievements: $e');
       return [];
@@ -264,10 +274,13 @@ class SimpleGamificationService {
   Future<void> _awardAchievement(Achievement achievement) async {
     try {
       if (_currentProgress == null) return;
-      
+
       // Add achievement to player's list
-      final updatedAchievements = [..._currentProgress!.achievements, achievement.id];
-      
+      final updatedAchievements = [
+        ..._currentProgress!.achievements,
+        achievement.id,
+      ];
+
       // Award XP and TP
       final achievementEvent = XPGainEvent(
         eventId: 'achievement_${DateTime.now().millisecondsSinceEpoch}',
@@ -284,12 +297,15 @@ class SimpleGamificationService {
           'rarity': achievement.rarity.name,
         },
       );
-      
-      _currentProgress = _currentProgress!.copyWith(achievements: updatedAchievements);
+
+      _currentProgress = _currentProgress!.copyWith(
+        achievements: updatedAchievements,
+      );
       await _applyXPGain(achievementEvent);
-      
-      debugPrint('🏆 Achievement unlocked: ${achievement.name} (+${achievement.xpReward}XP)');
-      
+
+      debugPrint(
+        '🏆 Achievement unlocked: ${achievement.name} (+${achievement.xpReward}XP)',
+      );
     } catch (e) {
       log('Error awarding achievement: $e');
     }
@@ -299,26 +315,29 @@ class SimpleGamificationService {
   Future<void> _applyXPGain(XPGainEvent event) async {
     try {
       if (_currentProgress == null) return;
-      
+
       final oldLevel = _currentProgress!.level;
       final newXP = _currentProgress!.xp + event.xpGained;
       final newTP = _currentProgress!.tradingPoints + event.tradingPointsGained;
-      final newPP = _currentProgress!.practicePoints + event.practicePointsGained;
-      
+      final newPP =
+          _currentProgress!.practicePoints + event.practicePointsGained;
+
       // Calculate new level
       int newLevel = oldLevel;
       while (newXP >= PlayerProgress.xpRequiredForLevel(newLevel + 1)) {
         newLevel++;
       }
-      
+
       // Update stats based on event type
       final updatedStats = Map<String, int>.from(_currentProgress!.stats);
       switch (event.source) {
         case XPGainSource.practiceTrade:
-          updatedStats['practice_trades'] = updatedStats['practice_trades']! + 1;
+          updatedStats['practice_trades'] =
+              updatedStats['practice_trades']! + 1;
           updatedStats['total_trades'] = updatedStats['total_trades']! + 1;
           if (event.metadata['profitable'] == true) {
-            updatedStats['profitable_trades'] = updatedStats['profitable_trades']! + 1;
+            updatedStats['profitable_trades'] =
+                updatedStats['profitable_trades']! + 1;
           }
           break;
         case XPGainSource.realTrade:
@@ -326,15 +345,17 @@ class SimpleGamificationService {
           updatedStats['real_trades'] = updatedStats['real_trades']! + 1;
           updatedStats['total_trades'] = updatedStats['total_trades']! + 1;
           if (event.metadata['profitable'] == true) {
-            updatedStats['profitable_trades'] = updatedStats['profitable_trades']! + 1;
+            updatedStats['profitable_trades'] =
+                updatedStats['profitable_trades']! + 1;
             final profit = (event.metadata['profit'] as double? ?? 0.0).round();
-            updatedStats['total_profit'] = updatedStats['total_profit']! + profit;
+            updatedStats['total_profit'] =
+                updatedStats['total_profit']! + profit;
           }
           break;
         default:
           break;
       }
-      
+
       _currentProgress = _currentProgress!.copyWith(
         xp: newXP,
         level: newLevel,
@@ -342,21 +363,20 @@ class SimpleGamificationService {
         practicePoints: newPP,
         stats: updatedStats,
       );
-      
+
       // Add event to recent events
       _recentEvents.insert(0, event);
       if (_recentEvents.length > 50) {
         _recentEvents.removeRange(50, _recentEvents.length);
       }
-      
+
       await _savePlayerProgress(_currentProgress!);
       await _saveRecentEvents();
-      
+
       // Handle level up
       if (newLevel > oldLevel) {
         await _handleLevelUp(oldLevel, newLevel);
       }
-      
     } catch (e) {
       log('Error applying XP gain: $e');
     }
@@ -381,14 +401,13 @@ class SimpleGamificationService {
             'tp_reward': level * 10,
           },
         );
-        
+
         _recentEvents.insert(0, levelUpEvent);
-        
+
         debugPrint('⬆️ Level up! $oldLevel → $level (+${level * 10}TP)');
       }
-      
+
       await _saveRecentEvents();
-      
     } catch (e) {
       log('Error handling level up: $e');
     }
@@ -397,46 +416,58 @@ class SimpleGamificationService {
   /// Get player's achievement progress
   Map<String, double> getAchievementProgress() {
     if (_currentProgress == null) return {};
-    
+
     final progress = <String, double>{};
     final stats = _currentProgress!.stats;
-    
+
     for (final achievement in _allAchievements) {
       if (_currentProgress!.achievements.contains(achievement.id)) {
         progress[achievement.id] = 1.0; // Completed
         continue;
       }
-      
+
       double currentProgress = 0.0;
-      
+
       switch (achievement.type) {
         case AchievementType.firstTrade:
         case AchievementType.tradeCount:
-          currentProgress = (stats['total_trades']! / achievement.targetValue).clamp(0.0, 1.0);
+          currentProgress = (stats['total_trades']! / achievement.targetValue)
+              .clamp(0.0, 1.0);
           break;
         case AchievementType.profitTarget:
-          currentProgress = (stats['total_profit']! / achievement.targetValue).clamp(0.0, 1.0);
+          currentProgress = (stats['total_profit']! / achievement.targetValue)
+              .clamp(0.0, 1.0);
           break;
         case AchievementType.streakMilestone:
-          currentProgress = (_currentProgress!.streakDays / achievement.targetValue).clamp(0.0, 1.0);
+          currentProgress =
+              (_currentProgress!.streakDays / achievement.targetValue).clamp(
+                0.0,
+                1.0,
+              );
           break;
         case AchievementType.levelMilestone:
-          currentProgress = (_currentProgress!.level / achievement.targetValue).clamp(0.0, 1.0);
+          currentProgress = (_currentProgress!.level / achievement.targetValue)
+              .clamp(0.0, 1.0);
           break;
         case AchievementType.practiceMilestone:
-          currentProgress = (stats['practice_trades']! / achievement.targetValue).clamp(0.0, 1.0);
+          currentProgress =
+              (stats['practice_trades']! / achievement.targetValue).clamp(
+                0.0,
+                1.0,
+              );
           break;
         case AchievementType.realTrading:
-          currentProgress = (stats['real_trades']! / achievement.targetValue).clamp(0.0, 1.0);
+          currentProgress = (stats['real_trades']! / achievement.targetValue)
+              .clamp(0.0, 1.0);
           break;
         case AchievementType.specialEvent:
           currentProgress = 0.0;
           break;
       }
-      
+
       progress[achievement.id] = currentProgress;
     }
-    
+
     return progress;
   }
 
@@ -446,10 +477,9 @@ class SimpleGamificationService {
       final prefs = await SharedPreferences.getInstance();
       final data = prefs.getString('${_storageKey}_$playerId');
       if (data == null) return null;
-      
+
       final json = jsonDecode(data) as Map<String, dynamic>;
       return PlayerProgress.fromJson(json);
-      
     } catch (e) {
       log('Error loading player progress: $e');
       return null;
@@ -462,7 +492,6 @@ class SimpleGamificationService {
       final prefs = await SharedPreferences.getInstance();
       final data = jsonEncode(progress.toJson());
       await prefs.setString('${_storageKey}_${progress.playerId}', data);
-      
     } catch (e) {
       log('Error saving player progress: $e');
     }
@@ -472,17 +501,20 @@ class SimpleGamificationService {
   Future<void> _loadRecentEvents() async {
     try {
       if (_currentProgress == null) return;
-      
+
       final prefs = await SharedPreferences.getInstance();
-      final data = prefs.getString('${_eventsKey}_${_currentProgress!.playerId}');
+      final data = prefs.getString(
+        '${_eventsKey}_${_currentProgress!.playerId}',
+      );
       if (data == null) return;
-      
+
       final jsonList = jsonDecode(data) as List<dynamic>;
       _recentEvents.clear();
       _recentEvents.addAll(
-        jsonList.map((json) => XPGainEvent.fromJson(json as Map<String, dynamic>))
+        jsonList.map(
+          (json) => XPGainEvent.fromJson(json as Map<String, dynamic>),
+        ),
       );
-      
     } catch (e) {
       log('Error loading recent events: $e');
     }
@@ -492,11 +524,13 @@ class SimpleGamificationService {
   Future<void> _saveRecentEvents() async {
     try {
       if (_currentProgress == null) return;
-      
+
       final prefs = await SharedPreferences.getInstance();
       final data = jsonEncode(_recentEvents.map((e) => e.toJson()).toList());
-      await prefs.setString('${_eventsKey}_${_currentProgress!.playerId}', data);
-      
+      await prefs.setString(
+        '${_eventsKey}_${_currentProgress!.playerId}',
+        data,
+      );
     } catch (e) {
       log('Error saving recent events: $e');
     }
@@ -555,7 +589,7 @@ class SimpleGamificationService {
         rarity: AchievementRarity.rare,
         requirements: [],
       ),
-      
+
       // Level Achievements
       Achievement(
         id: 'level_10',
@@ -593,7 +627,7 @@ class SimpleGamificationService {
         rarity: AchievementRarity.epic,
         requirements: [],
       ),
-      
+
       // Streak Achievements
       Achievement(
         id: 'streak_7',
@@ -631,7 +665,7 @@ class SimpleGamificationService {
         rarity: AchievementRarity.legendary,
         requirements: [],
       ),
-      
+
       // Practice Achievements
       Achievement(
         id: 'practice_50',
@@ -645,7 +679,7 @@ class SimpleGamificationService {
         rarity: AchievementRarity.common,
         requirements: [],
       ),
-      
+
       // Real Trading Achievements
       Achievement(
         id: 'real_trade_1',
@@ -671,7 +705,7 @@ class SimpleGamificationService {
         rarity: AchievementRarity.rare,
         requirements: [],
       ),
-      
+
       // Profit Achievements
       Achievement(
         id: 'profit_100',
@@ -704,9 +738,9 @@ class SimpleGamificationService {
 /// Exception for gamification operations
 class GamificationException implements Exception {
   final String message;
-  
+
   GamificationException(this.message);
-  
+
   @override
   String toString() => 'GamificationException: $message';
 }

@@ -1,0 +1,9 @@
+{
+  "network": "sepolia",
+  "rpc_url": "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_8/R9ppBBhFDUo9CN8zsHvnqFz7IQcRTaJV",
+  "timestamp": 1755156911,
+  "deployment_date": "2025-08-14T14:35:11.610985",
+  "contracts": {},
+  "deployment_order": [],
+  "constructor_dependencies": {}
+}

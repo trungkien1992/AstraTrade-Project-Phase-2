@@ -10,46 +10,52 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
-  final StreamController<GameNotification> _notificationController = StreamController<GameNotification>.broadcast();
-  
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
+  final StreamController<GameNotification> _notificationController =
+      StreamController<GameNotification>.broadcast();
+
   Timer? _mockEventTimer;
   bool _isInitialized = false;
   List<GameNotification> _notificationHistory = [];
-  
+
   // Stream for listening to notifications
-  Stream<GameNotification> get notificationStream => _notificationController.stream;
-  
+  Stream<GameNotification> get notificationStream =>
+      _notificationController.stream;
+
   // Get notification history
-  List<GameNotification> get notificationHistory => List.unmodifiable(_notificationHistory);
+  List<GameNotification> get notificationHistory =>
+      List.unmodifiable(_notificationHistory);
 
   Future<void> initialize() async {
     if (_isInitialized) return;
-    
+
     // Initialize local notifications
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-    
+
     const initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
-    
+
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
-    
+
     // Load notification history
     await _loadNotificationHistory();
-    
+
     // Start mock real-time events for development
     _startMockEventTimer();
-    
+
     _isInitialized = true;
   }
 
@@ -70,7 +76,7 @@ class NotificationService {
   // Show local notification
   Future<void> showNotification(GameNotification notification) async {
     if (!_isInitialized) await initialize();
-    
+
     const androidDetails = AndroidNotificationDetails(
       'astratrade_game',
       'AstraTrade Game',
@@ -79,13 +85,13 @@ class NotificationService {
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
     );
-    
+
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
-    
+
     const details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
@@ -107,12 +113,12 @@ class NotificationService {
   // Add notification to history and save
   void _addToHistory(GameNotification notification) {
     _notificationHistory.insert(0, notification);
-    
+
     // Keep only last 100 notifications
     if (_notificationHistory.length > 100) {
       _notificationHistory = _notificationHistory.take(100).toList();
     }
-    
+
     _saveNotificationHistory();
   }
 
@@ -132,7 +138,7 @@ class NotificationService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final historyString = prefs.getString('notification_history');
-      
+
       if (historyString != null) {
         final historyJson = json.decode(historyString) as List;
         _notificationHistory = historyJson
@@ -154,9 +160,13 @@ class NotificationService {
 
   // Mark notification as read
   void markAsRead(String notificationId) {
-    final index = _notificationHistory.indexWhere((n) => n.id == notificationId);
+    final index = _notificationHistory.indexWhere(
+      (n) => n.id == notificationId,
+    );
     if (index != -1) {
-      _notificationHistory[index] = _notificationHistory[index].copyWith(isRead: true);
+      _notificationHistory[index] = _notificationHistory[index].copyWith(
+        isRead: true,
+      );
       _saveNotificationHistory();
     }
   }
@@ -179,38 +189,40 @@ class NotificationService {
       {
         'type': NotificationType.constellation,
         'title': 'Constellation Battle Started!',
-        'message': 'Stellar Pioneers vs Cosmic Guardians - Trading Duel is now active!',
-        'data': {'battle_id': 'battle_${random.nextInt(1000)}'}
+        'message':
+            'Stellar Pioneers vs Cosmic Guardians - Trading Duel is now active!',
+        'data': {'battle_id': 'battle_${random.nextInt(1000)}'},
       },
       {
         'type': NotificationType.achievement,
         'title': 'Achievement Unlocked!',
         'message': 'You\'ve earned a Rare Genesis NFT for reaching Level 25!',
-        'data': {'achievement': 'level_milestone', 'level': 25}
+        'data': {'achievement': 'level_milestone', 'level': 25},
       },
       {
         'type': NotificationType.viral,
         'title': 'Your Meme is Going Viral!',
         'message': 'Your "Diamond Hands" meme has 500+ shares! 🚀',
-        'data': {'meme_id': 'meme_${random.nextInt(1000)}', 'shares': 500}
+        'data': {'meme_id': 'meme_${random.nextInt(1000)}', 'shares': 500},
       },
       {
         'type': NotificationType.trading,
         'title': 'Trading Opportunity!',
-        'message': 'ETH/USDT is showing strong momentum - perfect for your strategy!',
-        'data': {'pair': 'ETH/USDT', 'trend': 'bullish'}
+        'message':
+            'ETH/USDT is showing strong momentum - perfect for your strategy!',
+        'data': {'pair': 'ETH/USDT', 'trend': 'bullish'},
       },
       {
         'type': NotificationType.social,
         'title': 'New Constellation Member!',
         'message': 'CosmicTrader has joined your constellation. Welcome them!',
-        'data': {'username': 'CosmicTrader'}
+        'data': {'username': 'CosmicTrader'},
       },
       {
         'type': NotificationType.marketplace,
         'title': 'NFT Sale Completed!',
         'message': 'Your Legendary Genesis NFT sold for 5,000 Stellar Shards!',
-        'data': {'nft_id': 'genesis_legendary_123', 'price': 5000}
+        'data': {'nft_id': 'genesis_legendary_123', 'price': 5000},
       },
     ];
 
@@ -229,64 +241,93 @@ class NotificationService {
   }
 
   // Real-time event handlers (would be called by actual game events)
-  
-  void onConstellationBattleStarted(String battleId, String challengerName, String defenderName) {
+
+  void onConstellationBattleStarted(
+    String battleId,
+    String challengerName,
+    String defenderName,
+  ) {
     final notification = GameNotification(
       id: 'battle_start_$battleId',
       type: NotificationType.constellation,
       title: 'Constellation Battle Started!',
       message: '$challengerName is challenging $defenderName to battle!',
-      data: {'battle_id': battleId, 'challenger': challengerName, 'defender': defenderName},
+      data: {
+        'battle_id': battleId,
+        'challenger': challengerName,
+        'defender': defenderName,
+      },
       timestamp: DateTime.now(),
       isRead: false,
     );
-    
+
     showNotification(notification);
   }
 
-  void onAchievementUnlocked(String achievementType, Map<String, dynamic> details) {
+  void onAchievementUnlocked(
+    String achievementType,
+    Map<String, dynamic> details,
+  ) {
     final notification = GameNotification(
       id: 'achievement_${DateTime.now().millisecondsSinceEpoch}',
       type: NotificationType.achievement,
       title: 'Achievement Unlocked!',
-      message: 'You\'ve earned a new Genesis NFT: ${achievementType.replaceAll('_', ' ').toUpperCase()}!',
+      message:
+          'You\'ve earned a new Genesis NFT: ${achievementType.replaceAll('_', ' ').toUpperCase()}!',
       data: {'achievement': achievementType, ...details},
       timestamp: DateTime.now(),
       isRead: false,
     );
-    
+
     showNotification(notification);
   }
 
-  void onViralContentMilestone(String contentId, int milestone, String contentType) {
+  void onViralContentMilestone(
+    String contentId,
+    int milestone,
+    String contentType,
+  ) {
     final notification = GameNotification(
       id: 'viral_$contentId',
       type: NotificationType.viral,
       title: 'Content Going Viral! 🔥',
       message: 'Your $contentType reached $milestone interactions!',
-      data: {'content_id': contentId, 'milestone': milestone, 'type': contentType},
+      data: {
+        'content_id': contentId,
+        'milestone': milestone,
+        'type': contentType,
+      },
       timestamp: DateTime.now(),
       isRead: false,
     );
-    
+
     showNotification(notification);
   }
 
-  void onTradingAlert(String symbol, String alertType, Map<String, dynamic> data) {
+  void onTradingAlert(
+    String symbol,
+    String alertType,
+    Map<String, dynamic> data,
+  ) {
     final notification = GameNotification(
       id: 'trade_alert_${DateTime.now().millisecondsSinceEpoch}',
       type: NotificationType.trading,
       title: 'Trading Alert: $symbol',
-      message: 'Price alert triggered for $symbol - $alertType signal detected!',
+      message:
+          'Price alert triggered for $symbol - $alertType signal detected!',
       data: {'symbol': symbol, 'alert_type': alertType, ...data},
       timestamp: DateTime.now(),
       isRead: false,
     );
-    
+
     showNotification(notification);
   }
 
-  void onSocialEvent(String eventType, String message, Map<String, dynamic> data) {
+  void onSocialEvent(
+    String eventType,
+    String message,
+    Map<String, dynamic> data,
+  ) {
     final notification = GameNotification(
       id: 'social_${DateTime.now().millisecondsSinceEpoch}',
       type: NotificationType.social,
@@ -296,7 +337,7 @@ class NotificationService {
       timestamp: DateTime.now(),
       isRead: false,
     );
-    
+
     showNotification(notification);
   }
 
@@ -305,14 +346,14 @@ class NotificationService {
       id: 'marketplace_${DateTime.now().millisecondsSinceEpoch}',
       type: NotificationType.marketplace,
       title: 'Marketplace Update',
-      message: eventType == 'sale' 
+      message: eventType == 'sale'
           ? 'Your $itemName sold for ${price.toStringAsFixed(0)} Stellar Shards!'
           : 'New $itemName listed for ${price.toStringAsFixed(0)} Stellar Shards!',
       data: {'event_type': eventType, 'item': itemName, 'price': price},
       timestamp: DateTime.now(),
       isRead: false,
     );
-    
+
     showNotification(notification);
   }
 

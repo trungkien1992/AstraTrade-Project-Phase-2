@@ -8,9 +8,9 @@ import '../services/ab_testing_service.dart';
 class PaywallScreen extends ConsumerStatefulWidget {
   final bool showDiscount;
   final String trigger;
-  
+
   const PaywallScreen({
-    super.key, 
+    super.key,
     this.showDiscount = false,
     this.trigger = 'unknown',
   });
@@ -22,42 +22,43 @@ class PaywallScreen extends ConsumerStatefulWidget {
 class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   bool _isLoading = false;
   PaywallVariant? _variant;
-  
+
   @override
   void initState() {
     super.initState();
     _initializePaywall();
   }
-  
+
   Future<void> _initializePaywall() async {
     final variant = await ABTestingService.getPaywallVariant();
     setState(() {
       _variant = variant;
     });
-    
+
     // Track paywall shown
     await AnalyticsService.trackPaywallShown(
       trigger: widget.trigger,
       variant: variant.name,
     );
-    
-    await AnalyticsService.trackScreenView('paywall_screen', properties: {
-      'variant': variant.name,
-      'trigger': widget.trigger,
-      'show_discount': widget.showDiscount,
-    });
+
+    await AnalyticsService.trackScreenView(
+      'paywall_screen',
+      properties: {
+        'variant': variant.name,
+        'trigger': widget.trigger,
+        'show_discount': widget.showDiscount,
+      },
+    );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     if (_variant == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final discountPrice = widget.showDiscount ? '\$2.99' : null;
     final regularPrice = '\$9.99';
-    
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -107,7 +108,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             // Discount Badge
             if (widget.showDiscount) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.red[100],
                   borderRadius: BorderRadius.circular(20),
@@ -116,7 +120,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.local_fire_department, color: Colors.red[600], size: 20),
+                    Icon(
+                      Icons.local_fire_department,
+                      color: Colors.red[600],
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'LIMITED TIME: 70% OFF!',
@@ -173,22 +181,23 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                       ),
                       const Text(
                         '/month',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    widget.showDiscount 
+                    widget.showDiscount
                         ? 'Save \$7/month with this exclusive offer!'
                         : 'Cancel anytime • No commitment',
                     style: TextStyle(
                       fontSize: 14,
-                      color: widget.showDiscount ? Colors.green[700] : Colors.grey[600],
-                      fontWeight: widget.showDiscount ? FontWeight.w600 : FontWeight.normal,
+                      color: widget.showDiscount
+                          ? Colors.green[700]
+                          : Colors.grey[600],
+                      fontWeight: widget.showDiscount
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -214,7 +223,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
-                        widget.showDiscount 
+                        widget.showDiscount
                             ? 'Claim 70% Off Deal'
                             : 'Start 7-Day Free Trial',
                         style: const TextStyle(
@@ -260,18 +269,12 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             // Trust Signals
             Text(
               '⭐⭐⭐⭐⭐ 4.8/5 from 12,000+ reviews',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Text(
               'Secure payment • Powered by App Store',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
             ),
           ],
         ),
@@ -279,7 +282,12 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     );
   }
 
-  Widget _buildFeature(IconData icon, String title, String subtitle, Color color) {
+  Widget _buildFeature(
+    IconData icon,
+    String title,
+    String subtitle,
+    Color color,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -319,10 +327,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -340,10 +345,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     try {
       // Initialize RevenueCat if not already done
       await SubscriptionService.initialize();
-      
+
       // Get available products
       final products = await SubscriptionService.getAvailableProducts();
-      
+
       if (products.isEmpty) {
         // Fallback: simulate successful upgrade for demo
         _simulateSuccessfulUpgrade();
@@ -352,7 +357,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
 
       // Purchase the monthly product
       final result = await SubscriptionService.purchaseProduct('pro_monthly');
-      
+
       if (result.success) {
         // Track successful conversion
         await AnalyticsService.trackPaywallConversion(
@@ -360,7 +365,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           plan: 'pro_monthly',
           price: widget.showDiscount ? 2.99 : 9.99,
         );
-        
+
         await ABTestingService.trackConversion(
           'paywall_presentation',
           'purchase',
@@ -370,10 +375,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             'discount_applied': widget.showDiscount,
           },
         );
-        
+
         // Update subscription status in provider
         ref.read(tradingProvider.notifier).updateSubscription(true);
-        
+
         // Show success message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -383,7 +388,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               duration: const Duration(seconds: 3),
             ),
           );
-          
+
           Navigator.pop(context, true); // Return true to indicate success
         }
       } else {
@@ -391,7 +396,9 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Purchase failed: ${result.error ?? 'Unknown error'}'),
+              content: Text(
+                'Purchase failed: ${result.error ?? 'Unknown error'}',
+              ),
               backgroundColor: Colors.red[600],
             ),
           );
@@ -412,7 +419,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   void _simulateSuccessfulUpgrade() {
     // For demo purposes: simulate successful upgrade
     ref.read(tradingProvider.notifier).updateSubscription(true);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -421,7 +428,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           duration: const Duration(seconds: 3),
         ),
       );
-      
+
       Navigator.pop(context, true);
     }
   }
@@ -450,11 +457,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.rocket_launch,
-            size: 64,
-            color: Colors.white,
-          ),
+          const Icon(Icons.rocket_launch, size: 64, color: Colors.white),
           const SizedBox(height: 16),
           const Text(
             'Master Trading Like a Pro',
@@ -468,10 +471,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           const SizedBox(height: 8),
           const Text(
             'Join 50,000+ traders practicing with unlimited virtual funds',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
         ],
@@ -526,10 +526,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           const SizedBox(height: 8),
           const Text(
             'Flash sale: Pro trading features for just \$2.99/month',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
         ],
@@ -553,11 +550,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ...List.generate(5, (index) => const Icon(
-                Icons.star,
-                color: Colors.amber,
-                size: 20,
-              )),
+              ...List.generate(
+                5,
+                (index) =>
+                    const Icon(Icons.star, color: Colors.amber, size: 20),
+              ),
               const SizedBox(width: 8),
               const Text(
                 '4.8/5',
@@ -570,11 +567,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          const Icon(
-            Icons.people,
-            size: 64,
-            color: Colors.white,
-          ),
+          const Icon(Icons.people, size: 64, color: Colors.white),
           const SizedBox(height: 16),
           const Text(
             'Join 50,000+ Successful Traders',
@@ -607,9 +600,7 @@ class ExitIntentDiscountDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
           Icon(Icons.local_fire_department, color: Colors.red[600]),

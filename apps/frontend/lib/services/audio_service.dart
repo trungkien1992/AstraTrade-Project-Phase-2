@@ -17,7 +17,9 @@ class AudioService {
   Future<void> initialize() async {
     try {
       await _audioPlayer.setVolume(_volume);
-      await _backgroundPlayer.setVolume(_volume * 0.3); // Background music quieter
+      await _backgroundPlayer.setVolume(
+        _volume * 0.3,
+      ); // Background music quieter
       debugPrint('AudioService initialized successfully');
     } catch (e) {
       debugPrint('Failed to initialize AudioService: $e');
@@ -138,14 +140,17 @@ class AudioService {
   }
 
   /// Play a simple tone (placeholder for actual audio files)
-  Future<void> _playTone({required double frequency, required int duration}) async {
+  Future<void> _playTone({
+    required double frequency,
+    required int duration,
+  }) async {
     // This is a placeholder implementation
     // In a real app, you would use actual audio files
     try {
       // For web/mobile platforms that support it, you could generate tones
       // For now, we'll just log the sound
       debugPrint('🔊 Playing tone: ${frequency}Hz for ${duration}ms');
-      
+
       // Simulate playing time
       await Future.delayed(Duration(milliseconds: duration));
     } catch (e) {
@@ -156,7 +161,7 @@ class AudioService {
   /// Start background ambient music
   Future<void> startBackgroundMusic() async {
     if (!_backgroundMusicEnabled) return;
-    
+
     try {
       await _backgroundPlayer.setReleaseMode(ReleaseMode.loop);
       await _backgroundPlayer.play(AssetSource('audio/background_ambient.wav'));
@@ -208,10 +213,14 @@ enum CosmicSoundType {
 
 /// Extension for easy access to sound playing
 extension CosmicSounds on AudioService {
-  Future<void> playHarvestSuccess() => playCosmicSound(CosmicSoundType.harvestSuccess.value);
-  Future<void> playStardustGeneration() => playCosmicSound(CosmicSoundType.stardustGeneration.value);
+  Future<void> playHarvestSuccess() =>
+      playCosmicSound(CosmicSoundType.harvestSuccess.value);
+  Future<void> playStardustGeneration() =>
+      playCosmicSound(CosmicSoundType.stardustGeneration.value);
   Future<void> playError() => playCosmicSound(CosmicSoundType.error.value);
   Future<void> playLevelUp() => playCosmicSound(CosmicSoundType.levelUp.value);
-  Future<void> playTradeExecute() => playCosmicSound(CosmicSoundType.tradeExecute.value);
-  Future<void> playForgeActivate() => playCosmicSound(CosmicSoundType.forgeActivate.value);
+  Future<void> playTradeExecute() =>
+      playCosmicSound(CosmicSoundType.tradeExecute.value);
+  Future<void> playForgeActivate() =>
+      playCosmicSound(CosmicSoundType.forgeActivate.value);
 }

@@ -1,0 +1,629 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "AstraTrade Business KPIs Dashboard",
+    "tags": ["astratrade", "business", "kpis"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Business Overview",
+        "type": "stat",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "astra_kpi_daily_active_users",
+            "legendFormat": "Daily Active Users",
+            "refId": "A"
+          },
+          {
+            "expr": "astra_kpi_daily_revenue",
+            "legendFormat": "Daily Revenue ($)",
+            "refId": "B"
+          },
+          {
+            "expr": "astra_kpi_trades_per_second",
+            "legendFormat": "Trades/Second",
+            "refId": "C"
+          },
+          {
+            "expr": "astra_kpi_user_engagement_score",
+            "legendFormat": "Engagement Score",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "palette-classic"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 50
+                },
+                {
+                  "color": "green",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Daily Revenue ($)"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "currencyUSD"
+                }
+              ]
+            }
+          ]
+        },
+        "options": {
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "textMode": "value_and_name"
+        }
+      },
+      {
+        "id": 2,
+        "title": "Trading Activity",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(astra_trade_executed_total[5m])",
+            "legendFormat": "Trades per Second",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(astra_trading_volume_total[5m])",
+            "legendFormat": "Trading Volume Rate",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        },
+        "options": {
+          "tooltip": {
+            "mode": "multi"
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Revenue Breakdown",
+        "type": "piechart",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "astra_trading_fees_total",
+            "legendFormat": "Trading Fees",
+            "refId": "A"
+          },
+          {
+            "expr": "astra_subscription_payment_total",
+            "legendFormat": "Subscriptions",
+            "refId": "B"
+          },
+          {
+            "expr": "astra_marketplace_revenue_total",
+            "legendFormat": "NFT Marketplace",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        },
+        "options": {
+          "pieType": "pie",
+          "tooltip": {
+            "mode": "single"
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["value", "percent"]
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "User Engagement Metrics",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        },
+        "targets": [
+          {
+            "expr": "astra_user_registered_total",
+            "legendFormat": "Total Registrations",
+            "refId": "A"
+          },
+          {
+            "expr": "astra_kpi_daily_active_users",
+            "legendFormat": "Daily Active Users",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(astra_user_activity_total[1h])",
+            "legendFormat": "User Activity Rate",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        },
+        "options": {
+          "tooltip": {
+            "mode": "multi"
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom"
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Gamification Metrics",
+        "type": "stat",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        },
+        "targets": [
+          {
+            "expr": "astra_xp_gained_total",
+            "legendFormat": "Total XP Earned",
+            "refId": "A"
+          },
+          {
+            "expr": "astra_achievement_unlocked_total",
+            "legendFormat": "Achievements Unlocked",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(astra_xp_gained_total[1h])",
+            "legendFormat": "XP per Hour",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "palette-classic"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 1000
+                },
+                {
+                  "color": "green",
+                  "value": 5000
+                }
+              ]
+            }
+          }
+        },
+        "options": {
+          "orientation": "vertical",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "textMode": "value_and_name"
+        }
+      },
+      {
+        "id": 6,
+        "title": "Social Engagement",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        },
+        "targets": [
+          {
+            "expr": "rate(astra_social_interaction_total[5m])",
+            "legendFormat": "Social Interactions/sec",
+            "refId": "A"
+          },
+          {
+            "expr": "astra_kpi_social_interaction_rate",
+            "legendFormat": "Interactions per User",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        },
+        "options": {
+          "tooltip": {
+            "mode": "multi"
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom"
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Service Health Overview",
+        "type": "heatmap",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        },
+        "targets": [
+          {
+            "expr": "astra_gateway_service_discovery_calls",
+            "legendFormat": "Service Discovery Calls",
+            "refId": "A"
+          },
+          {
+            "expr": "astra_gateway_circuit_breaker_opens",
+            "legendFormat": "Circuit Breaker Opens",
+            "refId": "B"
+          },
+          {
+            "expr": "astra_gateway_failed_requests",
+            "legendFormat": "Failed Requests",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "scheme",
+              "scheme": "RdYlGn"
+            }
+          }
+        },
+        "options": {
+          "calculate": false,
+          "cellGap": 2,
+          "cellValues": {},
+          "color": {
+            "exponent": 0.5,
+            "fill": "dark-orange",
+            "mode": "scheme",
+            "reverse": false,
+            "scale": "exponential",
+            "scheme": "RdYlGn",
+            "steps": 64
+          },
+          "exemplars": {
+            "color": "rgba(255,0,255,0.7)"
+          },
+          "filterValues": {
+            "le": 1e-9
+          },
+          "legend": {
+            "show": true
+          },
+          "rowsFrame": {
+            "layout": "auto"
+          },
+          "tooltip": {
+            "show": true,
+            "yHistogram": false
+          },
+          "yAxis": {
+            "axisPlacement": "left",
+            "reverse": false,
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "KPI Status Indicators",
+        "type": "table",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 32
+        },
+        "targets": [
+          {
+            "expr": "astra_kpi_trades_per_second",
+            "legendFormat": "Trades per Second",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "astra_kpi_trades_per_second_target",
+            "legendFormat": "Target",
+            "refId": "B",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "astra_kpi_daily_active_users",
+            "legendFormat": "Daily Active Users",
+            "refId": "C",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "astra_kpi_daily_active_users_target",
+            "legendFormat": "Target",
+            "refId": "D",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "astra_kpi_daily_revenue",
+            "legendFormat": "Daily Revenue",
+            "refId": "E",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "astra_kpi_daily_revenue_target",
+            "legendFormat": "Target",
+            "refId": "F",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 0.5
+                },
+                {
+                  "color": "green",
+                  "value": 0.8
+                }
+              ]
+            },
+            "custom": {
+              "align": "center",
+              "displayMode": "color-background"
+            }
+          }
+        },
+        "options": {
+          "showHeader": true,
+          "sortBy": [
+            {
+              "desc": false,
+              "displayName": "KPI"
+            }
+          ]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {},
+              "renameByName": {
+                "__name__": "KPI",
+                "Value": "Current"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Real-time Activity Feed",
+        "type": "logs",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 40
+        },
+        "targets": [
+          {
+            "expr": "{job=\"astra-services\"} |= \"trade_executed\" or \"user_registered\" or \"achievement_unlocked\"",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showTime": true,
+          "showLabels": false,
+          "showCommonLabels": false,
+          "wrapLogMessage": false,
+          "prettifyLogMessage": false,
+          "enableLogDetails": true,
+          "dedupStrategy": "none",
+          "sortOrder": "Descending"
+        }
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "current": {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+          },
+          "hide": 0,
+          "includeAll": true,
+          "label": "Service",
+          "multi": true,
+          "name": "service",
+          "options": [],
+          "query": "label_values(astra_api_request_total, service)",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "current": {
+            "selected": false,
+            "text": "5m",
+            "value": "5m"
+          },
+          "hide": 0,
+          "includeAll": false,
+          "label": "Rate Interval",
+          "multi": false,
+          "name": "rate_interval",
+          "options": [
+            {
+              "selected": true,
+              "text": "1m",
+              "value": "1m"
+            },
+            {
+              "selected": false,
+              "text": "5m",
+              "value": "5m"
+            },
+            {
+              "selected": false,
+              "text": "15m",
+              "value": "15m"
+            },
+            {
+              "selected": false,
+              "text": "1h",
+              "value": "1h"
+            }
+          ],
+          "query": "1m,5m,15m,1h",
+          "queryValue": "",
+          "skipUrlSync": false,
+          "type": "custom"
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        },
+        {
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "changes(astra_kpi_daily_revenue[1h]) > 0",
+          "iconColor": "green",
+          "name": "Revenue Milestones",
+          "step": "60s",
+          "tagKeys": "milestone",
+          "textFormat": "Revenue milestone reached",
+          "titleFormat": "💰 Revenue Update"
+        }
+      ]
+    },
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 1,
+    "links": [],
+    "panels": [],
+    "schemaVersion": 27,
+    "version": 1,
+    "weekStart": ""
+  }
+}

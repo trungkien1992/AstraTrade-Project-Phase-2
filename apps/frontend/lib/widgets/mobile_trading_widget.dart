@@ -10,7 +10,7 @@ class MobileTradingWidget extends StatefulWidget {
   final double currentPrice;
   final Function(double amount, String direction) onTrade;
   final bool isRealTrade;
-  
+
   const MobileTradingWidget({
     super.key,
     required this.symbol,
@@ -28,10 +28,10 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
   final _hapticService = MobileHapticService();
   final _notificationService = MobileNotificationService();
   final _amountController = TextEditingController();
-  
+
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  
+
   String _selectedDirection = 'BUY';
   double _selectedAmount = 10.0;
   bool _isProcessing = false;
@@ -39,22 +39,18 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
   @override
   void initState() {
     super.initState();
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
     _amountController.text = _selectedAmount.toString();
-    
+
     // Initialize services
     _initializeServices();
   }
@@ -133,9 +129,9 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
         Expanded(
           child: Text(
             widget.symbol,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         Icon(
@@ -163,9 +159,9 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
             children: [
               Text(
                 'Current Price',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
               Text(
                 '\$${widget.currentPrice.toStringAsFixed(2)}',
@@ -182,11 +178,7 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
               color: Colors.green[100],
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              Icons.trending_up,
-              color: Colors.green[700],
-              size: 24,
-            ),
+            child: Icon(Icons.trending_up, color: Colors.green[700], size: 24),
           ),
         ],
       ),
@@ -201,7 +193,11 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildDirectionButton('SELL', Colors.red, Icons.arrow_downward),
+          child: _buildDirectionButton(
+            'SELL',
+            Colors.red,
+            Icons.arrow_downward,
+          ),
         ),
       ],
     );
@@ -209,7 +205,7 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
 
   Widget _buildDirectionButton(String direction, Color color, IconData icon) {
     final isSelected = _selectedDirection == direction;
-    
+
     return GestureDetector(
       onTap: () async {
         await _hapticService.selectionClick();
@@ -223,19 +219,12 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
         decoration: BoxDecoration(
           color: isSelected ? color : color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color,
-            width: isSelected ? 2 : 1,
-          ),
+          border: Border.all(color: color, width: isSelected ? 2 : 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.white : color,
-              size: 20,
-            ),
+            Icon(icon, color: isSelected ? Colors.white : color, size: 20),
             const SizedBox(width: 8),
             Text(
               direction,
@@ -257,9 +246,9 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
       children: [
         Text(
           'Trade Amount',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Row(
@@ -323,10 +312,7 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
         child: Center(
           child: Text(
             '\$${amount.round()}',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -366,7 +352,9 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
                   const Text('Processing...'),
                 ] else ...[
                   Icon(
-                    _selectedDirection == 'BUY' ? Icons.arrow_upward : Icons.arrow_downward,
+                    _selectedDirection == 'BUY'
+                        ? Icons.arrow_upward
+                        : Icons.arrow_downward,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
@@ -415,27 +403,27 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
 
   Future<void> _executeTrade() async {
     if (_isProcessing) return;
-    
+
     setState(() {
       _isProcessing = true;
     });
-    
+
     try {
       // Strong haptic feedback for trade execution
       await _hapticService.tradeExecuted(isRealTrade: widget.isRealTrade);
-      
+
       // Start pulse animation
       _pulseController.repeat(reverse: true);
-      
+
       // Simulate processing delay
       await Future.delayed(const Duration(milliseconds: 1500));
-      
+
       // Execute the trade
       widget.onTrade(_selectedAmount, _selectedDirection);
-      
+
       // Success haptic feedback
       await _hapticService.success(isMajor: widget.isRealTrade);
-      
+
       // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -448,11 +436,10 @@ class _MobileTradingWidgetState extends State<MobileTradingWidget>
           ),
         );
       }
-      
     } catch (e) {
       // Error haptic feedback
       await _hapticService.error();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

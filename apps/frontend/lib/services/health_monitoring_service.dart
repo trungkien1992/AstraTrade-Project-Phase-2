@@ -7,12 +7,7 @@ import '../config/app_config.dart';
 import 'analytics_service.dart';
 import 'performance_monitoring_service.dart';
 
-enum HealthStatus {
-  healthy,
-  warning,
-  critical,
-  unknown,
-}
+enum HealthStatus { healthy, warning, critical, unknown }
 
 class HealthCheck {
   final String name;
@@ -45,7 +40,8 @@ class HealthCheck {
 }
 
 class HealthMonitoringService {
-  static final HealthMonitoringService _instance = HealthMonitoringService._internal();
+  static final HealthMonitoringService _instance =
+      HealthMonitoringService._internal();
   factory HealthMonitoringService() => _instance;
   HealthMonitoringService._internal();
 
@@ -55,7 +51,7 @@ class HealthMonitoringService {
 
   static Future<void> initialize() async {
     final instance = HealthMonitoringService();
-    
+
     if (AppConfig.enablePerformanceMonitoring) {
       await instance._startHealthMonitoring();
     }
@@ -64,7 +60,7 @@ class HealthMonitoringService {
   Future<void> _startHealthMonitoring() async {
     // Run initial health check
     await performCompleteHealthCheck();
-    
+
     // Schedule regular health checks
     _healthCheckTimer = Timer.periodic(
       AppConfig.healthCheckInterval,
@@ -91,7 +87,7 @@ class HealthMonitoringService {
     }
 
     final results = <String, HealthCheck>{};
-    
+
     // Execute all health checks in parallel
     final futures = checks.entries.map((entry) async {
       try {
@@ -117,7 +113,7 @@ class HealthMonitoringService {
     });
 
     final completedChecks = await Future.wait(futures);
-    
+
     for (final entry in completedChecks) {
       results[entry.key] = entry.value;
       _lastHealthChecks[entry.key] = entry.value;
@@ -131,7 +127,7 @@ class HealthMonitoringService {
 
     // Calculate overall health score
     final overallHealth = _calculateOverallHealth(results);
-    
+
     // Track health metrics
     await AnalyticsService.trackEvent(
       name: 'health_check_completed',
@@ -140,8 +136,12 @@ class HealthMonitoringService {
         'overall_status': overallHealth.status.name,
         'overall_score': _getHealthScore(overallHealth.status),
         'checks_count': results.length,
-        'failed_checks': results.values.where((c) => c.status == HealthStatus.critical).length,
-        'warning_checks': results.values.where((c) => c.status == HealthStatus.warning).length,
+        'failed_checks': results.values
+            .where((c) => c.status == HealthStatus.critical)
+            .length,
+        'warning_checks': results.values
+            .where((c) => c.status == HealthStatus.warning)
+            .length,
       },
     );
 
@@ -151,17 +151,17 @@ class HealthMonitoringService {
   // Individual health check implementations
   Future<HealthCheck> _checkAppResponsiveness() async {
     final stopwatch = Stopwatch()..start();
-    
+
     try {
       // Test app responsiveness with a simple async operation
       await Future.delayed(const Duration(milliseconds: 10));
-      
+
       stopwatch.stop();
       final responseTime = stopwatch.elapsed;
-      
+
       HealthStatus status;
       String message;
-      
+
       if (responseTime.inMilliseconds < 50) {
         status = HealthStatus.healthy;
         message = 'App responding normally';
@@ -172,7 +172,7 @@ class HealthMonitoringService {
         status = HealthStatus.critical;
         message = 'App response time critical';
       }
-      
+
       return HealthCheck(
         name: 'app_responsiveness',
         status: status,
@@ -195,13 +195,14 @@ class HealthMonitoringService {
     try {
       // This would integrate with platform-specific memory monitoring
       // For now, we'll use a simplified check
-      
-      final performanceSummary = PerformanceMonitoringService().getPerformanceSummary();
+
+      final performanceSummary = PerformanceMonitoringService()
+          .getPerformanceSummary();
       final memoryMetrics = performanceSummary['memoryUsage_avg'] ?? 0;
-      
+
       HealthStatus status;
       String message;
-      
+
       if (memoryMetrics < AppConfig.maxCacheSize * 0.7) {
         status = HealthStatus.healthy;
         message = 'Memory usage normal';
@@ -212,7 +213,7 @@ class HealthMonitoringService {
         status = HealthStatus.critical;
         message = 'Memory usage critical';
       }
-      
+
       return HealthCheck(
         name: 'memory_status',
         status: status,
@@ -233,14 +234,15 @@ class HealthMonitoringService {
 
   Future<HealthCheck> _checkNetworkConnectivity() async {
     final stopwatch = Stopwatch()..start();
-    
+
     try {
       // Test basic network connectivity
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 10));
-      
+      final result = await InternetAddress.lookup(
+        'google.com',
+      ).timeout(const Duration(seconds: 10));
+
       stopwatch.stop();
-      
+
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         return HealthCheck(
           name: 'network_connectivity',
@@ -270,7 +272,7 @@ class HealthMonitoringService {
   Future<HealthCheck> _checkAnalyticsService() async {
     try {
       final summary = await AnalyticsService.getAnalyticsSummary();
-      
+
       if (summary['total_events'] >= 0) {
         return HealthCheck(
           name: 'analytics_service',
@@ -335,24 +337,25 @@ class HealthMonitoringService {
 
   Future<HealthCheck> _checkPerformanceMetrics() async {
     try {
-      final performanceSummary = PerformanceMonitoringService().getPerformanceSummary();
-      
+      final performanceSummary = PerformanceMonitoringService()
+          .getPerformanceSummary();
+
       HealthStatus status = HealthStatus.healthy;
       String message = 'Performance metrics normal';
-      
+
       // Check for performance issues
       final avgStartupTime = performanceSummary['appStartup_avg'] ?? 0;
       if (avgStartupTime > 5000) {
         status = HealthStatus.warning;
         message = 'Slow app startup detected';
       }
-      
+
       final avgScreenLoad = performanceSummary['screenLoad_avg'] ?? 0;
       if (avgScreenLoad > 3000) {
         status = HealthStatus.warning;
         message = 'Slow screen loading detected';
       }
-      
+
       return HealthCheck(
         name: 'performance_metrics',
         status: status,
@@ -370,15 +373,17 @@ class HealthMonitoringService {
 
   Future<HealthCheck> _checkApiHealth() async {
     final stopwatch = Stopwatch()..start();
-    
+
     try {
-      final response = await http.get(
-        Uri.parse(AppConfig.healthUrl),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(AppConfig.networkTimeout);
-      
+      final response = await http
+          .get(
+            Uri.parse(AppConfig.healthUrl),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(AppConfig.networkTimeout);
+
       stopwatch.stop();
-      
+
       if (response.statusCode == 200) {
         return HealthCheck(
           name: 'api_health',
@@ -429,7 +434,7 @@ class HealthMonitoringService {
 
   HealthCheck _calculateOverallHealth(Map<String, HealthCheck> checks) {
     final statuses = checks.values.map((c) => c.status).toList();
-    
+
     if (statuses.any((s) => s == HealthStatus.critical)) {
       return HealthCheck(
         name: 'overall_health',
@@ -477,14 +482,14 @@ class HealthMonitoringService {
 
   List<HealthCheck> getHealthHistory({Duration? period}) {
     if (period == null) return List.from(_healthHistory);
-    
+
     final cutoff = DateTime.now().subtract(period);
     return _healthHistory.where((h) => h.timestamp.isAfter(cutoff)).toList();
   }
 
   HealthStatus getOverallHealthStatus() {
     if (_lastHealthChecks.isEmpty) return HealthStatus.unknown;
-    
+
     return _calculateOverallHealth(_lastHealthChecks).status;
   }
 
@@ -492,7 +497,7 @@ class HealthMonitoringService {
   Map<String, dynamic> getHealthStatusJson() {
     final lastChecks = getLastHealthChecks();
     final overallHealth = _calculateOverallHealth(lastChecks);
-    
+
     return {
       'status': overallHealth.status.name,
       'message': overallHealth.message,
@@ -500,7 +505,10 @@ class HealthMonitoringService {
       'app_version': AppConfig.appVersion,
       'build_number': AppConfig.buildNumber,
       'environment': AppConfig.isProduction ? 'production' : 'development',
-      'uptime_minutes': PerformanceMonitoringService().getPerformanceSummary()['app_uptime_minutes'] ?? 0,
+      'uptime_minutes':
+          PerformanceMonitoringService()
+              .getPerformanceSummary()['app_uptime_minutes'] ??
+          0,
       'checks': lastChecks.map((key, value) => MapEntry(key, value.toJson())),
     };
   }

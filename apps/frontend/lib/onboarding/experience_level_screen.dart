@@ -1,22 +1,44 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/onboarding_provider.dart';
+import '../providers/tutorial_provider.dart';
+import '../widgets/tutorial_overlay_widget.dart';
+import '../navigation/page_transitions.dart';
 import 'practice_amount_screen.dart';
 
 class ExperienceLevelScreen extends ConsumerStatefulWidget {
   const ExperienceLevelScreen({super.key});
 
   @override
-  ConsumerState<ExperienceLevelScreen> createState() => _ExperienceLevelScreenState();
+  ConsumerState<ExperienceLevelScreen> createState() =>
+      _ExperienceLevelScreenState();
 }
 
 class _ExperienceLevelScreenState extends ConsumerState<ExperienceLevelScreen> {
   String _selectedExperience = '';
 
   @override
+  void initState() {
+    super.initState();
+    // Check if user needs onboarding tutorial
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final tutorialNotifier = ref.read(tutorialProvider.notifier);
+      if (tutorialNotifier.shouldShowOnboardingTutorial()) {
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            tutorialNotifier.startTutorial('onboarding');
+          }
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return TutorialWrapper(
+      tutorialId: 'onboarding',
+      steps: TutorialContent.getOnboardingSteps(),
+      child: Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text('Welcome to Trading Practice'),
@@ -36,24 +58,18 @@ class _ExperienceLevelScreenState extends ConsumerState<ExperienceLevelScreen> {
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
             ),
             const SizedBox(height: 32),
-            
+
             const Text(
               'What\'s your trading experience?',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Text(
               'Help us personalize your practice sessions for maximum learning.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 40),
-            
+
             _buildExperienceCard(
               'Beginner',
               'New to trading',
@@ -77,9 +93,9 @@ class _ExperienceLevelScreenState extends ConsumerState<ExperienceLevelScreen> {
               Icons.psychology,
               Colors.purple,
             ),
-            
+
             const Spacer(),
-            
+
             // Next Button
             SizedBox(
               width: double.infinity,
@@ -96,10 +112,7 @@ class _ExperienceLevelScreenState extends ConsumerState<ExperienceLevelScreen> {
                 ),
                 child: const Text(
                   'Continue',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -107,10 +120,17 @@ class _ExperienceLevelScreenState extends ConsumerState<ExperienceLevelScreen> {
           ],
         ),
       ),
+      ), // Close TutorialWrapper
     );
   }
 
-  Widget _buildExperienceCard(String title, String subtitle, String description, IconData icon, Color color) {
+  Widget _buildExperienceCard(
+    String title,
+    String subtitle,
+    String description,
+    IconData icon,
+    Color color,
+  ) {
     final bool isSelected = _selectedExperience == title;
     return GestureDetector(
       onTap: () {
@@ -130,7 +150,9 @@ class _ExperienceLevelScreenState extends ConsumerState<ExperienceLevelScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.grey.withOpacity(0.05),
+              color: isSelected
+                  ? Colors.blue.withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.05),
               blurRadius: isSelected ? 8 : 4,
               offset: const Offset(0, 2),
             ),
@@ -141,14 +163,12 @@ class _ExperienceLevelScreenState extends ConsumerState<ExperienceLevelScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? color.withOpacity(0.15) : color.withOpacity(0.1),
+                color: isSelected
+                    ? color.withOpacity(0.15)
+                    : color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 28,
-              ),
+              child: Icon(icon, color: color, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -175,20 +195,13 @@ class _ExperienceLevelScreenState extends ConsumerState<ExperienceLevelScreen> {
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                   ),
                 ],
               ),
             ),
             if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: Colors.blue[600],
-                size: 24,
-              ),
+              Icon(Icons.check_circle, color: Colors.blue[600], size: 24),
           ],
         ),
       ),
@@ -196,13 +209,10 @@ class _ExperienceLevelScreenState extends ConsumerState<ExperienceLevelScreen> {
   }
 
   void _handleNext() {
-    ref.read(onboardingProvider.notifier).setExperienceLevel(_selectedExperience);
-    
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const PracticeAmountScreen(),
-      ),
-    );
+    ref
+        .read(onboardingProvider.notifier)
+        .setExperienceLevel(_selectedExperience);
+
+    Navigator.of(context).pushSlideFromRight(const PracticeAmountScreen());
   }
 }

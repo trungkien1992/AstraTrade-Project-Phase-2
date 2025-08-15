@@ -75,7 +75,8 @@ class LeaderboardEntry {
       level: level ?? this.level,
       totalXP: totalXP ?? this.totalXP,
       cosmicTier: cosmicTier ?? this.cosmicTier,
-      isVerifiedLuminaWeaver: isVerifiedLuminaWeaver ?? this.isVerifiedLuminaWeaver,
+      isVerifiedLuminaWeaver:
+          isVerifiedLuminaWeaver ?? this.isVerifiedLuminaWeaver,
       isCurrentUser: isCurrentUser ?? this.isCurrentUser,
       planetIcon: planetIcon ?? this.planetIcon,
       winStreak: winStreak ?? this.winStreak,
@@ -88,10 +89,10 @@ class LeaderboardEntry {
 
 /// Enum for different leaderboard types
 enum LeaderboardType {
-  stellarShards,  // Trade Token Leaderboard (SS)
-  lumina,         // Lumina Flow Leaderboard (LM) - Pro Traders only
-  level,          // Level-based ranking
-  winStreak,      // Current win streak
+  stellarShards, // Trade Token Leaderboard (SS)
+  lumina, // Lumina Flow Leaderboard (LM) - Pro Traders only
+  level, // Level-based ranking
+  winStreak, // Current win streak
 }
 
 /// Represents the cosmic tier progression system
@@ -126,11 +127,11 @@ enum CosmicTier {
     if (currentIndex == CosmicTier.values.length - 1) {
       return 1.0; // Max tier reached
     }
-    
+
     final nextTier = CosmicTier.values[currentIndex + 1];
     final progressRange = nextTier.requiredXP - requiredXP;
     final currentProgress = currentXP - requiredXP;
-    
+
     return (currentProgress / progressRange).clamp(0.0, 1.0);
   }
 
@@ -140,7 +141,7 @@ enum CosmicTier {
     if (currentIndex == CosmicTier.values.length - 1) {
       return 0; // Max tier reached
     }
-    
+
     final nextTier = CosmicTier.values[currentIndex + 1];
     return (nextTier.requiredXP - currentXP).clamp(0, nextTier.requiredXP);
   }
@@ -152,15 +153,15 @@ class XPCalculator {
   static const int baseTradeXP = 10;
   static const int baseCriticalForgeXP = 25;
   static const int realTradeXPMultiplier = 2;
-  
+
   // Streak bonuses
   static const Map<int, double> streakMultipliers = {
-    0: 1.0,   // No streak
-    3: 1.2,   // 3-win streak: +20%
-    5: 1.5,   // 5-win streak: +50%
-    10: 2.0,  // 10-win streak: +100%
-    15: 2.5,  // 15-win streak: +150%
-    20: 3.0,  // 20-win streak: +200%
+    0: 1.0, // No streak
+    3: 1.2, // 3-win streak: +20%
+    5: 1.5, // 5-win streak: +50%
+    10: 2.0, // 10-win streak: +100%
+    15: 2.5, // 15-win streak: +150%
+    20: 3.0, // 20-win streak: +200%
   };
 
   /// Calculate XP for a trade based on outcome and streak
@@ -172,30 +173,31 @@ class XPCalculator {
     required double profitPercentage,
   }) {
     if (!isProfit) return 2; // Small consolation XP for losses
-    
+
     // Base XP calculation
     int baseXP = isCriticalForge ? baseCriticalForgeXP : baseTradeXP;
-    
+
     // Real trade multiplier
     if (isRealTrade) {
       baseXP = (baseXP * realTradeXPMultiplier).round();
     }
-    
+
     // Profit percentage bonus (up to 50% bonus for high profits)
-    double profitBonus = 1.0 + (profitPercentage.abs() / 100 * 0.5).clamp(0.0, 0.5);
+    double profitBonus =
+        1.0 + (profitPercentage.abs() / 100 * 0.5).clamp(0.0, 0.5);
     baseXP = (baseXP * profitBonus).round();
-    
+
     // Streak multiplier
     double streakMultiplier = _getStreakMultiplier(winStreak);
     baseXP = (baseXP * streakMultiplier).round();
-    
+
     return baseXP;
   }
 
   /// Calculate level from total XP using exponential growth
   static int calculateLevel(int totalXP) {
     if (totalXP < 100) return 1;
-    
+
     // Level formula: level = floor(sqrt(totalXP / 50)) + 1
     // This creates a smooth progression where higher levels require more XP
     return (math.sqrt(totalXP / 50).floor() + 1).clamp(1, 100);
@@ -226,4 +228,3 @@ class XPCalculator {
     return multiplier;
   }
 }
-

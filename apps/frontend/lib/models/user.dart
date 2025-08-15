@@ -1,4 +1,3 @@
-
 class User {
   final String id;
   final String username;
@@ -11,7 +10,8 @@ class User {
   final int xp;
   final DateTime createdAt;
   final DateTime lastLoginAt;
-  final String? extendedExchangeApiKey; // User's personal Extended Exchange API key
+  final String?
+  extendedExchangeApiKey; // User's personal Extended Exchange API key
 
   User({
     required this.id,
@@ -54,12 +54,14 @@ class User {
       xp: xp ?? this.xp,
       createdAt: createdAt ?? this.createdAt,
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
-      extendedExchangeApiKey: extendedExchangeApiKey ?? this.extendedExchangeApiKey,
+      extendedExchangeApiKey:
+          extendedExchangeApiKey ?? this.extendedExchangeApiKey,
     );
   }
 
   /// Check if user is ready for real trading (has API key)
-  bool get isReadyForTrading => extendedExchangeApiKey != null && extendedExchangeApiKey!.isNotEmpty;
+  bool get isReadyForTrading =>
+      extendedExchangeApiKey != null && extendedExchangeApiKey!.isNotEmpty;
 
   /// Check if user needs API key generation for trading
   bool get needsApiKeyForTrading => !isReadyForTrading;
@@ -73,9 +75,9 @@ class User {
   String toString() {
     // Safe toString that doesn't expose sensitive data
     return 'User(id: $id, email: $email, username: $username, '
-           'address: ${starknetAddress.substring(0, 8)}...${starknetAddress.substring(starknetAddress.length - 6)}, '
-           'hasApiKey: ${extendedExchangeApiKey != null}, '
-           'stellarShards: $stellarShards, lumina: $lumina, xp: $xp)';
+        'address: ${starknetAddress.substring(0, 8)}...${starknetAddress.substring(starknetAddress.length - 6)}, '
+        'hasApiKey: ${extendedExchangeApiKey != null}, '
+        'stellarShards: $stellarShards, lumina: $lumina, xp: $xp)';
   }
 
   @override
@@ -145,7 +147,9 @@ class User {
       lumina: json['lumina'] as int? ?? 0,
       xp: json['xp'] as int? ?? 0,
       createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
-      lastLoginAt: DateTime.fromMillisecondsSinceEpoch(json['lastLoginAt'] as int),
+      lastLoginAt: DateTime.fromMillisecondsSinceEpoch(
+        json['lastLoginAt'] as int,
+      ),
       extendedExchangeApiKey: json['extendedExchangeApiKey'] as String?,
     );
   }

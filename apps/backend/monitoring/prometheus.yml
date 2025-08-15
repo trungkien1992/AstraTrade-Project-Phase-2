@@ -1,0 +1,181 @@
+# AstraTrade Prometheus Configuration
+# Monitoring configuration for Redis Streams event bus and microservices
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'astra-trade'
+    environment: 'development'
+
+rule_files:
+  - "rules/*.yml"
+  - "prometheus-alerts.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # Redis monitoring for event bus
+  - job_name: 'redis-streams'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'redis-streams'
+
+  # API Gateway monitoring
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8000']
+    scrape_interval: 5s
+    metrics_path: /metrics/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'api-gateway'
+
+  # Business metrics from API Gateway
+  - job_name: 'business-metrics'
+    static_configs:
+      - targets: ['api-gateway:8000']
+    scrape_interval: 10s
+    metrics_path: /metrics/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'business-metrics'
+      - source_labels: [__name__]
+        regex: 'astra_kpi_.*'
+        target_label: metric_type
+        replacement: 'kpi'
+
+  # Trading service monitoring
+  - job_name: 'trading-service'
+    static_configs:
+      - targets: ['trading-service:8001']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'trading-service'
+      - source_labels: [__address__]
+        target_label: domain
+        replacement: 'trading'
+
+  # Gamification service monitoring
+  - job_name: 'gamification-service'
+    static_configs:
+      - targets: ['gamification-service:8002']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'gamification-service'
+      - source_labels: [__address__]
+        target_label: domain
+        replacement: 'gamification'
+
+  # Social service monitoring
+  - job_name: 'social-service'
+    static_configs:
+      - targets: ['social-service:8003']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'social-service'
+      - source_labels: [__address__]
+        target_label: domain
+        replacement: 'social'
+
+  # Financial service monitoring
+  - job_name: 'financial-service'
+    static_configs:
+      - targets: ['financial-service:8004']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'financial-service'
+      - source_labels: [__address__]
+        target_label: domain
+        replacement: 'financial'
+
+  # NFT service monitoring
+  - job_name: 'nft-service'
+    static_configs:
+      - targets: ['nft-service:8005']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'nft-service'
+      - source_labels: [__address__]
+        target_label: domain
+        replacement: 'nft'
+
+  # User service monitoring
+  - job_name: 'user-service'
+    static_configs:
+      - targets: ['user-service:8006']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'user-service'
+      - source_labels: [__address__]
+        target_label: domain
+        replacement: 'user'
+
+  # System monitoring
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'astra-host'
+
+  # Container monitoring
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 30s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'astra-containers'
+
+  # Service discovery for dynamic services
+  - job_name: 'service-discovery'
+    consul_sd_configs:
+      - server: 'consul:8500'
+        services: ['astra-*']
+    relabel_configs:
+      - source_labels: [__meta_consul_service]
+        target_label: service
+      - source_labels: [__meta_consul_tags]
+        regex: '.*domain:([^,]+).*'
+        target_label: domain
+        replacement: '${1}'
+    scrape_interval: 15s

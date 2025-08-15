@@ -1,5 +1,5 @@
 /// Paymaster Data Models for AstraTrade
-/// 
+///
 /// Complete data models for gasless transaction management:
 /// - Gas allowance tracking with tier-based limits
 /// - XP-based tier progression system
@@ -60,9 +60,15 @@ class GasAllowance {
       usedToday: int.parse(response[3]),
       usedThisWeek: int.parse(response[4]),
       usedThisMonth: int.parse(response[5]),
-      lastResetDay: DateTime.fromMillisecondsSinceEpoch(int.parse(response[6]) * 1000),
-      lastResetWeek: DateTime.fromMillisecondsSinceEpoch(int.parse(response[7]) * 1000),
-      lastResetMonth: DateTime.fromMillisecondsSinceEpoch(int.parse(response[8]) * 1000),
+      lastResetDay: DateTime.fromMillisecondsSinceEpoch(
+        int.parse(response[6]) * 1000,
+      ),
+      lastResetWeek: DateTime.fromMillisecondsSinceEpoch(
+        int.parse(response[7]) * 1000,
+      ),
+      lastResetMonth: DateTime.fromMillisecondsSinceEpoch(
+        int.parse(response[8]) * 1000,
+      ),
       priorityBoost: int.parse(response[9]) / 10000.0,
     );
   }
@@ -148,9 +154,9 @@ class GasAllowance {
 
   /// Check if user can sponsor a transaction
   bool canSponsorTransaction(int gasAmount) {
-    return remainingDaily >= gasAmount && 
-           remainingWeekly >= gasAmount && 
-           remainingMonthly >= gasAmount;
+    return remainingDaily >= gasAmount &&
+        remainingWeekly >= gasAmount &&
+        remainingMonthly >= gasAmount;
   }
 
   @override
@@ -186,8 +192,8 @@ class GasTierBenefits {
   factory GasTierBenefits.basicTier() {
     return const GasTierBenefits(
       tierName: 'Basic',
-      dailyGasAllowance: 100000,   // 100k gas/day
-      weeklyGasAllowance: 500000,  // 500k gas/week
+      dailyGasAllowance: 100000, // 100k gas/day
+      weeklyGasAllowance: 500000, // 500k gas/week
       monthlyGasAllowance: 2000000, // 2M gas/month
       priorityProcessing: false,
       batchTransactionLimit: 1,
@@ -241,24 +247,36 @@ class GasTierBenefits {
   /// Get tier level from name
   int get tierLevel {
     switch (tierName.toLowerCase()) {
-      case 'basic': return 0;
-      case 'silver': return 1;
-      case 'gold': return 2;
-      case 'platinum': return 3;
-      case 'diamond': return 4;
-      default: return 0;
+      case 'basic':
+        return 0;
+      case 'silver':
+        return 1;
+      case 'gold':
+        return 2;
+      case 'platinum':
+        return 3;
+      case 'diamond':
+        return 4;
+      default:
+        return 0;
     }
   }
 
   /// Get tier color
   String get tierColor {
     switch (tierLevel) {
-      case 0: return '#9E9E9E'; // Basic - Gray
-      case 1: return '#C0C0C0'; // Silver
-      case 2: return '#FFD700'; // Gold
-      case 3: return '#E5E4E2'; // Platinum
-      case 4: return '#B9F2FF'; // Diamond
-      default: return '#9E9E9E';
+      case 0:
+        return '#9E9E9E'; // Basic - Gray
+      case 1:
+        return '#C0C0C0'; // Silver
+      case 2:
+        return '#FFD700'; // Gold
+      case 3:
+        return '#E5E4E2'; // Platinum
+      case 4:
+        return '#B9F2FF'; // Diamond
+      default:
+        return '#9E9E9E';
     }
   }
 
@@ -347,8 +365,12 @@ class UserGasData {
   factory UserGasData.fromJson(Map<String, dynamic> json) {
     return UserGasData(
       userAddress: json['userAddress'] as String,
-      gasAllowance: GasAllowance.fromJson(json['gasAllowance'] as Map<String, dynamic>),
-      gasTierBenefits: GasTierBenefits.fromJson(json['gasTierBenefits'] as Map<String, dynamic>),
+      gasAllowance: GasAllowance.fromJson(
+        json['gasAllowance'] as Map<String, dynamic>,
+      ),
+      gasTierBenefits: GasTierBenefits.fromJson(
+        json['gasTierBenefits'] as Map<String, dynamic>,
+      ),
       remainingSponsoredGas: json['remainingSponsoredGas'] as int,
       currentRefundRate: json['currentRefundRate'] as double,
       lastUpdated: DateTime.parse(json['lastUpdated'] as String),
@@ -391,13 +413,15 @@ class UserGasData {
       userAddress: userAddress ?? this.userAddress,
       gasAllowance: gasAllowance ?? this.gasAllowance,
       gasTierBenefits: gasTierBenefits ?? this.gasTierBenefits,
-      remainingSponsoredGas: remainingSponsoredGas ?? this.remainingSponsoredGas,
+      remainingSponsoredGas:
+          remainingSponsoredGas ?? this.remainingSponsoredGas,
       currentRefundRate: currentRefundRate ?? this.currentRefundRate,
       lastUpdated: lastUpdated ?? this.lastUpdated,
       totalGasSponsored: totalGasSponsored ?? this.totalGasSponsored,
       totalGasSaved: totalGasSaved ?? this.totalGasSaved,
       totalXpFromGas: totalXpFromGas ?? this.totalXpFromGas,
-      consecutiveDaysActive: consecutiveDaysActive ?? this.consecutiveDaysActive,
+      consecutiveDaysActive:
+          consecutiveDaysActive ?? this.consecutiveDaysActive,
     );
   }
 
@@ -565,8 +589,12 @@ class GasRewardsResult {
     return GasRewardsResult(
       success: true,
       transactionHash: eventData['transaction_hash'],
-      gasCreditsEarned: int.parse(eventData['gas_credits_earned']?.toString() ?? '0'),
-      tradingVolume: BigInt.parse(eventData['trading_volume']?.toString() ?? '0'),
+      gasCreditsEarned: int.parse(
+        eventData['gas_credits_earned']?.toString() ?? '0',
+      ),
+      tradingVolume: BigInt.parse(
+        eventData['trading_volume']?.toString() ?? '0',
+      ),
       streakBonus: int.parse(eventData['streak_bonus']?.toString() ?? '0'),
       referralBonus: int.parse(eventData['referral_bonus']?.toString() ?? '0'),
     );
@@ -576,7 +604,7 @@ class GasRewardsResult {
   String getFormattedTradingVolume({int decimals = 18}) {
     final divisor = BigInt.from(10).pow(decimals);
     final volume = tradingVolume.toDouble() / divisor.toDouble();
-    
+
     if (volume >= 1000) {
       return '${(volume / 1000).toStringAsFixed(1)}K ETH';
     } else {

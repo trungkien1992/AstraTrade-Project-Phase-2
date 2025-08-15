@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  # Redis for event bus
+  redis:
+    image: redis:7-alpine
+    container_name: astratrade-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --replica-read-only no
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/etc/redis/redis.conf
+    networks:
+      - astratrade
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # PostgreSQL for persistent data
+  postgres:
+    image: postgres:15-alpine
+    container_name: astratrade-postgres
+    environment:
+      POSTGRES_DB: astratrade
+      POSTGRES_USER: astratrade_user
+      POSTGRES_PASSWORD: astratrade_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - astratrade
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U astratrade_user -d astratrade"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: astratrade-backend
+    environment:
+      - DATABASE_URL=postgresql://astratrade_user:astratrade_pass@postgres:5432/astratrade
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=false
+      - SECRET_KEY=your-secret-key-change-in-production
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    networks:
+      - astratrade
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  # Redis Insight for monitoring (optional)
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: astratrade-redis-insight
+    ports:
+      - "8001:8001"
+    networks:
+      - astratrade
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # Grafana for monitoring (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: astratrade-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - astratrade
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  astratrade:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

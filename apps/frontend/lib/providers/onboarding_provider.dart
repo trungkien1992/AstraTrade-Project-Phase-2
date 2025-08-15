@@ -28,15 +28,16 @@ class OnboardingState {
       experienceLevel: experienceLevel ?? this.experienceLevel,
       practiceAmount: practiceAmount ?? this.practiceAmount,
       goals: goals ?? this.goals,
-      hasNotificationPermission: hasNotificationPermission ?? this.hasNotificationPermission,
+      hasNotificationPermission:
+          hasNotificationPermission ?? this.hasNotificationPermission,
       isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 
   bool get canProceed {
-    return experienceLevel != null && 
-           practiceAmount != null && 
-           goals.isNotEmpty;
+    return experienceLevel != null &&
+        practiceAmount != null &&
+        goals.isNotEmpty;
   }
 
   OnboardingData toOnboardingData() {
@@ -59,11 +60,11 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final onboardingJson = prefs.getString('onboarding_data');
-      
+
       // For demo purposes, always start with fresh onboarding
       // Comment this out in production and uncomment the code below
       await prefs.remove('onboarding_data');
-      
+
       /* Production code:
       if (onboardingJson != null) {
         // User has completed onboarding before
@@ -97,11 +98,13 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     try {
       final onboardingData = state.toOnboardingData();
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Save onboarding data
-      await prefs.setString('onboarding_data', 
-          onboardingData.toJson().toString());
-      
+      await prefs.setString(
+        'onboarding_data',
+        onboardingData.toJson().toString(),
+      );
+
       state = state.copyWith(isCompleted: true);
     } catch (e) {
       // Handle error
@@ -117,15 +120,19 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     // Show paywall early for high-value users
     if (state.experienceLevel == 'Advanced') return true;
     if ((state.practiceAmount ?? 0) >= 500) return true;
-    if (state.goals.any((goal) => 
-        goal.contains('professional') || 
-        goal.contains('career') ||
-        goal.contains('income'))) return true;
-    
+    if (state.goals.any(
+      (goal) =>
+          goal.contains('professional') ||
+          goal.contains('career') ||
+          goal.contains('income'),
+    ))
+      return true;
+
     return false;
   }
 }
 
-final onboardingProvider = StateNotifierProvider<OnboardingNotifier, OnboardingState>((ref) {
-  return OnboardingNotifier();
-});
+final onboardingProvider =
+    StateNotifierProvider<OnboardingNotifier, OnboardingState>((ref) {
+      return OnboardingNotifier();
+    });

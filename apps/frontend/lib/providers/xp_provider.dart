@@ -15,10 +15,11 @@ final tradingStatsServiceProvider = Provider<TradingStatsService>((ref) {
 });
 
 /// Provider for current player XP data
-final playerXPProvider = StateNotifierProvider<PlayerXPNotifier, AsyncValue<PlayerXP?>>((ref) {
-  final xpService = ref.watch(xpServiceProvider);
-  return PlayerXPNotifier(xpService, ref);
-});
+final playerXPProvider =
+    StateNotifierProvider<PlayerXPNotifier, AsyncValue<PlayerXP?>>((ref) {
+      final xpService = ref.watch(xpServiceProvider);
+      return PlayerXPNotifier(xpService, ref);
+    });
 
 /// Provider for recent XP events
 final recentXPEventsProvider = Provider<List<XPGainEvent>>((ref) {
@@ -37,20 +38,21 @@ class PlayerXPNotifier extends StateNotifier<AsyncValue<PlayerXP?>> {
   final XPService _xpService;
   final Ref _ref;
   late final TradingStatsService _tradingStatsService;
-  
-  PlayerXPNotifier(this._xpService, this._ref) : super(const AsyncValue.loading()) {
+
+  PlayerXPNotifier(this._xpService, this._ref)
+    : super(const AsyncValue.loading()) {
     _tradingStatsService = _ref.read(tradingStatsServiceProvider);
   }
-  
+
   /// Update leaderboard when XP changes
   void _updateLeaderboard(String playerId, PlayerXP playerXP) async {
     try {
       // Check if leaderboard provider is available
       final leaderboardNotifier = _ref.read(leaderboardProvider.notifier);
-      
+
       // Get current trading statistics
       final tradingStats = await _tradingStatsService.getCurrentStats();
-      
+
       // Update leaderboard with new stats
       leaderboardNotifier.updateCurrentUserStats(
         stellarShards: playerXP.stellarShards.round(),
@@ -64,7 +66,7 @@ class PlayerXPNotifier extends StateNotifier<AsyncValue<PlayerXP?>> {
       // Leaderboard provider might not be available yet, ignore error
     }
   }
-  
+
   /// Initialize XP system for player
   Future<void> initializePlayer(String playerId) async {
     try {
@@ -75,7 +77,7 @@ class PlayerXPNotifier extends StateNotifier<AsyncValue<PlayerXP?>> {
       state = AsyncValue.error(e, stackTrace);
     }
   }
-  
+
   /// Generate Stellar Shards from orbital forging
   Future<XPGainEvent?> orbitalForge({
     required String playerId,
@@ -88,21 +90,21 @@ class PlayerXPNotifier extends StateNotifier<AsyncValue<PlayerXP?>> {
         baseAmount: baseAmount,
         isCriticalForge: isCriticalForge,
       );
-      
+
       // Update state with new XP data
       final updatedXP = _xpService.currentPlayerXP;
       if (updatedXP != null) {
         state = AsyncValue.data(updatedXP);
         _updateLeaderboard(playerId, updatedXP);
       }
-      
+
       return event;
     } catch (e) {
       // Don't update state on error, just return null
       return null;
     }
   }
-  
+
   /// Process mock trade rewards
   Future<XPGainEvent?> processMockTrade({
     required String playerId,
@@ -117,25 +119,25 @@ class PlayerXPNotifier extends StateNotifier<AsyncValue<PlayerXP?>> {
         amount: tradeAmount,
         symbol: symbol,
       );
-      
+
       final event = await _xpService.generateStellarShardsFromMockTrade(
         playerId: playerId,
         tradeAmount: tradeAmount,
         wasSuccessful: wasSuccessful,
       );
-      
+
       final updatedXP = _xpService.currentPlayerXP;
       if (updatedXP != null) {
         state = AsyncValue.data(updatedXP);
         _updateLeaderboard(playerId, updatedXP);
       }
-      
+
       return event;
     } catch (e) {
       return null;
     }
   }
-  
+
   /// Process real trade Lumina harvest
   Future<XPGainEvent?> harvestLumina({
     required String playerId,
@@ -151,43 +153,43 @@ class PlayerXPNotifier extends StateNotifier<AsyncValue<PlayerXP?>> {
         amount: tradeAmount,
         symbol: symbol,
       );
-      
+
       final event = await _xpService.harvestLumina(
         playerId: playerId,
         tradeAmount: tradeAmount,
         wasSuccessful: wasSuccessful,
         transactionHash: transactionHash,
       );
-      
+
       final updatedXP = _xpService.currentPlayerXP;
       if (updatedXP != null) {
         state = AsyncValue.data(updatedXP);
         _updateLeaderboard(playerId, updatedXP);
       }
-      
+
       return event;
     } catch (e) {
       return null;
     }
   }
-  
+
   /// Process daily login rewards
   Future<XPGainEvent?> processDailyLogin(String playerId) async {
     try {
       final event = await _xpService.processDailyLogin(playerId: playerId);
-      
+
       final updatedXP = _xpService.currentPlayerXP;
       if (updatedXP != null) {
         state = AsyncValue.data(updatedXP);
         _updateLeaderboard(playerId, updatedXP);
       }
-      
+
       return event;
     } catch (e) {
       return null;
     }
   }
-  
+
   /// Upgrade cosmic genesis node
   Future<bool> upgradeCosmicNode({
     required String playerId,
@@ -198,36 +200,36 @@ class PlayerXPNotifier extends StateNotifier<AsyncValue<PlayerXP?>> {
         playerId: playerId,
         nodeId: nodeId,
       );
-      
+
       if (success) {
         final updatedXP = _xpService.currentPlayerXP;
         if (updatedXP != null) {
           state = AsyncValue.data(updatedXP);
         }
       }
-      
+
       return success;
     } catch (e) {
       return false;
     }
   }
-  
+
   /// Process idle time rewards
   Future<double> processIdleTime(Duration idleTime) async {
     try {
       final generatedShards = await _xpService.processIdleTime(idleTime);
-      
+
       final updatedXP = _xpService.currentPlayerXP;
       if (updatedXP != null) {
         state = AsyncValue.data(updatedXP);
       }
-      
+
       return generatedShards;
     } catch (e) {
       return 0.0;
     }
   }
-  
+
   /// Refresh current XP data
   void refresh() {
     final currentXP = _xpService.currentPlayerXP;
@@ -290,8 +292,6 @@ final streakInfoProvider = Provider<Map<String, dynamic>>((ref) {
     error: (_, __) => {'days': 0, 'multiplier': 1.0, 'hasActiveStreak': false},
   );
 });
-
-
 
 /// Provider for can level up status
 final canLevelUpProvider = Provider<bool>((ref) {

@@ -64,6 +64,13 @@ class Trade:
         self._error_message: Optional[str] = None
         self._exchange_order_id: Optional[str] = None
         
+        # For partial fills
+        self._filled_amount: Money = Money(Decimal('0'), amount.currency)
+        self._average_fill_price: Optional[Money] = None
+        
+        # For idempotency
+        self._idempotency_key: Optional[str] = None
+        
         # Domain events (would be implemented with proper event system)
         self._domain_events: List[Dict[str, Any]] = []
     
@@ -128,6 +135,45 @@ class Trade:
             "amount": float(self._amount.amount),
             "entry_price": float(entry_price.amount),
             "executed_at": datetime.now(timezone.utc).isoformat()
+        })
+    
+    def partially_fill(self, fill_amount: Money, fill_price: Money) -> None:
+        """Handle partial fill of a trade."""
+        if self._status not in [TradeStatus.PENDING, TradeStatus.PARTIALLY_FILLED]:
+            raise ValueError(f"Cannot partially fill trade with status {self._status}")
+            
+        # Validate currency match
+        if fill_amount.currency != self._amount.currency:
+            raise ValueError("Fill amount currency must match trade amount currency")
+            
+        # Update filled amount
+        self._filled_amount = self._filled_amount.add(fill_amount)
+        
+        # Update average fill price
+        if self._average_fill_price is None:
+            self._average_fill_price = fill_price
+        else:
+            # Calculate weighted average
+            total_value = (self._filled_amount.subtract(fill_amount).amount * self._average_fill_price.amount) + \
+                          (fill_amount.amount * fill_price.amount)
+            avg_price = total_value / self._filled_amount.amount
+            self._average_fill_price = Money(avg_price, fill_price.currency)
+        
+        # Update status
+        if self._filled_amount.amount >= self._amount.amount:
+            self._status = TradeStatus.FILLED
+        else:
+            self._status = TradeStatus.PARTIALLY_FILLED
+            
+        self._add_domain_event("TradePartiallyFilled", {
+            "trade_id": self._trade_id,
+            "user_id": self._user_id,
+            "fill_amount": float(fill_amount.amount),
+            "fill_price": float(fill_price.amount),
+            "total_filled": float(self._filled_amount.amount),
+            "average_fill_price": float(self._average_fill_price.amount),
+            "status": self._status.value,
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
     
     def close(self, exit_price: Money) -> Money:
@@ -205,17 +251,25 @@ class Trade:
         return amount
     
     def _add_domain_event(self, event_type: str, event_data: Dict[str, Any]) -> None:
-        """Add domain event for eventual publication."""
-        self._domain_events.append({
+        """Add domain event for eventual publication through outbox."""
+        # Instead of storing events in memory, we'll mark that events need to be created
+        # The actual event creation will happen in the service layer with outbox pattern
+        event_info = {
             "event_type": event_type,
             "event_data": event_data,
             "timestamp": datetime.now(timezone.utc).isoformat()
-        })
+        }
+        
+        # Store in a way that can be picked up by the service layer
+        if not hasattr(self, '_pending_events'):
+            self._pending_events = []
+        self._pending_events.append(event_info)
     
-    def get_domain_events(self) -> List[Dict[str, Any]]:
-        """Get all domain events and clear the list."""
-        events = self._domain_events.copy()
-        self._domain_events.clear()
+    def get_pending_events(self) -> List[Dict[str, Any]]:
+        """Get pending events and clear the list."""
+        events = getattr(self, '_pending_events', []).copy()
+        if hasattr(self, '_pending_events'):
+            self._pending_events.clear()
         return events
 
 
@@ -320,7 +374,7 @@ class Position:
         net_quantity = Decimal('0')
         
         for trade in self._trades:
-            if trade.status in [TradeStatus.ACTIVE, TradeStatus.COMPLETED]:
+            if trade.status in [TradeStatus.ACTIVE, TradeStatus.FILLED, TradeStatus.COMPLETED]:
                 quantity_delta = trade.amount.amount / (trade.entry_price.amount if trade.entry_price else Decimal('1'))
                 
                 if trade.direction == TradeDirection.LONG:
@@ -340,8 +394,10 @@ class Position:
         currency = None
         
         for trade in self._trades:
-            if trade.status in [TradeStatus.ACTIVE, TradeStatus.COMPLETED] and trade.entry_price:
-                quantity = trade.amount.amount / trade.entry_price.amount
+            if trade.status in [TradeStatus.ACTIVE, TradeStatus.FILLED, TradeStatus.COMPLETED] and trade.entry_price:
+                # Use filled amount for partially filled trades, full amount for others
+                amount = trade._filled_amount if trade.status == TradeStatus.PARTIALLY_FILLED else trade.amount
+                quantity = amount.amount / trade.entry_price.amount
                 value = quantity * trade.entry_price.amount
                 
                 total_value += value
@@ -363,8 +419,10 @@ class Position:
         currency = self._trades[0].amount.currency
         
         for trade in self._trades:
-            if trade.status in [TradeStatus.ACTIVE, TradeStatus.COMPLETED]:
-                total_invested += trade.amount.amount
+            if trade.status in [TradeStatus.ACTIVE, TradeStatus.FILLED, TradeStatus.COMPLETED]:
+                # Use filled amount for partially filled trades, full amount for others
+                amount = trade._filled_amount if trade.status == TradeStatus.PARTIALLY_FILLED else trade.amount
+                total_invested += amount.amount
         
         return Money(total_invested, currency)
     

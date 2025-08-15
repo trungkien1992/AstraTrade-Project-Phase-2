@@ -1,15 +1,11 @@
 import 'package:flutter/foundation.dart';
 
-enum Environment {
-  development,
-  staging,
-  production,
-}
+enum Environment { development, staging, production }
 
 /// Production-ready application configuration
 class AppConfig {
-  static const Environment _environment = kDebugMode 
-      ? Environment.development 
+  static const Environment _environment = kDebugMode
+      ? Environment.development
       : Environment.production;
 
   // App Information
@@ -17,12 +13,12 @@ class AppConfig {
   static const String appVersion = '1.0.0';
   static const String buildNumber = '1';
   static const String apiVersion = 'v1';
-  
+
   // Environment Detection
   static bool get isProduction => _environment == Environment.production;
   static bool get isDevelopment => _environment == Environment.development;
   static bool get isStaging => _environment == Environment.staging;
-  
+
   // Base URL Configuration
   static String get baseUrl {
     switch (_environment) {
@@ -34,20 +30,20 @@ class AppConfig {
         return 'https://api.astratrade.app';
     }
   }
-  
+
   // Legacy feature flags (maintained for compatibility)
   static const bool enableClans = true;
   static const bool enableNFTs = true;
   static const bool enablePrestige = true;
   static const bool enableViral = true;
-  
+
   // New Production Features
   static bool get enableAnalytics => isProduction || isStaging;
   static bool get enableCrashReporting => isProduction || isStaging;
   static bool get enablePerformanceMonitoring => true;
   static bool get enableABTesting => true;
   static bool get enableBetaFeatures => isDevelopment || isStaging;
-  
+
   // API Endpoints
   static String get apiUrl => '$baseUrl/api/$apiVersion';
   static String get authUrl => '$apiUrl/auth';
@@ -58,7 +54,7 @@ class AppConfig {
   static String get viralUrl => '$apiUrl/viral';
   static String get healthUrl => '$apiUrl/health';
   static String get metricsUrl => '$apiUrl/metrics';
-  
+
   // Revenue Cat Configuration
   static String get revenueCatApiKey {
     switch (_environment) {
@@ -70,22 +66,22 @@ class AppConfig {
         return 'rcat_prod_key_placeholder';
     }
   }
-  
+
   // Performance Configuration
   static const int maxCacheSize = 50 * 1024 * 1024; // 50MB
   static const Duration networkTimeout = Duration(seconds: 30);
   static const int maxRetryAttempts = 3;
   static const Duration healthCheckInterval = Duration(minutes: 5);
-  
+
   // Beta Configuration
   static const bool isBetaVersion = true;
   static const String betaTestGroup = 'beta_v1_0_0';
   static const int maxBetaUsers = 1000;
-  
+
   // App Store Configuration
   static const String appStoreId = '6478123456'; // Placeholder
   static const String playStoreId = 'com.astratrade.app';
-  
+
   // Support Configuration
   static const String supportEmail = 'support@astratrade.app';
   static const String feedbackEmail = 'feedback@astratrade.app';

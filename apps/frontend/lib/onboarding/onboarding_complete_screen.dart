@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/onboarding_provider.dart';
@@ -9,10 +8,12 @@ class OnboardingCompleteScreen extends ConsumerStatefulWidget {
   const OnboardingCompleteScreen({super.key});
 
   @override
-  ConsumerState<OnboardingCompleteScreen> createState() => _OnboardingCompleteScreenState();
+  ConsumerState<OnboardingCompleteScreen> createState() =>
+      _OnboardingCompleteScreenState();
 }
 
-class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScreen>
+class _OnboardingCompleteScreenState
+    extends ConsumerState<OnboardingCompleteScreen>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -25,25 +26,21 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    ));
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.3, 1.0, curve: Curves.easeIn),
-    ));
-    
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.3, 1.0, curve: Curves.easeIn),
+      ),
+    );
+
     _controller.forward();
-    
+
     // Complete onboarding in provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(onboardingProvider.notifier).completeOnboarding();
@@ -59,7 +56,7 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
   @override
   Widget build(BuildContext context) {
     final onboardingState = ref.watch(onboardingProvider);
-    
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
@@ -68,7 +65,7 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
           child: Column(
             children: [
               const Spacer(),
-              
+
               // Success Animation
               AnimatedBuilder(
                 animation: _scaleAnimation,
@@ -125,9 +122,9 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
                   );
                 },
               ),
-              
+
               const SizedBox(height: 40),
-              
+
               // Summary Card
               FadeTransition(
                 opacity: _fadeAnimation,
@@ -179,9 +176,9 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
                   ),
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               // Action Buttons
               FadeTransition(
                 opacity: _fadeAnimation,
@@ -210,9 +207,11 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Early paywall for high-value users
-                    if (ref.read(onboardingProvider.notifier).shouldShowPaywallEarly()) ...[
+                    if (ref
+                        .read(onboardingProvider.notifier)
+                        .shouldShowPaywallEarly()) ...[
                       SizedBox(
                         width: double.infinity,
                         height: 56,
@@ -246,7 +245,7 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -255,7 +254,12 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
     );
   }
 
-  Widget _buildSummaryItem(IconData icon, String label, String value, Color color) {
+  Widget _buildSummaryItem(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Row(
       children: [
         Container(
@@ -273,10 +277,7 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
               Text(
                 value,
@@ -295,18 +296,14 @@ class _OnboardingCompleteScreenState extends ConsumerState<OnboardingCompleteScr
   void _handleStartTrading() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => const TradeEntryScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const TradeEntryScreen()),
     );
   }
 
   void _showEarlyPaywall() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const PaywallScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const PaywallScreen()),
     );
   }
 }

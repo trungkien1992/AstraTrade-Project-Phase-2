@@ -34,25 +34,34 @@ class AstraTradeDeployer:
             "constructor_dependencies": {}
         }
         
+        # Get owner address from deployment account
+        account_path = os.getenv("STARKNET_ACCOUNT", "./deployment_account.json")
+        try:
+            with open(account_path, 'r') as f:
+                account_data = json.load(f)
+                owner_address = account_data["deployment"]["address"]
+        except Exception:
+            owner_address = "0x5715b600c38f3bfa539281865cf8d7b9fe998d79a2cf181c70effcb182752f7"
+            
         # Contract deployment order (dependencies first)
         self.contracts = [
             {
-                "name": "exchange_v2",
-                "class_name": "AstraTradeExchangeV2", 
-                "constructor_args": [],
-                "description": "Exchange V2 with gamification and Extended API"
-            },
-            {
                 "name": "vault",
                 "class_name": "AstraTradeVault",
-                "constructor_args": [],
+                "constructor_args": [owner_address],
                 "description": "Multi-collateral vault with XP rewards"
             },
             {
                 "name": "paymaster", 
                 "class_name": "AstraTradePaymaster",
-                "constructor_args": ["${exchange_v2_address}", "${vault_address}"],
+                "constructor_args": [owner_address],
                 "description": "5-tier gasless transaction system"
+            },
+            {
+                "name": "exchange",
+                "class_name": "AstraTradeExchangeV2", 
+                "constructor_args": [owner_address, "${vault_address}", "${paymaster_address}", "0x0"],
+                "description": "Exchange V2 with gamification and Extended API"
             }
         ]
         
@@ -165,10 +174,20 @@ class AstraTradeDeployer:
         """Check if account has sufficient balance for deployment"""
         print("\n💰 Checking account balance...")
         
+        # Get account address from deployment account file
+        account_path = os.getenv("STARKNET_ACCOUNT")
+        try:
+            with open(account_path, 'r') as f:
+                account_data = json.load(f)
+                account_address = account_data["deployment"]["address"]
+        except Exception as e:
+            print(f"   ❌ Could not read account address: {e}")
+            return False
+            
         balance_cmd = [
             "starkli", "balance", 
-            "--rpc", self.rpc_url,
-            "--account", os.getenv("STARKNET_ACCOUNT")
+            account_address,
+            "--rpc", self.rpc_url
         ]
         
         result = self.run_command(balance_cmd, "Checking ETH balance")
@@ -181,7 +200,7 @@ class AstraTradeDeployer:
             balance_line = result["stdout"].split('\n')[0]
             balance_eth = float(balance_line.split()[0])
             
-            min_required = 0.01  # Minimum ETH required for deployment
+            min_required = 0.005  # Minimum ETH required for deployment
             
             print(f"   💳 Current balance: {balance_eth} ETH")
             
@@ -209,20 +228,22 @@ class AstraTradeDeployer:
             
         # Verify contract artifacts exist
         for contract in self.contracts:
-            contract_file = f"target/dev/astratrade_contracts_{contract['name']}.contract_class.json"
+            contract_file = f"target/dev/astratrade_contracts_{contract['class_name']}.contract_class.json"
             if not Path(contract_file).exists():
                 print(f"   ❌ Contract artifact missing: {contract_file}")
                 return False
             else:
-                print(f"   ✅ Built: {contract['name']}")
+                print(f"   ✅ Built: {contract['name']} ({contract['class_name']})")
                 
         return True
     
-    def declare_contract(self, contract_name: str) -> Optional[str]:
+    def declare_contract(self, contract_info: Dict) -> Optional[str]:
         """Declare a contract and return class hash"""
-        print(f"\n📝 Declaring {contract_name} contract...")
+        contract_name = contract_info["name"]
+        class_name = contract_info["class_name"]
+        print(f"\n📝 Declaring {contract_name} contract ({class_name})...")
         
-        contract_file = f"target/dev/astratrade_contracts_{contract_name}.contract_class.json"
+        contract_file = f"target/dev/astratrade_contracts_{class_name}.contract_class.json"
         
         declare_cmd = [
             "starkli", "declare",
@@ -230,7 +251,8 @@ class AstraTradeDeployer:
             "--rpc", self.rpc_url,
             "--account", os.getenv("STARKNET_ACCOUNT"),
             "--keystore", os.getenv("STARKNET_KEYSTORE"),
-            "--max-fee", "0.005"  # 0.005 ETH max fee
+            "--l1-gas", "10000",
+            "--l2-gas", "10000"
         ]
         
         result = self.run_command(declare_cmd, f"Declaring {contract_name}")
@@ -260,7 +282,7 @@ class AstraTradeDeployer:
         print(f"\n🚀 Deploying {contract_name} contract...")
         
         # Declare contract first
-        class_hash = self.declare_contract(contract_name)
+        class_hash = self.declare_contract(contract_info)
         if not class_hash:
             return None
             
@@ -284,7 +306,8 @@ class AstraTradeDeployer:
             "--rpc", self.rpc_url,
             "--account", os.getenv("STARKNET_ACCOUNT"),
             "--keystore", os.getenv("STARKNET_KEYSTORE"),
-            "--max-fee", "0.01"  # 0.01 ETH max fee
+            "--l1-gas", "15000",
+            "--l2-gas", "15000"
         ] + constructor_args
         
         result = self.run_command(deploy_cmd, f"Deploying {contract_name}", timeout=600)

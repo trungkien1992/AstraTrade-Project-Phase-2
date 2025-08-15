@@ -13,28 +13,34 @@ class LeaderboardService {
   final _backendClient = AstraTradeBackendClient();
 
   /// Get leaderboard data for the specified type
-  Future<List<LeaderboardEntry>> getLeaderboardData(LeaderboardType type) async {
+  Future<List<LeaderboardEntry>> getLeaderboardData(
+    LeaderboardType type,
+  ) async {
     // Only one type supported in backend for now
     final backendEntries = await _backendClient.getLeaderboard();
     // Map backend entries to app model
-    return backendEntries.map((e) => LeaderboardEntry(
-      userId: e.userId.toString(),
-      username: e.username,
-      avatarUrl: '', // Extend if backend supports
-      rank: 0, // Will be set after sorting
-      stellarShards: e.xp, // Map XP to shards for now
-      lumina: 0, // Extend if backend supports
-      level: e.level,
-      totalXP: e.xp,
-      cosmicTier: '', // Extend if needed
-      isVerifiedLuminaWeaver: false,
-      isCurrentUser: false, // Set in provider/UI
-      planetIcon: '',
-      winStreak: 0,
-      totalTrades: 0,
-      winRate: 0.0,
-      lastActive: DateTime.now(),
-    )).toList();
+    return backendEntries
+        .map(
+          (e) => LeaderboardEntry(
+            userId: e.userId.toString(),
+            username: e.username,
+            avatarUrl: '', // Extend if backend supports
+            rank: 0, // Will be set after sorting
+            stellarShards: e.xp, // Map XP to shards for now
+            lumina: 0, // Extend if backend supports
+            level: e.level,
+            totalXP: e.xp,
+            cosmicTier: '', // Extend if needed
+            isVerifiedLuminaWeaver: false,
+            isCurrentUser: false, // Set in provider/UI
+            planetIcon: '',
+            winStreak: 0,
+            totalTrades: 0,
+            winRate: 0.0,
+            lastActive: DateTime.now(),
+          ),
+        )
+        .toList();
   }
 
   /// Get current user's ranking for a specific leaderboard type
@@ -47,19 +53,25 @@ class LeaderboardService {
   }
 
   /// Get top players for the specified type (limit results)
-  Future<List<LeaderboardEntry>> getTopPlayers(LeaderboardType type, {int limit = 10}) async {
+  Future<List<LeaderboardEntry>> getTopPlayers(
+    LeaderboardType type, {
+    int limit = 10,
+  }) async {
     final leaderboard = await getLeaderboardData(type);
     return leaderboard.take(limit).toList();
   }
 
   /// Get players around current user's rank
-  Future<List<LeaderboardEntry>> getPlayersAroundUser(LeaderboardType type, {int range = 5}) async {
+  Future<List<LeaderboardEntry>> getPlayersAroundUser(
+    LeaderboardType type, {
+    int range = 5,
+  }) async {
     final leaderboard = await getLeaderboardData(type);
     final currentUser = leaderboard.firstWhere((entry) => entry.isCurrentUser);
-    
+
     final startIndex = math.max(0, currentUser.rank - 1 - range);
     final endIndex = math.min(leaderboard.length, currentUser.rank + range);
-    
+
     return leaderboard.sublist(startIndex, endIndex);
   }
 
@@ -75,8 +87,10 @@ class LeaderboardService {
     // In a real app, this would update the backend
     // For now, we'll just invalidate the cache
     _invalidateCache();
-    
-    debugPrint('Updated current user stats: SS=$stellarShards, LM=$lumina, XP=$totalXP');
+
+    debugPrint(
+      'Updated current user stats: SS=$stellarShards, LM=$lumina, XP=$totalXP',
+    );
   }
 
   /// Invalidate cached data to force refresh
@@ -131,14 +145,21 @@ class LeaderboardService {
   /// Get leaderboard statistics
   Future<Map<String, dynamic>> getLeaderboardStats(LeaderboardType type) async {
     final leaderboard = await getLeaderboardData(type);
-    
+
     int totalPlayers = leaderboard.length;
-    int proTraders = leaderboard.where((e) => false).length; // No LuminaWeaver field in LeaderboardEntry
-    
-    double avgLevel = leaderboard.map((e) => e.level).reduce((a, b) => a + b) / totalPlayers;
-    int totalStellarShards = leaderboard.map((e) => e.stellarShards).reduce((a, b) => a + b);
-    int totalLumina = leaderboard.map((e) => 0).reduce((a, b) => a + b); // Lumina is 0 in backend
-    
+    int proTraders = leaderboard
+        .where((e) => false)
+        .length; // No LuminaWeaver field in LeaderboardEntry
+
+    double avgLevel =
+        leaderboard.map((e) => e.level).reduce((a, b) => a + b) / totalPlayers;
+    int totalStellarShards = leaderboard
+        .map((e) => e.stellarShards)
+        .reduce((a, b) => a + b);
+    int totalLumina = leaderboard
+        .map((e) => 0)
+        .reduce((a, b) => a + b); // Lumina is 0 in backend
+
     return {
       'totalPlayers': totalPlayers,
       'proTraders': proTraders,

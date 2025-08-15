@@ -41,41 +41,29 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
-    
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    ));
-    
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
     _animationController.forward();
   }
 
@@ -182,10 +170,7 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: _getActionColor().withOpacity(0.8),
-          width: 2,
-        ),
+        border: Border.all(color: _getActionColor().withOpacity(0.8), width: 2),
         boxShadow: [
           BoxShadow(
             color: _getActionColor().withOpacity(0.4),
@@ -204,7 +189,7 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
         children: [
           // Header
           _buildHeader(),
-          
+
           // Divider
           Container(
             height: 1,
@@ -219,10 +204,10 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
               ),
             ),
           ),
-          
+
           // Parameters
           _buildParameters(),
-          
+
           // Action buttons
           _buildActionButtons(),
         ],
@@ -264,9 +249,9 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Cosmic symbol name
           Text(
             _getCosmicSymbolName(),
@@ -276,9 +261,9 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
               fontWeight: FontWeight.w600,
             ),
           ),
-          
+
           const SizedBox(height: 4),
-          
+
           // Real symbol
           Text(
             widget.symbol,
@@ -304,9 +289,9 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
             Icons.attach_money,
             Colors.green.shade400,
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Stellar Shards reward
           _buildParameterRow(
             'SS Reward',
@@ -314,9 +299,9 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
             Icons.account_balance_wallet,
             Colors.purple.shade400,
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Risk Level parameter
           _buildParameterRow(
             'Risk Level',
@@ -324,23 +309,23 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
             Icons.security,
             _getRiskLevelColor(widget.riskLevel),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Action type parameter
           _buildParameterRow(
             'Action',
             widget.action.toUpperCase(),
-            widget.action.toUpperCase() == 'BUY' 
-                ? Icons.trending_up 
+            widget.action.toUpperCase() == 'BUY'
+                ? Icons.trending_up
                 : widget.action.toUpperCase() == 'SELL'
-                    ? Icons.trending_down
-                    : Icons.auto_awesome,
+                ? Icons.trending_down
+                : Icons.auto_awesome,
             _getActionColor(),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // AI confidence indicator
           _buildParameterRow(
             'AI Confidence',
@@ -353,14 +338,15 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
     );
   }
 
-  Widget _buildParameterRow(String label, String value, IconData icon, Color color) {
+  Widget _buildParameterRow(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Row(
       children: [
-        Icon(
-          icon,
-          color: color,
-          size: 16,
-        ),
+        Icon(icon, color: color, size: 16),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
@@ -413,9 +399,9 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
                   ),
                 ),
               ),
-              
+
               const SizedBox(width: 8),
-              
+
               // Adjust button
               Expanded(
                 child: ElevatedButton(
@@ -431,10 +417,7 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.tune,
-                        size: 12,
-                      ),
+                      Icon(Icons.tune, size: 12),
                       const SizedBox(width: 4),
                       Text(
                         'Adjust',
@@ -449,9 +432,9 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Bottom row: Execute button (full width)
           SizedBox(
             width: double.infinity,
@@ -469,10 +452,7 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.rocket_launch,
-                    size: 16,
-                  ),
+                  Icon(Icons.rocket_launch, size: 16),
                   const SizedBox(width: 8),
                   Text(
                     'Execute Trade',
@@ -515,7 +495,7 @@ class _ForgeParametersOverlayState extends State<ForgeParametersOverlay>
 // Helper class for managing forge parameter overlays
 class ForgeParameterManager {
   static OverlayEntry? _currentOverlay;
-  
+
   static void showForgeParameters({
     required BuildContext context,
     required Offset position,
@@ -529,7 +509,7 @@ class ForgeParameterManager {
     VoidCallback? onAdjust,
   }) {
     hideForgeParameters();
-    
+
     _currentOverlay = OverlayEntry(
       builder: (context) => ForgeParametersOverlay(
         position: position,
@@ -552,10 +532,10 @@ class ForgeParameterManager {
         },
       ),
     );
-    
+
     Overlay.of(context).insert(_currentOverlay!);
   }
-  
+
   static void hideForgeParameters() {
     _currentOverlay?.remove();
     _currentOverlay = null;

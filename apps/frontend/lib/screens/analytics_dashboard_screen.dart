@@ -8,10 +8,12 @@ class AnalyticsDashboardScreen extends ConsumerStatefulWidget {
   const AnalyticsDashboardScreen({super.key});
 
   @override
-  ConsumerState<AnalyticsDashboardScreen> createState() => _AnalyticsDashboardScreenState();
+  ConsumerState<AnalyticsDashboardScreen> createState() =>
+      _AnalyticsDashboardScreenState();
 }
 
-class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScreen> {
+class _AnalyticsDashboardScreenState
+    extends ConsumerState<AnalyticsDashboardScreen> {
   Map<String, dynamic>? _analyticsSummary;
   List<AnalyticsEvent>? _recentEvents;
   Map<String, dynamic>? _abTestResults;
@@ -25,12 +27,14 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
 
   Future<void> _loadAnalyticsData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final summary = await AnalyticsService.getAnalyticsSummary();
       final events = await AnalyticsService.getEvents(limit: 50);
-      final paywallResults = await ABTestingService.getTestResults('paywall_presentation');
-      
+      final paywallResults = await ABTestingService.getTestResults(
+        'paywall_presentation',
+      );
+
       setState(() {
         _analyticsSummary = summary;
         _recentEvents = events;
@@ -40,9 +44,9 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading analytics: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading analytics: $e')));
       }
     }
   }
@@ -60,7 +64,9 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HealthDashboardScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const HealthDashboardScreen(),
+                ),
               );
             },
             tooltip: 'System Health',
@@ -102,10 +108,7 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
       children: [
         const Text(
           'Overview',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         GridView.count(
@@ -148,7 +151,12 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
     );
   }
 
-  Widget _buildMetricCard(String title, String value, IconData icon, Color color) {
+  Widget _buildMetricCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -168,10 +176,7 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
             ),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
           ],
@@ -191,17 +196,16 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
           children: [
             const Text(
               'Current Session',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 const Icon(Icons.timer, size: 16, color: Colors.grey),
                 const SizedBox(width: 8),
-                Text('Duration: ${_analyticsSummary!['session_duration']} minutes'),
+                Text(
+                  'Duration: ${_analyticsSummary!['session_duration']} minutes',
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -209,7 +213,9 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
               children: [
                 const Icon(Icons.fingerprint, size: 16, color: Colors.grey),
                 const SizedBox(width: 8),
-                Text('Session ID: ${_analyticsSummary!['session_id']?.substring(0, 8)}...'),
+                Text(
+                  'Session ID: ${_analyticsSummary!['session_id']?.substring(0, 8)}...',
+                ),
               ],
             ),
           ],
@@ -226,10 +232,7 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
       children: [
         const Text(
           'A/B Test Results',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Card(
@@ -246,7 +249,9 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text('Total Participants: ${_abTestResults!['total_participants']}'),
+                Text(
+                  'Total Participants: ${_abTestResults!['total_participants']}',
+                ),
                 const SizedBox(height: 16),
                 ..._buildVariantResults(),
               ],
@@ -264,7 +269,7 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
     for (final entry in results.entries) {
       final variant = entry.key;
       final data = entry.value as Map<String, dynamic>;
-      
+
       widgets.add(
         Container(
           margin: const EdgeInsets.only(bottom: 8),
@@ -306,10 +311,7 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
       children: [
         const Text(
           'Recent Events',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Card(
@@ -326,9 +328,27 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
                 ),
                 child: const Row(
                   children: [
-                    Expanded(flex: 2, child: Text('Event', style: TextStyle(fontWeight: FontWeight.bold))),
-                    Expanded(flex: 1, child: Text('Type', style: TextStyle(fontWeight: FontWeight.bold))),
-                    Expanded(flex: 2, child: Text('Time', style: TextStyle(fontWeight: FontWeight.bold))),
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Event',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Text(
+                        'Type',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Time',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -343,15 +363,36 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
                     dense: true,
                     title: Row(
                       children: [
-                        Expanded(flex: 2, child: Text(event.name, style: const TextStyle(fontSize: 12))),
-                        Expanded(flex: 1, child: _buildEventTypeChip(event.type)),
-                        Expanded(flex: 2, child: Text(_formatTime(event.timestamp), style: const TextStyle(fontSize: 12))),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            event.name,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: _buildEventTypeChip(event.type),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            _formatTime(event.timestamp),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
                       ],
                     ),
                     subtitle: event.properties.isNotEmpty
                         ? Text(
-                            event.properties.entries.take(2).map((e) => '${e.key}: ${e.value}').join(', '),
-                            style: const TextStyle(fontSize: 10, color: Colors.grey),
+                            event.properties.entries
+                                .take(2)
+                                .map((e) => '${e.key}: ${e.value}')
+                                .join(', '),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey,
+                            ),
                           )
                         : null,
                   );
@@ -414,10 +455,7 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
       children: [
         const Text(
           'Event Type Breakdown',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Card(
@@ -425,10 +463,10 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
             padding: const EdgeInsets.all(16),
             child: Column(
               children: typeCount.entries.map((entry) {
-                final percentage = (_recentEvents!.length > 0) 
+                final percentage = (_recentEvents!.length > 0)
                     ? (entry.value / _recentEvents!.length * 100)
                     : 0.0;
-                
+
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: Row(
@@ -439,11 +477,15 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
                         child: LinearProgressIndicator(
                           value: percentage / 100,
                           backgroundColor: Colors.grey[200],
-                          valueColor: AlwaysStoppedAnimation(_getTypeColor(entry.key)),
+                          valueColor: AlwaysStoppedAnimation(
+                            _getTypeColor(entry.key),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Text('${entry.value} (${percentage.toStringAsFixed(1)}%)'),
+                      Text(
+                        '${entry.value} (${percentage.toStringAsFixed(1)}%)',
+                      ),
                     ],
                   ),
                 );
@@ -473,7 +515,7 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
   String _formatTime(DateTime time) {
     final now = DateTime.now();
     final difference = now.difference(time);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays}d ago';
     } else if (difference.inHours > 0) {

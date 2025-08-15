@@ -73,8 +73,8 @@ class UserProgress {
       totalTrades: json['totalTrades'] ?? 0,
       profitableTrades: json['profitableTrades'] ?? 0,
       totalProfitLoss: (json['totalProfitLoss'] ?? 0.0).toDouble(),
-      lastTradeDate: json['lastTradeDate'] != null 
-          ? DateTime.parse(json['lastTradeDate']) 
+      lastTradeDate: json['lastTradeDate'] != null
+          ? DateTime.parse(json['lastTradeDate'])
           : null,
       hasSubscription: json['hasSubscription'] ?? false,
     );

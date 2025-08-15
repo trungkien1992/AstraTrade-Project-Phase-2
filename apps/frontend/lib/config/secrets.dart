@@ -6,7 +6,8 @@
 // Get your client ID from: https://dashboard.web3auth.io/
 const String web3AuthClientId = String.fromEnvironment(
   'WEB3AUTH_CLIENT_ID',
-  defaultValue: 'BPPbhL4egAYdv3vHFVQDhmueoOJKUeHJZe2X8LaMvMIq9go2GN72j6OwvheQkR2ofq8WveHJQtzNKaq0_o_xKuI',
+  defaultValue:
+      'BPPbhL4egAYdv3vHFVQDhmueoOJKUeHJZe2X8LaMvMIq9go2GN72j6OwvheQkR2ofq8WveHJQtzNKaq0_o_xKuI',
 );
 
 // Extended Exchange API Configuration
@@ -18,12 +19,15 @@ const String extendedExchangeApiKey = String.fromEnvironment(
 
 // Demo mode configuration for judges and testing
 class DemoConfig {
-  static const bool isDemoMode = bool.fromEnvironment('DEMO_MODE', defaultValue: false);
-  
+  static const bool isDemoMode = bool.fromEnvironment(
+    'DEMO_MODE',
+    defaultValue: false,
+  );
+
   // Demo credentials (safe for public use)
   static const String demoClientId = 'demo-astratrade-mobile-client-id';
   static const String demoUserId = 'demo-user-12345';
-  
+
   // Use demo config when in demo mode
   static String get clientId => isDemoMode ? demoClientId : web3AuthClientId;
-} 
+}

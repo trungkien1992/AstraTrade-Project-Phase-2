@@ -2,13 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 
-enum EventType {
-  screen_view,
-  user_action,
-  conversion,
-  error,
-  performance,
-}
+enum EventType { screen_view, user_action, conversion, error, performance }
 
 class AnalyticsEvent {
   final String name;
@@ -55,14 +49,14 @@ class AnalyticsService {
   static const String _sessionKey = 'current_session_id';
   static const String _userKey = 'analytics_user_id';
   static const String _sessionStartKey = 'session_start_time';
-  
+
   static String? _currentSessionId;
   static String? _currentUserId;
   static DateTime? _sessionStartTime;
 
   static Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Generate or retrieve user ID
     _currentUserId = prefs.getString(_userKey);
     if (_currentUserId == null) {
@@ -72,7 +66,7 @@ class AnalyticsService {
 
     // Start new session
     await _startNewSession();
-    
+
     // Track app open
     await trackEvent(
       name: 'app_opened',
@@ -88,14 +82,17 @@ class AnalyticsService {
     final prefs = await SharedPreferences.getInstance();
     _currentSessionId = _generateUniqueId();
     _sessionStartTime = DateTime.now();
-    
+
     await prefs.setString(_sessionKey, _currentSessionId!);
-    await prefs.setInt(_sessionStartKey, _sessionStartTime!.millisecondsSinceEpoch);
+    await prefs.setInt(
+      _sessionStartKey,
+      _sessionStartTime!.millisecondsSinceEpoch,
+    );
   }
 
   static String _generateUniqueId() {
-    return DateTime.now().millisecondsSinceEpoch.toString() + 
-           (1000 + (DateTime.now().microsecond % 9000)).toString();
+    return DateTime.now().millisecondsSinceEpoch.toString() +
+        (1000 + (DateTime.now().microsecond % 9000)).toString();
   }
 
   static Future<void> trackEvent({
@@ -112,7 +109,7 @@ class AnalyticsService {
     );
 
     await _storeEvent(event);
-    
+
     if (kDebugMode) {
       print('📊 Analytics: ${event.name} - ${event.properties}');
     }
@@ -121,31 +118,34 @@ class AnalyticsService {
   static Future<void> _storeEvent(AnalyticsEvent event) async {
     final prefs = await SharedPreferences.getInstance();
     final existingEvents = prefs.getStringList(_eventsKey) ?? [];
-    
+
     existingEvents.add(jsonEncode(event.toJson()));
-    
+
     // Keep only last 1000 events to manage storage
     if (existingEvents.length > 1000) {
       existingEvents.removeRange(0, existingEvents.length - 1000);
     }
-    
+
     await prefs.setStringList(_eventsKey, existingEvents);
   }
 
   // Screen tracking
-  static Future<void> trackScreenView(String screenName, {Map<String, dynamic>? properties}) async {
+  static Future<void> trackScreenView(
+    String screenName, {
+    Map<String, dynamic>? properties,
+  }) async {
     await trackEvent(
       name: 'screen_view',
       type: EventType.screen_view,
-      properties: {
-        'screen_name': screenName,
-        ...?properties,
-      },
+      properties: {'screen_name': screenName, ...?properties},
     );
   }
 
   // User actions
-  static Future<void> trackUserAction(String action, {Map<String, dynamic>? properties}) async {
+  static Future<void> trackUserAction(
+    String action, {
+    Map<String, dynamic>? properties,
+  }) async {
     await trackEvent(
       name: action,
       type: EventType.user_action,
@@ -162,11 +162,7 @@ class AnalyticsService {
     await trackEvent(
       name: 'trade_started',
       type: EventType.user_action,
-      properties: {
-        'symbol': symbol,
-        'direction': direction,
-        'amount': amount,
-      },
+      properties: {'symbol': symbol, 'direction': direction, 'amount': amount},
     );
   }
 
@@ -201,10 +197,7 @@ class AnalyticsService {
     await trackEvent(
       name: 'paywall_shown',
       type: EventType.user_action,
-      properties: {
-        'trigger': trigger,
-        'variant': variant,
-      },
+      properties: {'trigger': trigger, 'variant': variant},
     );
   }
 
@@ -232,10 +225,7 @@ class AnalyticsService {
     await trackEvent(
       name: 'paywall_dismissed',
       type: EventType.user_action,
-      properties: {
-        'variant': variant,
-        'reason': reason,
-      },
+      properties: {'variant': variant, 'reason': reason},
     );
   }
 
@@ -248,11 +238,7 @@ class AnalyticsService {
     await trackEvent(
       name: 'onboarding_step',
       type: EventType.user_action,
-      properties: {
-        'step': step,
-        'step_number': stepNumber,
-        ...?stepData,
-      },
+      properties: {'step': step, 'step_number': stepNumber, ...?stepData},
     );
   }
 
@@ -316,11 +302,7 @@ class AnalyticsService {
     await trackEvent(
       name: 'performance_metric',
       type: EventType.performance,
-      properties: {
-        'metric': metric,
-        'value': value,
-        'unit': unit,
-      },
+      properties: {'metric': metric, 'value': value, 'unit': unit},
     );
   }
 
@@ -350,33 +332,33 @@ class AnalyticsService {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final eventStrings = prefs.getStringList(_eventsKey) ?? [];
-    
+
     List<AnalyticsEvent> events = [];
-    
+
     for (final eventString in eventStrings) {
       try {
         final event = AnalyticsEvent.fromJson(jsonDecode(eventString));
-        
+
         // Apply filters
         if (type != null && event.type != type) continue;
         if (startDate != null && event.timestamp.isBefore(startDate)) continue;
         if (endDate != null && event.timestamp.isAfter(endDate)) continue;
-        
+
         events.add(event);
       } catch (e) {
         // Skip invalid events
         continue;
       }
     }
-    
+
     // Sort by timestamp (newest first)
     events.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    
+
     // Apply limit
     if (limit != null && events.length > limit) {
       events = events.take(limit).toList();
     }
-    
+
     return events;
   }
 
@@ -385,14 +367,18 @@ class AnalyticsService {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final week = today.subtract(const Duration(days: 7));
-    
+
     final todaysEvents = events.where((e) => e.timestamp.isAfter(today)).length;
     final weeksEvents = events.where((e) => e.timestamp.isAfter(week)).length;
-    
-    final conversions = events.where((e) => e.type == EventType.conversion).length;
-    final screenViews = events.where((e) => e.type == EventType.screen_view).length;
+
+    final conversions = events
+        .where((e) => e.type == EventType.conversion)
+        .length;
+    final screenViews = events
+        .where((e) => e.type == EventType.screen_view)
+        .length;
     final errors = events.where((e) => e.type == EventType.error).length;
-    
+
     return {
       'total_events': events.length,
       'todays_events': todaysEvents,
@@ -402,8 +388,8 @@ class AnalyticsService {
       'errors': errors,
       'session_id': _currentSessionId,
       'user_id': _currentUserId,
-      'session_duration': _sessionStartTime != null 
-          ? DateTime.now().difference(_sessionStartTime!).inMinutes 
+      'session_duration': _sessionStartTime != null
+          ? DateTime.now().difference(_sessionStartTime!).inMinutes
           : 0,
     };
   }
@@ -411,7 +397,7 @@ class AnalyticsService {
   static Future<void> endSession() async {
     if (_sessionStartTime != null) {
       final sessionDuration = DateTime.now().difference(_sessionStartTime!);
-      
+
       await trackEvent(
         name: 'session_ended',
         type: EventType.user_action,

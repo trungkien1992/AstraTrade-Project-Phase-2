@@ -32,11 +32,14 @@ void main() {
         requirements: [],
       );
 
-      when(mockSocialService.shareAchievement(achievement: achievement))
-          .thenAnswer((_) async {});
+      when(
+        mockSocialService.shareAchievement(achievement: achievement),
+      ).thenAnswer((_) async {});
 
       await mockSocialService.shareAchievement(achievement: achievement);
-      verify(mockSocialService.shareAchievement(achievement: achievement)).called(1);
+      verify(
+        mockSocialService.shareAchievement(achievement: achievement),
+      ).called(1);
     });
 
     test('Friend challenges service can create challenge', () async {
@@ -48,28 +51,31 @@ void main() {
         timestamp: DateTime.now(),
       );
 
-      when(mockFriendService.createChallenge(
-        challengerId: anyNamed('challengerId'),
-        challengedId: anyNamed('challengedId'),
-        trade: anyNamed('trade'),
-      )).thenAnswer((_) async => Future.value());
+      when(
+        mockFriendService.createChallenge(
+          challengerId: anyNamed('challengerId'),
+          challengedId: anyNamed('challengedId'),
+          trade: anyNamed('trade'),
+        ),
+      ).thenAnswer((_) async => Future.value());
 
       await mockFriendService.createChallenge(
         challengerId: 'user1',
         challengedId: 'user2',
         trade: trade,
       );
-      
-      verify(mockFriendService.createChallenge(
-        challengerId: 'user1',
-        challengedId: 'user2',
-        trade: trade,
-      )).called(1);
+
+      verify(
+        mockFriendService.createChallenge(
+          challengerId: 'user1',
+          challengedId: 'user2',
+          trade: trade,
+        ),
+      ).called(1);
     });
 
     test('Friend challenges service can join challenge', () async {
-      when(mockFriendService.joinChallenge(any))
-          .thenAnswer((_) async {});
+      when(mockFriendService.joinChallenge(any)).thenAnswer((_) async {});
 
       await mockFriendService.joinChallenge('challenge_id_123');
       verify(mockFriendService.joinChallenge('challenge_id_123')).called(1);

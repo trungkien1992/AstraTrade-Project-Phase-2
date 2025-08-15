@@ -19,15 +19,16 @@ class RatingService {
     required bool hasSubscription,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Never show if user already rated or opted out
-    if (prefs.getBool(_userRatedKey) == true || 
+    if (prefs.getBool(_userRatedKey) == true ||
         prefs.getBool(_userOptedOutKey) == true) {
       return false;
     }
 
     // Check minimum requirements
-    if (totalTrades < _minTradesForRating || currentStreak < _minStreakForRating) {
+    if (totalTrades < _minTradesForRating ||
+        currentStreak < _minStreakForRating) {
       return false;
     }
 
@@ -35,7 +36,7 @@ class RatingService {
     final lastPrompt = prefs.getInt(_lastRatingPromptKey) ?? 0;
     final now = DateTime.now().millisecondsSinceEpoch;
     final daysSinceLastPrompt = (now - lastPrompt) / (1000 * 60 * 60 * 24);
-    
+
     if (daysSinceLastPrompt < _daysBetweenPrompts) {
       return false;
     }
@@ -53,10 +54,13 @@ class RatingService {
   static Future<void> markRatingPromptShown() async {
     final prefs = await SharedPreferences.getInstance();
     final promptCount = prefs.getInt(_ratingCountKey) ?? 0;
-    
+
     await prefs.setBool(_ratingShownKey, true);
     await prefs.setInt(_ratingCountKey, promptCount + 1);
-    await prefs.setInt(_lastRatingPromptKey, DateTime.now().millisecondsSinceEpoch);
+    await prefs.setInt(
+      _lastRatingPromptKey,
+      DateTime.now().millisecondsSinceEpoch,
+    );
   }
 
   static Future<void> markUserRated() async {
@@ -91,9 +95,7 @@ class _RatingDialogState extends State<RatingDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Column(
         children: [
           Container(
@@ -102,19 +104,12 @@ class _RatingDialogState extends State<RatingDialog> {
               color: Colors.blue[50],
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              Icons.star,
-              size: 32,
-              color: Colors.blue[600],
-            ),
+            child: Icon(Icons.star, size: 32, color: Colors.blue[600]),
           ),
           const SizedBox(height: 16),
           const Text(
             'Enjoying Trading Practice?',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -127,7 +122,7 @@ class _RatingDialogState extends State<RatingDialog> {
             style: TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 24),
-          
+
           // Star Rating
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -142,21 +137,21 @@ class _RatingDialogState extends State<RatingDialog> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Icon(
-                    _selectedRating >= starNumber 
-                        ? Icons.star 
+                    _selectedRating >= starNumber
+                        ? Icons.star
                         : Icons.star_border,
                     size: 36,
-                    color: _selectedRating >= starNumber 
-                        ? Colors.amber[600] 
+                    color: _selectedRating >= starNumber
+                        ? Colors.amber[600]
                         : Colors.grey[400],
                   ),
                 ),
               );
             }),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           if (_selectedRating > 0)
             Text(
               _getRatingText(_selectedRating),

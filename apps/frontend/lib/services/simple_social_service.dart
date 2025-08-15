@@ -23,7 +23,7 @@ class SimpleSocialService {
     Widget? customWidget,
   }) async {
     await _hapticService.initialize();
-    
+
     final message = _generateAchievementMessage(
       achievement: achievement,
       currentLevel: currentLevel,
@@ -31,16 +31,14 @@ class SimpleSocialService {
     );
 
     await _hapticService.success();
-    
-    await Share.share(
-      message,
-      subject: 'AstraTrade Achievement Unlocked! 🏆',
-    );
+
+    await Share.share(message, subject: 'AstraTrade Achievement Unlocked! 🏆');
 
     // Show success feedback
     await _notificationService.showTradingAlert(
       title: '🚀 Achievement Shared!',
-      message: 'Your ${achievement.name} achievement has been shared with friends',
+      message:
+          'Your ${achievement.name} achievement has been shared with friends',
       color: Colors.green,
     );
   }
@@ -53,8 +51,9 @@ class SimpleSocialService {
     Widget? levelUpWidget,
   }) async {
     await _hapticService.initialize();
-    
-    final message = '''
+
+    final message =
+        '''
 🎯 Level Up in AstraTrade! 🎯
 
 🔥 Level: $newLevel
@@ -67,10 +66,7 @@ Master the art of trading with gamified learning!
 
     await _hapticService.levelUp(newLevel: newLevel);
 
-    await Share.share(
-      message,
-      subject: 'Level $newLevel Achieved! 🚀',
-    );
+    await Share.share(message, subject: 'Level $newLevel Achieved! 🚀');
   }
 
   /// Share trading streak achievement
@@ -81,8 +77,9 @@ Master the art of trading with gamified learning!
     Widget? streakWidget,
   }) async {
     await _hapticService.initialize();
-    
-    final message = '''
+
+    final message =
+        '''
 🔥 $streakDays-Day Trading Streak! 🔥
 
 📊 Success Rate: ${(successRate * 100).toStringAsFixed(1)}%
@@ -93,7 +90,10 @@ Join me on AstraTrade - gamified trading education!
 #AstraTrade #TradingStreak #FinanceEducation
 ''';
 
-    await _hapticService.dailyStreak(streakDays: streakDays, isMilestone: streakDays % 7 == 0);
+    await _hapticService.dailyStreak(
+      streakDays: streakDays,
+      isMilestone: streakDays % 7 == 0,
+    );
 
     await Share.share(
       message,
@@ -108,8 +108,9 @@ Join me on AstraTrade - gamified trading education!
     required int currentLevel,
   }) async {
     await _hapticService.initialize();
-    
-    final message = '''
+
+    final message =
+        '''
 📈 Successful Trade on AstraTrade! 📈
 
 💰 ${trade.symbol}: ${trade.direction} 
@@ -125,10 +126,7 @@ Learning trading through gamification!
       isProfit: (trade.profitLoss ?? 0) > 0,
     );
 
-    await Share.share(
-      message,
-      subject: 'Trading Success! 💰',
-    );
+    await Share.share(message, subject: 'Trading Success! 💰');
   }
 
   /// Create friend challenge for trading competition
@@ -138,7 +136,7 @@ Learning trading through gamification!
     required Duration duration,
   }) async {
     await _hapticService.initialize();
-    
+
     final message = _generateChallengeMessage(
       challengeType: challengeType,
       targetValue: targetValue,
@@ -147,10 +145,7 @@ Learning trading through gamification!
 
     await _hapticService.mediumTap();
 
-    await Share.share(
-      message,
-      subject: 'AstraTrade Challenge! 🎯',
-    );
+    await Share.share(message, subject: 'AstraTrade Challenge! 🎯');
 
     // Show confirmation
     await _notificationService.showTradingAlert(
@@ -167,8 +162,9 @@ Learning trading through gamification!
     required String rankTitle,
   }) async {
     await _hapticService.initialize();
-    
-    final message = '''
+
+    final message =
+        '''
 🏆 Leaderboard Update! 🏆
 
 📍 Rank: #$rank
@@ -181,10 +177,7 @@ Climbing the ranks in AstraTrade!
 
     await _hapticService.success();
 
-    await Share.share(
-      message,
-      subject: 'Leaderboard Rank #$rank! 🏆',
-    );
+    await Share.share(message, subject: 'Leaderboard Rank #$rank! 🏆');
   }
 
   /// Generate achievement sharing message
@@ -194,7 +187,7 @@ Climbing the ranks in AstraTrade!
     required int totalXP,
   }) {
     final rarityEmoji = _getRarityEmoji(achievement.rarity);
-    
+
     return '''
 $rarityEmoji ${achievement.name} Unlocked! $rarityEmoji
 
@@ -214,10 +207,10 @@ ${_getAchievementTypeMessage(achievement.type)}
     required int targetValue,
     required Duration duration,
   }) {
-    final durationText = duration.inDays > 0 
+    final durationText = duration.inDays > 0
         ? '${duration.inDays} days'
         : '${duration.inHours} hours';
-        
+
     return '''
 🎯 AstraTrade Challenge! 🎯
 

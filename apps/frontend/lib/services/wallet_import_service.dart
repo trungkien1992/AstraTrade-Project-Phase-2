@@ -17,16 +17,16 @@ class WalletImportService {
 
       // Convert seed phrase to seed
       final seed = bip39.mnemonicToSeed(seedPhrase);
-      
+
       // Derive private key from seed
       final privateKey = _deriveStarknetPrivateKey(seed);
-      
+
       // Get public key
       final publicKey = privateKeyToPublicKey(privateKey);
-      
+
       // Calculate address
       final address = publicKeyToAddress(publicKey);
-      
+
       return address.toHexString();
     } catch (e) {
       print('Error deriving address from seed phrase: $e');
@@ -53,11 +53,13 @@ class WalletImportService {
   /// Derives a Starknet address from a private key
   Future<String?> deriveAddressFromPrivateKey(String privateKeyHex) async {
     try {
-      print('🔑 Starting address derivation for private key: ${privateKeyHex.substring(0, 10)}...');
-      
+      print(
+        '🔑 Starting address derivation for private key: ${privateKeyHex.substring(0, 10)}...',
+      );
+
       // Remove 0x prefix if present
-      String cleanKey = privateKeyHex.startsWith('0x') 
-          ? privateKeyHex.substring(2) 
+      String cleanKey = privateKeyHex.startsWith('0x')
+          ? privateKeyHex.substring(2)
           : privateKeyHex;
 
       print('🔍 Clean private key length: ${cleanKey.length}');
@@ -67,15 +69,18 @@ class WalletImportService {
         print('❌ Invalid hex format for private key');
         return null;
       }
-      
+
       print('✅ Private key format validated');
-      
+
       // If more than 64 characters, we need to reduce it to fit Starknet field
       if (cleanKey.length > 64) {
         print('⚠️  Private key too long, reducing to fit Starknet field...');
         // Convert to BigInt and reduce modulo Starknet field prime
         final bigIntKey = BigInt.parse(cleanKey, radix: 16);
-        final starknetPrime = BigInt.parse('800000000000011000000000000000000000000000000000000000000000001', radix: 16);
+        final starknetPrime = BigInt.parse(
+          '800000000000011000000000000000000000000000000000000000000000001',
+          radix: 16,
+        );
         final reducedKey = bigIntKey % starknetPrime;
         cleanKey = reducedKey.toRadixString(16).padLeft(64, '0');
         print('✅ Private key reduced to proper length');
@@ -84,22 +89,24 @@ class WalletImportService {
       print('🔢 Converting to Felt...');
       final privateKey = Felt.fromHexString('0x$cleanKey');
       print('✅ Felt conversion successful');
-      
+
       print('🔐 Generating public key...');
       final publicKey = privateKeyToPublicKey(privateKey);
-      print('✅ Public key generated: ${publicKey.toHexString().substring(0, 10)}...');
-      
+      print(
+        '✅ Public key generated: ${publicKey.toHexString().substring(0, 10)}...',
+      );
+
       print('📍 Computing address from public key...');
       final address = publicKeyToAddress(publicKey);
       print('✅ Address computed: ${address.toHexString()}');
-      
+
       final addressString = address.toHexString();
       // Ensure address is properly formatted (66 characters total including 0x)
-      final formattedAddress = addressString.length < 66 
+      final formattedAddress = addressString.length < 66
           ? '0x${addressString.substring(2).padLeft(64, '0')}'
           : addressString;
       print('🎯 Final address derivation successful: $formattedAddress');
-      
+
       return formattedAddress;
     } catch (e) {
       print('❌ Error deriving address from private key: $e');
@@ -122,11 +129,13 @@ class WalletImportService {
 
       // Check if it's a valid hex string
       final felt = Felt.fromHexString(address);
-      
+
       // Additional validation: ensure it's within valid address range
       // Starknet addresses are typically in the range 0x0 to 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-      final maxAddress = Felt.fromHexString('0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
-      
+      final maxAddress = Felt.fromHexString(
+        '0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+      );
+
       return felt.toBigInt() <= maxAddress.toBigInt();
     } catch (e) {
       return false;
@@ -153,7 +162,7 @@ class WalletImportService {
   Felt _deriveStarknetPrivateKey(Uint8List seed) {
     // Starknet derivation path: m/44'/9004'/0'/0/0
     // 9004 is Starknet's coin type
-    
+
     // For simplicity, we'll use the first 32 bytes of the seed
     // In production, you'd want proper BIP44 derivation
     final keyBytes = seed.sublist(0, 32);
@@ -165,20 +174,32 @@ class WalletImportService {
   Felt publicKeyToAddress(Felt publicKey) {
     // For demo purposes, derive address from public key using hash
     try {
-      final publicKeyBytes = publicKey.toBigInt().toRadixString(16).padLeft(64, '0');
+      final publicKeyBytes = publicKey
+          .toBigInt()
+          .toRadixString(16)
+          .padLeft(64, '0');
       final publicKeyUint8List = Uint8List.fromList(
-        List.generate(32, (i) => i < publicKeyBytes.length ~/ 2 
-            ? int.parse(publicKeyBytes.substring(i * 2, i * 2 + 2), radix: 16)
-            : 0)
+        List.generate(
+          32,
+          (i) => i < publicKeyBytes.length ~/ 2
+              ? int.parse(publicKeyBytes.substring(i * 2, i * 2 + 2), radix: 16)
+              : 0,
+        ),
       );
       final hash = sha256.convert(publicKeyUint8List).bytes;
-      final addressBytes = hash.sublist(0, 31); // Take first 31 bytes for Starknet address
+      final addressBytes = hash.sublist(
+        0,
+        31,
+      ); // Take first 31 bytes for Starknet address
       final bytesAsBigInt = BigInt.parse(HEX.encode(addressBytes), radix: 16);
       return Felt(bytesAsBigInt);
     } catch (e) {
       print('Error computing address: $e');
       // Ultimate fallback - use public key modulo field size
-      final fieldSize = BigInt.parse('800000000000011000000000000000000000000000000000000000000000001', radix: 16);
+      final fieldSize = BigInt.parse(
+        '800000000000011000000000000000000000000000000000000000000000001',
+        radix: 16,
+      );
       final addressValue = publicKey.toBigInt() % fieldSize;
       return Felt(addressValue);
     }
@@ -204,11 +225,20 @@ class WalletImportService {
     } catch (e) {
       print('Error computing public key with Signer: $e');
       // Fallback to a basic implementation if the library function fails
-      final privateKeyBytes = privateKey.toBigInt().toRadixString(16).padLeft(64, '0');
+      final privateKeyBytes = privateKey
+          .toBigInt()
+          .toRadixString(16)
+          .padLeft(64, '0');
       final privateKeyUint8List = Uint8List.fromList(
-        List.generate(32, (i) => i < privateKeyBytes.length ~/ 2 
-            ? int.parse(privateKeyBytes.substring(i * 2, i * 2 + 2), radix: 16)
-            : 0)
+        List.generate(
+          32,
+          (i) => i < privateKeyBytes.length ~/ 2
+              ? int.parse(
+                  privateKeyBytes.substring(i * 2, i * 2 + 2),
+                  radix: 16,
+                )
+              : 0,
+        ),
       );
       final publicKeyBytes = sha256.convert(privateKeyUint8List).bytes;
       final bytesAsBigInt = BigInt.parse(HEX.encode(publicKeyBytes), radix: 16);
@@ -229,7 +259,7 @@ class WalletImportService {
     if (!isValidStarknetAddress(address)) {
       return 'Invalid address';
     }
-    
+
     final clean = address.substring(2); // Remove 0x
     return '${clean.substring(0, 6)}...${clean.substring(clean.length - 4)}';
   }
@@ -246,7 +276,7 @@ class WalletImportService {
           return 'Seed phrase must be 12 or 24 words';
         }
         return null;
-        
+
       case ImportType.privateKey:
         String cleanKey = input.startsWith('0x') ? input.substring(2) : input;
         if (!RegExp(r'^[0-9a-fA-F]{64,66}$').hasMatch(cleanKey)) {
@@ -260,38 +290,47 @@ class WalletImportService {
   Future<Map<String, String>> createFreshWallet() async {
     try {
       print('🚀 Creating fresh Starknet wallet...');
-      
+
       // Generate random private key
       final random = math.Random.secure();
       final bytes = List<int>.generate(32, (_) => random.nextInt(256));
-      final privateKeyHex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      final privateKeyHex = bytes
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join();
       final privateKey = '0x$privateKeyHex';
-      
-      print('🔑 Generated private key: ${privateKey.substring(0, 10)}... (length: ${privateKey.length})');
-      
+
+      print(
+        '🔑 Generated private key: ${privateKey.substring(0, 10)}... (length: ${privateKey.length})',
+      );
+
       // Try the existing derivation method first
       print('📍 Attempting primary address derivation...');
       String? address = await deriveAddressFromPrivateKey(privateKey);
-      
+
       // If primary method fails, use direct Starknet library approach
       if (address == null) {
-        print('⚠️  Primary method failed, trying direct Starknet library approach...');
+        print(
+          '⚠️  Primary method failed, trying direct Starknet library approach...',
+        );
         address = await _createAddressDirectly(privateKey);
       }
-      
+
       if (address == null) {
         print('❌ All address derivation methods failed');
         throw Exception('Failed to derive address from private key');
       }
-      
+
       // Generate Extended Exchange API key for this user
-      final extendedExchangeApiKey = ExtendedExchangeApiService.generateDeterministicApiKey(address);
-      
+      final extendedExchangeApiKey =
+          ExtendedExchangeApiService.generateDeterministicApiKey(address);
+
       print('✅ Fresh wallet created successfully!');
       print('   Private Key: ${privateKey.substring(0, 10)}...');
       print('   Address: $address');
-      print('   Extended Exchange API Key: ${extendedExchangeApiKey.substring(0, 10)}...');
-      
+      print(
+        '   Extended Exchange API Key: ${extendedExchangeApiKey.substring(0, 10)}...',
+      );
+
       return {
         'privateKey': privateKey,
         'address': address,
@@ -302,53 +341,66 @@ class WalletImportService {
       throw Exception('Failed to create fresh wallet: $e');
     }
   }
-  
+
   /// Direct address creation using simplified Starknet approach
   Future<String?> _createAddressDirectly(String privateKey) async {
     try {
       print('🔧 Using direct Starknet address creation...');
-      
+
       // Remove 0x prefix
-      String cleanKey = privateKey.startsWith('0x') ? privateKey.substring(2) : privateKey;
-      
+      String cleanKey = privateKey.startsWith('0x')
+          ? privateKey.substring(2)
+          : privateKey;
+
       // Create Felt from private key
       final privateKeyFelt = Felt.fromHexString('0x$cleanKey');
       print('✅ Private key Felt created');
-      
+
       // Use a very simple deterministic address generation
       // This is for demo purposes - in production you'd use proper Starknet derivation
-      final privateKeyBytes = privateKeyFelt.toBigInt().toRadixString(16).padLeft(64, '0');
+      final privateKeyBytes = privateKeyFelt
+          .toBigInt()
+          .toRadixString(16)
+          .padLeft(64, '0');
       final hashBytes = sha256.convert(privateKeyBytes.codeUnits).bytes;
-      
+
       // Take first 32 bytes and pad to ensure proper Starknet address format (66 chars total)
       final addressBytes = hashBytes.sublist(0, 32);
-      final addressHex = addressBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      final addressHex = addressBytes
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join();
       final addressString = '0x${addressHex.padLeft(64, '0')}';
-      
+
       print('✅ Simple deterministic address created: $addressString');
-      
+
       return addressString;
     } catch (e) {
       print('❌ Direct address creation failed: $e');
       return _createFallbackAddress(privateKey);
     }
   }
-  
+
   /// Ultimate fallback - create address using simple hash
   String? _createFallbackAddress(String privateKey) {
     try {
       print('🆘 Using ultimate fallback address creation...');
-      
+
       // Simple hash-based address generation as last resort
-      final cleanKey = privateKey.startsWith('0x') ? privateKey.substring(2) : privateKey;
+      final cleanKey = privateKey.startsWith('0x')
+          ? privateKey.substring(2)
+          : privateKey;
       final keyBytes = cleanKey.codeUnits;
       final hash = sha256.convert(keyBytes);
-      
+
       // Create address from hash - ensure proper 64 hex character length
-      final addressBytes = hash.bytes.take(32).toList(); // 32 bytes for full address
-      final addressHex = addressBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      final addressBytes = hash.bytes
+          .take(32)
+          .toList(); // 32 bytes for full address
+      final addressHex = addressBytes
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join();
       final address = '0x${addressHex.padLeft(64, '0')}';
-      
+
       print('✅ Fallback address generated: $address');
       return address;
     } catch (e) {
@@ -358,7 +410,4 @@ class WalletImportService {
   }
 }
 
-enum ImportType {
-  seedPhrase,
-  privateKey,
-}
+enum ImportType { seedPhrase, privateKey }

@@ -1,0 +1,241 @@
+{
+  "cairo_fundamentals": {
+    "language_overview": {
+      "type": "programming_language",
+      "paradigm": "functional_with_ownership",
+      "inspiration": "rust",
+      "purpose": "provable_programs_for_starknet",
+      "key_features": [
+        "memory_safety",
+        "ownership_system", 
+        "zero_knowledge_proofs",
+        "deterministic_execution",
+        "cairo_vm_compatibility"
+      ]
+    },
+    "data_types": {
+      "primitives": {
+        "felt252": "field_element_252_bits",
+        "u8": "unsigned_8_bit",
+        "u16": "unsigned_16_bit", 
+        "u32": "unsigned_32_bit",
+        "u64": "unsigned_64_bit",
+        "u128": "unsigned_128_bit",
+        "u256": "unsigned_256_bit",
+        "bool": "boolean_type"
+      },
+      "collections": {
+        "Array<T>": "dynamic_array",
+        "Span<T>": "read_only_view",
+        "Felt252Dict<T>": "hash_map_equivalent"
+      },
+      "starknet_types": {
+        "ContractAddress": "starknet_contract_address",
+        "ClassHash": "contract_class_identifier",
+        "StorageAddress": "storage_location"
+      }
+    },
+    "ownership_system": {
+      "move_semantics": "values_moved_by_default",
+      "copy_trait": "explicit_copying_required",
+      "drop_trait": "automatic_cleanup",
+      "clone_trait": "deep_copying"
+    }
+  },
+  "smart_contract_development": {
+    "contract_structure": {
+      "interface_definition": {
+        "attribute": "#[starknet::interface]",
+        "purpose": "define_public_api",
+        "generic_parameter": "TContractState"
+      },
+      "contract_module": {
+        "attribute": "#[starknet::contract]",
+        "storage_struct": "#[storage]",
+        "constructor": "#[constructor]",
+        "public_functions": "#[abi(embed_v0)]",
+        "external_functions": "#[external(v0)]"
+      },
+      "function_types": {
+        "constructor": {
+          "purpose": "contract_initialization",
+          "signature": "fn constructor(ref self: ContractState, ...)",
+          "runs_once": true
+        },
+        "external_functions": {
+          "purpose": "state_modification",
+          "signature": "fn function(ref self: ContractState, ...)",
+          "mutability": "mutable"
+        },
+        "view_functions": {
+          "purpose": "state_reading",
+          "signature": "fn function(self: @ContractState, ...)",
+          "mutability": "read_only"
+        },
+        "internal_functions": {
+          "purpose": "private_logic",
+          "visibility": "contract_only",
+          "no_abi_export": true
+        }
+      }
+    },
+    "storage_management": {
+      "storage_variables": {
+        "single_values": "StoragePointer<T>",
+        "mappings": "Map<K, V>",
+        "complex_types": "custom_structs_with_Store_trait"
+      },
+      "storage_operations": {
+        "read": "self.storage_var.read()",
+        "write": "self.storage_var.write(value)",
+        "entry_access": "self.map.entry(key).read()"
+      }
+    },
+    "events_and_logging": {
+      "event_definition": {
+        "attribute": "#[event]",
+        "derive_traits": "#[derive(Drop, Serde, starknet::Event)]"
+      },
+      "event_emission": "self.emit(EventStruct { ... })"
+    }
+  },
+  "security_best_practices": {
+    "access_control": {
+      "pattern": "role_based_access",
+      "implementation": {
+        "owner_pattern": "single_privileged_address",
+        "role_mapping": "Map<ContractAddress, bool>",
+        "guard_functions": "assert_based_validation"
+      },
+      "example_guards": [
+        "fn only_owner(self: @ContractState) { assert!(self.is_owner(), 'Not owner'); }",
+        "fn only_role(self: @ContractState, role: felt252) { assert!(self.has_role(role), 'Missing role'); }"
+      ]
+    },
+    "input_validation": {
+      "technique": "early_validation",
+      "tools": ["assert!", "panic!", "custom_errors"],
+      "patterns": [
+        "validate_before_state_change",
+        "check_invariants",
+        "boundary_checks"
+      ]
+    },
+    "checks_effects_interactions": {
+      "purpose": "prevent_reentrancy",
+      "order": [
+        "1_validate_conditions",
+        "2_update_state",
+        "3_external_calls"
+      ]
+    },
+    "integer_overflow": {
+      "cairo_behavior": "automatic_overflow_protection",
+      "felt252_wraparound": "modular_arithmetic",
+      "safe_math": "built_in_protection"
+    },
+    "common_vulnerabilities": {
+      "reentrancy": {
+        "risk": "medium_on_starknet",
+        "prevention": "checks_effects_interactions"
+      },
+      "access_control_bypass": {
+        "risk": "high",
+        "prevention": "proper_role_validation"
+      },
+      "state_corruption": {
+        "risk": "high", 
+        "prevention": "atomic_operations"
+      }
+    }
+  },
+  "development_patterns": {
+    "upgradeable_contracts": {
+      "proxy_pattern": "diamond_standard_recommended",
+      "storage_layout": "maintain_compatibility",
+      "initialization": "constructor_vs_initializer"
+    },
+    "component_system": {
+      "purpose": "code_reusability",
+      "implementation": "embeddable_impl_blocks",
+      "storage_embedding": "component_storage_in_contract"
+    },
+    "library_usage": {
+      "openzeppelin": "standard_contract_templates",
+      "alexandria": "utility_functions",
+      "custom_libraries": "domain_specific_logic"
+    }
+  },
+  "testing_strategies": {
+    "unit_tests": {
+      "framework": "cairo_test",
+      "attributes": "#[test]",
+      "setup": "deploy_contract_for_testing"
+    },
+    "integration_tests": {
+      "starknet_foundry": "snforge_test_runner",
+      "test_environment": "local_starknet_devnet"
+    },
+    "property_testing": {
+      "fuzzing": "input_space_exploration",
+      "invariant_testing": "state_consistency_checks"
+    }
+  },
+  "optimization_techniques": {
+    "gas_optimization": {
+      "storage_packing": "efficient_struct_layouts",
+      "batch_operations": "reduce_syscall_count",
+      "lazy_evaluation": "compute_on_demand"
+    },
+    "memory_efficiency": {
+      "ownership_transfer": "avoid_unnecessary_clones",
+      "span_usage": "read_only_array_views",
+      "dictionary_operations": "efficient_key_value_storage"
+    }
+  },
+  "audit_checklist": {
+    "architecture_review": [
+      "contract_separation_of_concerns",
+      "upgrade_mechanism_security",
+      "access_control_implementation",
+      "state_transition_validation"
+    ],
+    "code_quality": [
+      "error_handling_completeness",
+      "input_validation_coverage",
+      "event_emission_consistency",
+      "documentation_quality"
+    ],
+    "security_checks": [
+      "privilege_escalation_prevention",
+      "reentrancy_protection",
+      "integer_overflow_handling",
+      "external_call_safety"
+    ],
+    "testing_coverage": [
+      "unit_test_completeness",
+      "integration_test_scenarios",
+      "edge_case_handling",
+      "failure_condition_testing"
+    ]
+  },
+  "starknet_specifics": {
+    "execution_model": {
+      "cairo_vm": "virtual_machine_execution",
+      "sierra": "intermediate_representation",
+      "casm": "cairo_assembly_output"
+    },
+    "system_calls": {
+      "storage_read": "read_contract_storage",
+      "storage_write": "write_contract_storage", 
+      "call_contract": "invoke_external_contract",
+      "get_caller_address": "transaction_sender",
+      "get_contract_address": "current_contract_address"
+    },
+    "fee_mechanism": {
+      "computation_cost": "step_based_pricing",
+      "storage_cost": "per_word_storage_fee",
+      "optimization_importance": "critical_for_mainnet"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 /// AstraTrade Exchange V2 Service - Flutter Integration
-/// 
+///
 /// This service provides seamless integration with the new Cairo 2.x exchange contract
 /// Features:
 /// - Mobile-optimized gas patterns
@@ -21,19 +21,22 @@ import '../models/trading_position.dart';
 import '../models/trading_pair.dart';
 
 class AstraTradeExchangeV2Service {
-  static const String CONTRACT_ADDRESS = ContractAddresses.exchangeContract; // ✅ Updated with deployed address
-  
+  static const String CONTRACT_ADDRESS =
+      ContractAddresses.exchangeContract; // ✅ Updated with deployed address
+
   final StarknetProvider _provider;
   final Account _account;
-  final StreamController<ExchangeEvent> _eventController = StreamController<ExchangeEvent>.broadcast();
-  
+  final StreamController<ExchangeEvent> _eventController =
+      StreamController<ExchangeEvent>.broadcast();
+
   // Event stream for real-time updates
   Stream<ExchangeEvent> get eventStream => _eventController.stream;
-  
+
   AstraTradeExchangeV2Service({
     required StarknetProvider provider,
     required Account account,
-  }) : _provider = provider, _account = account {
+  }) : _provider = provider,
+       _account = account {
     _initializeEventListening();
   }
 
@@ -51,7 +54,7 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _account.execute([call]);
-      
+
       if (response.transactionHash.isNotEmpty) {
         return TransactionResult(
           success: true,
@@ -66,10 +69,7 @@ class AstraTradeExchangeV2Service {
       }
     } catch (e) {
       debugPrint('Error registering user: $e');
-      return TransactionResult(
-        success: false,
-        error: e.toString(),
-      );
+      return TransactionResult(success: false, error: e.toString());
     }
   }
 
@@ -83,7 +83,7 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _provider.call(call);
-      
+
       if (response.isNotEmpty) {
         return UserProgression.fromContractResponse(response);
       }
@@ -133,14 +133,15 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _account.execute([call]);
-      
+
       if (response.transactionHash.isNotEmpty) {
         // Wait for transaction confirmation
         final receipt = await _waitForTransaction(response.transactionHash);
-        
-        if (receipt != null && receipt.status == TransactionStatus.ACCEPTED_ON_L2) {
+
+        if (receipt != null &&
+            receipt.status == TransactionStatus.ACCEPTED_ON_L2) {
           final positionId = _parsePositionIdFromEvents(receipt.events);
-          
+
           return PositionResult(
             success: true,
             positionId: positionId,
@@ -178,20 +179,23 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _account.execute([call]);
-      
+
       if (response.transactionHash.isNotEmpty) {
         final receipt = await _waitForTransaction(response.transactionHash);
-        
-        if (receipt != null && receipt.status == TransactionStatus.ACCEPTED_ON_L2) {
+
+        if (receipt != null &&
+            receipt.status == TransactionStatus.ACCEPTED_ON_L2) {
           final (pnl, isProfit) = _parsePnlFromEvents(receipt.events);
-          
+
           return ClosePositionResult(
             success: true,
             positionId: positionId,
             pnl: pnl,
             isProfit: isProfit,
             transactionHash: response.transactionHash,
-            message: isProfit ? 'Position closed with profit!' : 'Position closed',
+            message: isProfit
+                ? 'Position closed with profit!'
+                : 'Position closed',
           );
         } else {
           return ClosePositionResult(
@@ -224,7 +228,7 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _provider.call(call);
-      
+
       if (response.isNotEmpty) {
         return _parsePositionsFromResponse(response);
       }
@@ -252,13 +256,14 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _account.execute([call]);
-      
+
       if (response.transactionHash.isNotEmpty) {
         final receipt = await _waitForTransaction(response.transactionHash);
-        
-        if (receipt != null && receipt.status == TransactionStatus.ACCEPTED_ON_L2) {
+
+        if (receipt != null &&
+            receipt.status == TransactionStatus.ACCEPTED_ON_L2) {
           final keyId = _parseKeyIdFromEvents(receipt.events);
-          
+
           return ApiKeyResult(
             success: true,
             keyId: keyId,
@@ -307,13 +312,14 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _account.execute([call]);
-      
+
       if (response.transactionHash.isNotEmpty) {
         final receipt = await _waitForTransaction(response.transactionHash);
-        
-        if (receipt != null && receipt.status == TransactionStatus.ACCEPTED_ON_L2) {
+
+        if (receipt != null &&
+            receipt.status == TransactionStatus.ACCEPTED_ON_L2) {
           final validationHash = _parseValidationHashFromEvents(receipt.events);
-          
+
           return ValidationResult(
             success: true,
             validationHash: validationHash,
@@ -355,7 +361,7 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _provider.call(call);
-      
+
       if (response.isNotEmpty) {
         return TradingPair.fromContractResponse(response);
       }
@@ -372,15 +378,16 @@ class AstraTradeExchangeV2Service {
       // Get active pairs count first
       final countCall = FunctionCall(
         contractAddress: CONTRACT_ADDRESS,
-        entrypoint: 'get_system_status', // This returns system info including pair count
+        entrypoint:
+            'get_system_status', // This returns system info including pair count
         calldata: [],
       );
 
       final countResponse = await _provider.call(countCall);
       // Parse active pairs count from response
-      
+
       List<TradingPair> pairs = [];
-      
+
       // Fetch each trading pair (assuming we know there are at least BTC/USD and ETH/USD)
       for (int i = 1; i <= 2; i++) {
         final pair = await getTradingPair(i);
@@ -388,7 +395,7 @@ class AstraTradeExchangeV2Service {
           pairs.add(pair);
         }
       }
-      
+
       return pairs;
     } catch (e) {
       debugPrint('Error getting all trading pairs: $e');
@@ -410,14 +417,14 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _provider.call(call);
-      
+
       if (response.length >= 2) {
         return SystemStatus(
           isPaused: response[0] == '1',
           isEmergencyMode: response[1] == '1',
         );
       }
-      
+
       return SystemStatus(isPaused: false, isEmergencyMode: false);
     } catch (e) {
       debugPrint('Error getting system status: $e');
@@ -435,7 +442,7 @@ class AstraTradeExchangeV2Service {
       );
 
       final response = await _provider.call(call);
-      
+
       if (response.isNotEmpty) {
         return BigInt.parse(response[0]);
       }
@@ -454,7 +461,7 @@ class AstraTradeExchangeV2Service {
     // Initialize event listening for real-time updates
     // This would typically involve WebSocket connections or polling
     // For now, we'll set up the basic structure
-    
+
     Timer.periodic(const Duration(seconds: 10), (timer) {
       _pollForEvents();
     });
@@ -465,23 +472,27 @@ class AstraTradeExchangeV2Service {
       // Poll for recent events from the contract
       // This is a simplified implementation - in production, you'd use
       // proper event filtering and websockets
-      
+
       // Implementation would go here based on Starknet event polling patterns
     } catch (e) {
       debugPrint('Error polling for events: $e');
     }
   }
 
-  Future<TransactionReceipt?> _waitForTransaction(String transactionHash) async {
+  Future<TransactionReceipt?> _waitForTransaction(
+    String transactionHash,
+  ) async {
     try {
       // Wait for transaction confirmation with timeout
       int attempts = 0;
       const maxAttempts = 30; // 5 minutes with 10-second intervals
-      
+
       while (attempts < maxAttempts) {
         try {
-          final receipt = await _provider.getTransactionReceipt(transactionHash);
-          
+          final receipt = await _provider.getTransactionReceipt(
+            transactionHash,
+          );
+
           if (receipt.status == TransactionStatus.ACCEPTED_ON_L2 ||
               receipt.status == TransactionStatus.REJECTED) {
             return receipt;
@@ -489,11 +500,11 @@ class AstraTradeExchangeV2Service {
         } catch (e) {
           // Transaction might not be available yet
         }
-        
+
         await Future.delayed(const Duration(seconds: 10));
         attempts++;
       }
-      
+
       return null; // Timeout
     } catch (e) {
       debugPrint('Error waiting for transaction: $e');
@@ -535,7 +546,8 @@ class AstraTradeExchangeV2Service {
   int _parseKeyIdFromEvents(List<Event> events) {
     try {
       for (final event in events) {
-        if (event.keys.isNotEmpty && event.keys[0] == 'ExtendedExchangeKeyRegistered') {
+        if (event.keys.isNotEmpty &&
+            event.keys[0] == 'ExtendedExchangeKeyRegistered') {
           return int.parse(event.data[1]); // key_id field
         }
       }
@@ -549,7 +561,8 @@ class AstraTradeExchangeV2Service {
   String _parseValidationHashFromEvents(List<Event> events) {
     try {
       for (final event in events) {
-        if (event.keys.isNotEmpty && event.keys[0] == 'ExtendedExchangeTradeValidated') {
+        if (event.keys.isNotEmpty &&
+            event.keys[0] == 'ExtendedExchangeTradeValidated') {
           return event.data[3]; // validation_hash field
         }
       }
@@ -563,19 +576,20 @@ class AstraTradeExchangeV2Service {
   List<TradingPosition> _parsePositionsFromResponse(List<String> response) {
     try {
       List<TradingPosition> positions = [];
-      
+
       // Parse array of positions from contract response
       // This would need to match the exact format returned by the contract
-      
+
       // Simplified parsing - in reality, this would be more complex
-      for (int i = 0; i < response.length; i += 12) { // 12 fields per position
+      for (int i = 0; i < response.length; i += 12) {
+        // 12 fields per position
         if (i + 11 < response.length) {
-          positions.add(TradingPosition.fromContractData(
-            response.sublist(i, i + 12)
-          ));
+          positions.add(
+            TradingPosition.fromContractData(response.sublist(i, i + 12)),
+          );
         }
       }
-      
+
       return positions;
     } catch (e) {
       debugPrint('Error parsing positions from response: $e');
@@ -633,11 +647,11 @@ class PositionResult extends TransactionResult {
     String? error,
     String? message,
   }) : super(
-    success: success,
-    transactionHash: transactionHash,
-    error: error,
-    message: message,
-  );
+         success: success,
+         transactionHash: transactionHash,
+         error: error,
+         message: message,
+       );
 }
 
 class ClosePositionResult extends TransactionResult {
@@ -654,11 +668,11 @@ class ClosePositionResult extends TransactionResult {
     String? error,
     String? message,
   }) : super(
-    success: success,
-    transactionHash: transactionHash,
-    error: error,
-    message: message,
-  );
+         success: success,
+         transactionHash: transactionHash,
+         error: error,
+         message: message,
+       );
 }
 
 class ApiKeyResult extends TransactionResult {
@@ -671,11 +685,11 @@ class ApiKeyResult extends TransactionResult {
     String? error,
     String? message,
   }) : super(
-    success: success,
-    transactionHash: transactionHash,
-    error: error,
-    message: message,
-  );
+         success: success,
+         transactionHash: transactionHash,
+         error: error,
+         message: message,
+       );
 }
 
 class ValidationResult extends TransactionResult {
@@ -688,31 +702,25 @@ class ValidationResult extends TransactionResult {
     String? error,
     String? message,
   }) : super(
-    success: success,
-    transactionHash: transactionHash,
-    error: error,
-    message: message,
-  );
+         success: success,
+         transactionHash: transactionHash,
+         error: error,
+         message: message,
+       );
 }
 
 class SystemStatus {
   final bool isPaused;
   final bool isEmergencyMode;
 
-  SystemStatus({
-    required this.isPaused,
-    required this.isEmergencyMode,
-  });
+  SystemStatus({required this.isPaused, required this.isEmergencyMode});
 }
 
 abstract class ExchangeEvent {
   final String type;
   final DateTime timestamp;
 
-  ExchangeEvent({
-    required this.type,
-    required this.timestamp,
-  });
+  ExchangeEvent({required this.type, required this.timestamp});
 }
 
 class PositionOpenedEvent extends ExchangeEvent {
@@ -779,12 +787,19 @@ final exchangeServiceProvider = Provider<AstraTradeExchangeV2Service>((ref) {
   );
 });
 
-final userTradingDataProvider = FutureProvider.family<UserProgression, String>((ref, userAddress) async {
+final userTradingDataProvider = FutureProvider.family<UserProgression, String>((
+  ref,
+  userAddress,
+) async {
   final service = ref.read(exchangeServiceProvider);
   return service.getUserProgression(userAddress);
 });
 
-final tradingPositionsProvider = FutureProvider.family<List<TradingPosition>, String>((ref, userAddress) async {
-  final service = ref.read(exchangeServiceProvider);
-  return service.getUserPositions(userAddress);
-});
+final tradingPositionsProvider =
+    FutureProvider.family<List<TradingPosition>, String>((
+      ref,
+      userAddress,
+    ) async {
+      final service = ref.read(exchangeServiceProvider);
+      return service.getUserPositions(userAddress);
+    });

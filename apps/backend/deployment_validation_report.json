@@ -1,0 +1,158 @@
+{
+  "timestamp": 1754140479.8729632,
+  "total_tests": 10,
+  "passed": 10,
+  "failed": 0,
+  "success_rate": 100.0,
+  "details": [
+    {
+      "test": "Basic Connectivity",
+      "success": true,
+      "message": "Gateway responding correctly",
+      "timestamp": 1754140478.852756,
+      "data": {
+        "success": true,
+        "message": "\ud83d\ude80 AstraTrade Enhanced API Gateway (Simplified)",
+        "version": "1.0.0",
+        "features": [
+          "Service Discovery",
+          "Circuit Breakers",
+          "Rate Limiting",
+          "Business Metrics",
+          "Request Correlation",
+          "Health Monitoring"
+        ],
+        "endpoints": {
+          "health": "/health",
+          "services": "/services",
+          "dashboard": "/dashboard",
+          "metrics": "/metrics",
+          "trading": "/api/v1/trading/execute"
+        },
+        "timestamp": "2025-08-02T20:14:38.851557"
+      }
+    },
+    {
+      "test": "Health Check",
+      "success": true,
+      "message": "Enhanced health check operational",
+      "timestamp": 1754140478.8534138,
+      "data": {
+        "success": true,
+        "timestamp": "2025-08-02T20:14:38.853073",
+        "status": "healthy",
+        "infrastructure": {
+          "redis": "unavailable",
+          "service_registry": "operational"
+        },
+        "services": {
+          "trading": {
+            "circuit_breaker": "open",
+            "failure_count": 4
+          },
+          "gamification": {
+            "circuit_breaker": "closed",
+            "failure_count": 0
+          },
+          "social": {
+            "circuit_breaker": "closed",
+            "failure_count": 0
+          },
+          "user": {
+            "circuit_breaker": "closed",
+            "failure_count": 0
+          }
+        },
+        "message": "Enhanced API Gateway operational"
+      }
+    },
+    {
+      "test": "Service Discovery",
+      "success": true,
+      "message": "Found 4 registered services",
+      "timestamp": 1754140478.853889,
+      "data": [
+        "trading",
+        "gamification",
+        "social",
+        "user"
+      ]
+    },
+    {
+      "test": "Business Metrics",
+      "success": true,
+      "message": "Metrics updating correctly",
+      "timestamp": 1754140479.857592,
+      "data": {
+        "initial_requests": 12,
+        "updated_requests": 13
+      }
+    },
+    {
+      "test": "Request Correlation",
+      "success": true,
+      "message": "Correlation ID properly tracked",
+      "timestamp": 1754140479.861024,
+      "data": {
+        "sent": "validation-correlation-123",
+        "received": "validation-correlation-123",
+        "processing_time": "0.001s"
+      }
+    },
+    {
+      "test": "Performance",
+      "success": true,
+      "message": "10 requests in 0.007s (avg: 0.001s)",
+      "timestamp": 1754140479.8679528,
+      "data": {
+        "total_time": 0.006864786148071289,
+        "average_time": 0.000686478614807129,
+        "successful_requests": 10
+      }
+    },
+    {
+      "test": "Rate Limiting",
+      "success": true,
+      "message": "9 allowed, 1 blocked",
+      "timestamp": 1754140479.868853,
+      "data": {
+        "allowed": 9,
+        "blocked": 1
+      }
+    },
+    {
+      "test": "Circuit Breaker Trigger",
+      "success": true,
+      "message": "Circuit breaker opened successfully",
+      "timestamp": 1754140479.87147,
+      "data": {
+        "success": true,
+        "message": "Circuit breaker for trading triggered",
+        "state": "open",
+        "failure_count": 8
+      }
+    },
+    {
+      "test": "Circuit Breaker Protection",
+      "success": true,
+      "message": "Trading correctly blocked",
+      "timestamp": 1754140479.8722749,
+      "data": {
+        "success": false,
+        "message": "Trading service temporarily unavailable",
+        "correlation_id": "unknown",
+        "circuit_breaker_state": "open"
+      }
+    },
+    {
+      "test": "Trade Execution",
+      "success": true,
+      "message": "Circuit breaker protection active (expected)",
+      "timestamp": 1754140479.8729112,
+      "data": {
+        "status": 503,
+        "note": "Circuit breaker from previous test"
+      }
+    }
+  ]
+}

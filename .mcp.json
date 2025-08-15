@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "deepagents-local": {
+      "type": "stdio",
+      "command": "/Users/admin/deepagents-mcp/venv/bin/python",
+      "args": [
+        "/Users/admin/deepagents-mcp/deepagents_local.py"
+      ],
+      "env": {
+        "TAVILY_API_KEY": "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",
+        "LOCAL_MODEL_TYPE": "gpt-oss"
+      }
+    }
+  }
+}

@@ -16,17 +16,17 @@ class EnvironmentConfig {
 // Secure storage wrapper
 class SecureStorage {
   final FlutterSecureStorage _storage;
-  
+
   SecureStorage(this._storage);
-  
+
   Future<String?> getToken() async {
     return await _storage.read(key: 'auth_token');
   }
-  
+
   Future<String?> getRefreshToken() async {
     return await _storage.read(key: 'refresh_token');
   }
-  
+
   Future<void> saveTokens({
     required String accessToken,
     required String refreshToken,
@@ -34,7 +34,7 @@ class SecureStorage {
     await _storage.write(key: 'auth_token', value: accessToken);
     await _storage.write(key: 'refresh_token', value: refreshToken);
   }
-  
+
   Future<void> clearTokens() async {
     await _storage.delete(key: 'auth_token');
     await _storage.delete(key: 'refresh_token');
@@ -45,9 +45,9 @@ class SecureStorage {
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
-  
+
   ApiException(this.message, {this.statusCode});
-  
+
   @override
   String toString() => 'ApiException: $message (Status: $statusCode)';
 }
@@ -85,7 +85,7 @@ class RetryInterceptor extends Interceptor {
   final Dio dio;
   final int retries;
   final List<Duration> retryDelays;
-  
+
   RetryInterceptor({
     required this.dio,
     this.retries = 3,
@@ -95,16 +95,16 @@ class RetryInterceptor extends Interceptor {
       Duration(seconds: 5),
     ],
   });
-  
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (_shouldRetry(err) && err.requestOptions.extra['retryCount'] < retries) {
       final retryCount = (err.requestOptions.extra['retryCount'] ?? 0) + 1;
       err.requestOptions.extra['retryCount'] = retryCount;
-      
+
       final delay = retryDelays[retryCount - 1];
       await Future.delayed(delay);
-      
+
       try {
         final response = await dio.fetch(err.requestOptions);
         handler.resolve(response);
@@ -113,15 +113,15 @@ class RetryInterceptor extends Interceptor {
         // Let the error pass through for the next retry
       }
     }
-    
+
     handler.next(err);
   }
-  
+
   bool _shouldRetry(DioException error) {
     return error.type == DioExceptionType.connectionTimeout ||
-           error.type == DioExceptionType.receiveTimeout ||
-           error.type == DioExceptionType.sendTimeout ||
-           (error.response?.statusCode != null && 
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout ||
+        (error.response?.statusCode != null &&
             error.response!.statusCode! >= 500);
   }
 }
@@ -130,24 +130,24 @@ class SecureApiClient {
   final Dio _dio;
   final SecureStorage _storage;
   static const int _maxRetries = 3;
-  
-  SecureApiClient({
-    required String baseUrl,
-    required SecureStorage storage,
-  }) : _storage = storage,
-       _dio = Dio(BaseOptions(
-         baseUrl: baseUrl,
-         connectTimeout: const Duration(seconds: 10),
-         receiveTimeout: const Duration(seconds: 10),
-         headers: {
-           'Content-Type': 'application/json',
-           'X-App-Version': EnvironmentConfig.appVersion,
-           'X-Platform': defaultTargetPlatform.name,
-         },
-       )) {
+
+  SecureApiClient({required String baseUrl, required SecureStorage storage})
+    : _storage = storage,
+      _dio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-App-Version': EnvironmentConfig.appVersion,
+            'X-Platform': defaultTargetPlatform.name,
+          },
+        ),
+      ) {
     _setupInterceptors();
   }
-  
+
   void _setupInterceptors() {
     // Auth interceptor
     _dio.interceptors.add(
@@ -157,7 +157,7 @@ class SecureApiClient {
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-          
+
           // Add request signature for additional security
           final signature = _generateRequestSignature(
             options.method,
@@ -165,7 +165,7 @@ class SecureApiClient {
             options.data,
           );
           options.headers['X-Signature'] = signature;
-          
+
           handler.next(options);
         },
         onError: (error, handler) async {
@@ -177,7 +177,7 @@ class SecureApiClient {
               final options = error.requestOptions;
               final token = await _storage.getToken();
               options.headers['Authorization'] = 'Bearer $token';
-              
+
               final response = await _dio.fetch(options);
               return handler.resolve(response);
             }
@@ -186,7 +186,7 @@ class SecureApiClient {
         },
       ),
     );
-    
+
     // Retry interceptor
     _dio.interceptors.add(
       RetryInterceptor(
@@ -199,7 +199,7 @@ class SecureApiClient {
         ],
       ),
     );
-    
+
     // Logging interceptor (debug only)
     if (kDebugMode) {
       _dio.interceptors.add(
@@ -213,44 +213,45 @@ class SecureApiClient {
       );
     }
   }
-  
+
   String _generateRequestSignature(String method, String path, dynamic data) {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     final dataString = data != null ? jsonEncode(data) : '';
     final message = '$method$path$dataString$timestamp';
-    
+
     final key = utf8.encode(EnvironmentConfig.apiSecret);
     final bytes = utf8.encode(message);
-    
+
     final hmacSha256 = Hmac(sha256, key);
     final digest = hmacSha256.convert(bytes);
-    
+
     return '$digest:$timestamp';
   }
-  
+
   Future<bool> _refreshToken() async {
     try {
       final refreshToken = await _storage.getRefreshToken();
       if (refreshToken == null) return false;
-      
-      final response = await _dio.post('/auth/refresh', data: {
-        'refresh_token': refreshToken,
-      });
-      
+
+      final response = await _dio.post(
+        '/auth/refresh',
+        data: {'refresh_token': refreshToken},
+      );
+
       final newToken = response.data['access_token'];
       final newRefreshToken = response.data['refresh_token'];
-      
+
       await _storage.saveTokens(
         accessToken: newToken,
         refreshToken: newRefreshToken,
       );
-      
+
       return true;
     } catch (e) {
       return false;
     }
   }
-  
+
   // API methods with automatic error handling
   Future<T> get<T>(
     String path, {
@@ -268,7 +269,7 @@ class SecureApiClient {
       throw _handleError(e);
     }
   }
-  
+
   Future<T> post<T>(
     String path, {
     dynamic data,
@@ -287,17 +288,17 @@ class SecureApiClient {
       throw _handleError(e);
     }
   }
-  
+
   ApiException _handleError(DioException error) {
     if (error.response != null) {
       final statusCode = error.response!.statusCode ?? 0;
       final data = error.response!.data;
-      
+
       String message = 'An error occurred';
       if (data is Map && data.containsKey('detail')) {
         message = data['detail'];
       }
-      
+
       switch (statusCode) {
         case 400:
           return BadRequestException(message);

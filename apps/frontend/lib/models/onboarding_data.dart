@@ -24,7 +24,8 @@ class OnboardingData {
       experienceLevel: experienceLevel ?? this.experienceLevel,
       practiceAmount: practiceAmount ?? this.practiceAmount,
       goals: goals ?? this.goals,
-      hasNotificationPermission: hasNotificationPermission ?? this.hasNotificationPermission,
+      hasNotificationPermission:
+          hasNotificationPermission ?? this.hasNotificationPermission,
       completedAt: completedAt ?? this.completedAt,
     );
   }
@@ -56,10 +57,11 @@ class OnboardingData {
 
   bool get hasAmbiguousGoals {
     // Users with career/income goals are higher intent
-    return goals.any((goal) => 
-      goal.contains('career') || 
-      goal.contains('income') || 
-      goal.contains('professional')
+    return goals.any(
+      (goal) =>
+          goal.contains('career') ||
+          goal.contains('income') ||
+          goal.contains('professional'),
     );
   }
 }

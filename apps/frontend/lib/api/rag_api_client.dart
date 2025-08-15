@@ -79,11 +79,11 @@ class RagApiClient {
 
   final http.Client _httpClient;
 
-  RagApiClient({http.Client? httpClient}) 
-      : _httpClient = httpClient ?? http.Client();
+  RagApiClient({http.Client? httpClient})
+    : _httpClient = httpClient ?? http.Client();
 
   /// Search the RAG knowledge base with a query
-  /// 
+  ///
   /// Sends a POST request to /search endpoint with the query and returns
   /// relevant documents from the AstraTrade knowledge base.
   Future<RagSearchResponse> search(
@@ -92,7 +92,7 @@ class RagApiClient {
     double minSimilarity = 0.25,
   }) async {
     final uri = Uri.parse('$baseUrl/search');
-    
+
     final requestBody = {
       'query': query,
       'max_results': maxResults,
@@ -129,7 +129,7 @@ class RagApiClient {
   }
 
   /// Perform a Claude-optimized search for trading scenarios
-  /// 
+  ///
   /// This method constructs queries specifically for trading simulations
   /// and game mechanics, using the RAG backend to provide realistic
   /// trading scenarios and outcomes.
@@ -139,8 +139,9 @@ class RagApiClient {
     String direction = 'long',
     double amount = 100.0,
   }) async {
-    final query = 'Simulate $tradeType $direction position on $asset with \$${amount.toStringAsFixed(2)} - provide realistic trading outcome with profit/loss percentage and cosmic-themed result message';
-    
+    final query =
+        'Simulate $tradeType $direction position on $asset with \$${amount.toStringAsFixed(2)} - provide realistic trading outcome with profit/loss percentage and cosmic-themed result message';
+
     return await search(
       query,
       maxResults: 2,
@@ -149,17 +150,14 @@ class RagApiClient {
   }
 
   /// Get market sentiment and cosmic forecast
-  /// 
+  ///
   /// Queries the RAG for current market analysis and translates
   /// it into cosmic-themed forecasts for the game UI.
   Future<RagSearchResponse> getCosmicForecast() async {
-    final query = 'Current crypto market sentiment analysis and price prediction for major assets like ETH BTC SOL - translate to cosmic gaming metaphors';
-    
-    return await search(
-      query,
-      maxResults: 1,
-      minSimilarity: 0.20,
-    );
+    final query =
+        'Current crypto market sentiment analysis and price prediction for major assets like ETH BTC SOL - translate to cosmic gaming metaphors';
+
+    return await search(query, maxResults: 1, minSimilarity: 0.20);
   }
 
   /// Health check to verify RAG backend connectivity
@@ -169,7 +167,7 @@ class RagApiClient {
       final response = await _httpClient
           .get(uri)
           .timeout(const Duration(seconds: 2)); // Reduced timeout
-      
+
       return response.statusCode == 200;
     } catch (e) {
       // Silently fail without logging to reduce console noise

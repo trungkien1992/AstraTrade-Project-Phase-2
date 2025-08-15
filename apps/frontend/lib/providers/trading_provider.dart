@@ -47,20 +47,22 @@ class TradingNotifier extends StateNotifier<TradingState> {
       updatedProgress = _updateProgress(state.progress, updatedTrade);
     }
 
-    state = state.copyWith(
-      trades: trades,
-      progress: updatedProgress,
-    );
+    state = state.copyWith(trades: trades, progress: updatedProgress);
   }
 
-  UserProgress _updateProgress(UserProgress current, SimpleTrade completedTrade) {
+  UserProgress _updateProgress(
+    UserProgress current,
+    SimpleTrade completedTrade,
+  ) {
     final now = DateTime.now();
-    final lastTradeWasToday = current.lastTradeDate != null &&
+    final lastTradeWasToday =
+        current.lastTradeDate != null &&
         current.lastTradeDate!.day == now.day &&
         current.lastTradeDate!.month == now.month &&
         current.lastTradeDate!.year == now.year;
 
-    final lastTradeWasYesterday = current.lastTradeDate != null &&
+    final lastTradeWasYesterday =
+        current.lastTradeDate != null &&
         now.difference(current.lastTradeDate!).inDays == 1;
 
     int newCurrentStreak = current.currentStreak;
@@ -109,9 +111,9 @@ class TradingNotifier extends StateNotifier<TradingState> {
 
   bool shouldShowRatingPrompt() {
     final progress = state.progress;
-    return progress.totalTrades >= 5 && 
-           progress.currentStreak >= 3 &&
-           progress.winRate > 50.0;
+    return progress.totalTrades >= 5 &&
+        progress.currentStreak >= 3 &&
+        progress.winRate > 50.0;
   }
 
   void resetProgress() {
@@ -119,6 +121,8 @@ class TradingNotifier extends StateNotifier<TradingState> {
   }
 }
 
-final tradingProvider = StateNotifierProvider<TradingNotifier, TradingState>((ref) {
+final tradingProvider = StateNotifierProvider<TradingNotifier, TradingState>((
+  ref,
+) {
   return TradingNotifier();
 });

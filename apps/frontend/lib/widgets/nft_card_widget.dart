@@ -6,11 +6,7 @@ class NFTCardWidget extends StatelessWidget {
   final GenesisNFT nft;
   final VoidCallback? onTap;
 
-  const NFTCardWidget({
-    super.key,
-    required this.nft,
-    this.onTap,
-  });
+  const NFTCardWidget({super.key, required this.nft, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -68,10 +64,7 @@ class NFTCardWidget extends StatelessWidget {
               // Achievement type
               Text(
                 nft.achievementType.replaceAll('_', ' ').toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white70,
-                ),
+                style: const TextStyle(fontSize: 12, color: Colors.white70),
               ),
             ],
           ),

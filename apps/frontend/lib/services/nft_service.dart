@@ -76,7 +76,9 @@ class NFTService {
             .toList();
         return achievements;
       } else {
-        throw Exception('Failed to get eligible achievements: ${response.body}');
+        throw Exception(
+          'Failed to get eligible achievements: ${response.body}',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
@@ -109,7 +111,9 @@ class NFTService {
         if (maxPrice != null) 'max_price': maxPrice.toString(),
       };
 
-      final uri = Uri.parse('$_baseUrl/marketplace').replace(queryParameters: queryParams);
+      final uri = Uri.parse(
+        '$_baseUrl/marketplace',
+      ).replace(queryParameters: queryParams);
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
@@ -136,10 +140,7 @@ class NFTService {
       final response = await http.post(
         Uri.parse('$_baseUrl/marketplace/list/$nftId'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'price': price,
-          'currency': currency,
-        }),
+        body: jsonEncode({'price': price, 'currency': currency}),
       );
 
       if (response.statusCode == 200) {
@@ -209,9 +210,7 @@ class NFTService {
   /// Get global NFT statistics
   Future<Map<String, dynamic>> getGlobalNFTStats() async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/stats/global'),
-      );
+      final response = await http.get(Uri.parse('$_baseUrl/stats/global'));
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);

@@ -54,9 +54,7 @@ class AchievementsScreen extends StatelessWidget {
 
           final progress = gamification.currentProgress;
           if (progress == null) {
-            return const Center(
-              child: Text('No progress data available'),
-            );
+            return const Center(child: Text('No progress data available'));
           }
 
           return SingleChildScrollView(
@@ -79,9 +77,12 @@ class AchievementsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressOverview(BuildContext context, SimpleGamificationProvider gamification) {
+  Widget _buildProgressOverview(
+    BuildContext context,
+    SimpleGamificationProvider gamification,
+  ) {
     final rankInfo = gamification.getRankInfo();
-    
+
     return Card(
       elevation: 4,
       child: Padding(
@@ -99,15 +100,13 @@ class AchievementsScreen extends StatelessWidget {
                     children: [
                       Text(
                         rankInfo['rank'],
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         'Level ${rankInfo['level']}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.blue[600],
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(color: Colors.blue[600]),
                       ),
                     ],
                   ),
@@ -152,9 +151,12 @@ class AchievementsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickStats(BuildContext context, SimpleGamificationProvider gamification) {
+  Widget _buildQuickStats(
+    BuildContext context,
+    SimpleGamificationProvider gamification,
+  ) {
     final stats = gamification.getTradingStats();
-    
+
     return Card(
       elevation: 2,
       child: Padding(
@@ -164,9 +166,9 @@ class AchievementsScreen extends StatelessWidget {
           children: [
             Text(
               'Trading Statistics',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
@@ -220,7 +222,13 @@ class AchievementsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -249,29 +257,32 @@ class AchievementsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAchievementsSection(BuildContext context, SimpleGamificationProvider gamification) {
+  Widget _buildAchievementsSection(
+    BuildContext context,
+    SimpleGamificationProvider gamification,
+  ) {
     final earnedAchievements = gamification.earnedAchievements;
     final availableAchievements = gamification.availableAchievements;
     final progress = gamification.achievementProgress;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Achievements',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(
           '${earnedAchievements.length} of ${gamification.achievements.length} earned',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
         ),
         const SizedBox(height: 16),
-        
+
         // Earned Achievements
         if (earnedAchievements.isNotEmpty) ...[
           Text(
@@ -282,37 +293,48 @@ class AchievementsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          ...earnedAchievements.map((achievement) => _buildAchievementCard(
-            context, achievement, true, 1.0,
-          )),
+          ...earnedAchievements.map(
+            (achievement) =>
+                _buildAchievementCard(context, achievement, true, 1.0),
+          ),
           const SizedBox(height: 16),
         ],
-        
+
         // Available Achievements
         if (availableAchievements.isNotEmpty) ...[
           Text(
             'Available Achievements',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          ...availableAchievements.map((achievement) => _buildAchievementCard(
-            context, achievement, false, progress[achievement.id] ?? 0.0,
-          )),
+          ...availableAchievements.map(
+            (achievement) => _buildAchievementCard(
+              context,
+              achievement,
+              false,
+              progress[achievement.id] ?? 0.0,
+            ),
+          ),
         ],
       ],
     );
   }
 
-  Widget _buildAchievementCard(BuildContext context, Achievement achievement, bool isEarned, double progress) {
+  Widget _buildAchievementCard(
+    BuildContext context,
+    Achievement achievement,
+    bool isEarned,
+    double progress,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: isEarned ? 3 : 1,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: isEarned 
+          border: isEarned
               ? Border.all(color: Colors.green[400]!, width: 2)
               : null,
         ),
@@ -328,7 +350,9 @@ class AchievementsScreen extends StatelessWidget {
                   color: isEarned ? Colors.green[100] : Colors.grey[200],
                 ),
                 child: Icon(
-                  isEarned ? Icons.check_circle : _getAchievementIcon(achievement.type),
+                  isEarned
+                      ? Icons.check_circle
+                      : _getAchievementIcon(achievement.type),
                   color: isEarned ? Colors.green[600] : Colors.grey[600],
                   size: 28,
                 ),
@@ -343,24 +367,31 @@ class AchievementsScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             achievement.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: isEarned ? Colors.green[700] : null,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: isEarned ? Colors.green[700] : null,
+                                ),
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: _getRarityColor(achievement.rarity).withOpacity(0.2),
+                            color: _getRarityColor(
+                              achievement.rarity,
+                            ).withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             achievement.rarity.name.toUpperCase(),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: _getRarityColor(achievement.rarity),
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: _getRarityColor(achievement.rarity),
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                         ),
                       ],
@@ -380,7 +411,11 @@ class AchievementsScreen extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(width: 16),
-                        Icon(Icons.emoji_events, size: 16, color: Colors.purple[600]),
+                        Icon(
+                          Icons.emoji_events,
+                          size: 16,
+                          color: Colors.purple[600],
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${achievement.tradingPointsReward} TP',
@@ -393,7 +428,9 @@ class AchievementsScreen extends StatelessWidget {
                       LinearProgressIndicator(
                         value: progress,
                         backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.blue[600]!,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -413,21 +450,24 @@ class AchievementsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentActivity(BuildContext context, SimpleGamificationProvider gamification) {
+  Widget _buildRecentActivity(
+    BuildContext context,
+    SimpleGamificationProvider gamification,
+  ) {
     final recentEvents = gamification.recentEvents.take(10).toList();
-    
+
     if (recentEvents.isEmpty) {
       return const SizedBox();
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Recent Activity',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         ...recentEvents.map((event) => _buildActivityItem(context, event)),
@@ -555,7 +595,7 @@ class AchievementsScreen extends StatelessWidget {
   String _formatTimestamp(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
-    
+
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inHours < 1) {

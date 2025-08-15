@@ -7,10 +7,12 @@ class NotificationPermissionScreen extends ConsumerStatefulWidget {
   const NotificationPermissionScreen({super.key});
 
   @override
-  ConsumerState<NotificationPermissionScreen> createState() => _NotificationPermissionScreenState();
+  ConsumerState<NotificationPermissionScreen> createState() =>
+      _NotificationPermissionScreenState();
 }
 
-class _NotificationPermissionScreenState extends ConsumerState<NotificationPermissionScreen> {
+class _NotificationPermissionScreenState
+    extends ConsumerState<NotificationPermissionScreen> {
   bool _dailyReminders = true;
   bool _progressReports = true;
   bool _marketUpdates = false;
@@ -82,10 +84,7 @@ class _NotificationPermissionScreenState extends ConsumerState<NotificationPermi
                     const SizedBox(height: 8),
                     Text(
                       'Get reminders and insights to maximize your trading practice.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -97,10 +96,7 @@ class _NotificationPermissionScreenState extends ConsumerState<NotificationPermi
 
             const Text(
               'Notification Settings',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
@@ -233,10 +229,7 @@ class _NotificationPermissionScreenState extends ConsumerState<NotificationPermi
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -264,9 +257,7 @@ class _NotificationPermissionScreenState extends ConsumerState<NotificationPermi
   void _completeOnboarding() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => const OnboardingCompleteScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const OnboardingCompleteScreen()),
     );
   }
 }

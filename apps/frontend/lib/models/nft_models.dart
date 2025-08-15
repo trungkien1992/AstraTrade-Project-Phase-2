@@ -27,7 +27,8 @@ class GenesisNFT {
     required this.createdAt,
   });
 
-  factory GenesisNFT.fromJson(Map<String, dynamic> json) => _$GenesisNFTFromJson(json);
+  factory GenesisNFT.fromJson(Map<String, dynamic> json) =>
+      _$GenesisNFTFromJson(json);
   Map<String, dynamic> toJson() => _$GenesisNFTToJson(this);
 }
 
@@ -52,7 +53,8 @@ class NFTCollection {
     required this.collectionValue,
   });
 
-  factory NFTCollection.fromJson(Map<String, dynamic> json) => _$NFTCollectionFromJson(json);
+  factory NFTCollection.fromJson(Map<String, dynamic> json) =>
+      _$NFTCollectionFromJson(json);
   Map<String, dynamic> toJson() => _$NFTCollectionToJson(this);
 }
 
@@ -85,7 +87,8 @@ class NFTMarketplaceItem {
     required this.isFeatured,
   });
 
-  factory NFTMarketplaceItem.fromJson(Map<String, dynamic> json) => _$NFTMarketplaceItemFromJson(json);
+  factory NFTMarketplaceItem.fromJson(Map<String, dynamic> json) =>
+      _$NFTMarketplaceItemFromJson(json);
   Map<String, dynamic> toJson() => _$NFTMarketplaceItemToJson(this);
 }
 
@@ -108,6 +111,7 @@ class EligibleAchievement {
     required this.milestoneData,
   });
 
-  factory EligibleAchievement.fromJson(Map<String, dynamic> json) => _$EligibleAchievementFromJson(json);
+  factory EligibleAchievement.fromJson(Map<String, dynamic> json) =>
+      _$EligibleAchievementFromJson(json);
   Map<String, dynamic> toJson() => _$EligibleAchievementToJson(this);
 }

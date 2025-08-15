@@ -23,8 +23,14 @@ class NFTCollectionStatsWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem('Total NFTs', collection.totalNfts.toString()),
-                _buildStatItem('Unique Achievements', collection.uniqueAchievements.toString()),
-                _buildStatItem('Rarity Score', collection.totalRarityScore.toStringAsFixed(1)),
+                _buildStatItem(
+                  'Unique Achievements',
+                  collection.uniqueAchievements.toString(),
+                ),
+                _buildStatItem(
+                  'Rarity Score',
+                  collection.totalRarityScore.toStringAsFixed(1),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -34,12 +40,16 @@ class NFTCollectionStatsWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildValueItem(
-                  'Stellar Shards', 
-                  collection.collectionValue['stellar_shards']?.toStringAsFixed(0) ?? '0'
+                  'Stellar Shards',
+                  collection.collectionValue['stellar_shards']?.toStringAsFixed(
+                        0,
+                      ) ??
+                      '0',
                 ),
                 _buildValueItem(
-                  'Lumina', 
-                  collection.collectionValue['lumina']?.toStringAsFixed(0) ?? '0'
+                  'Lumina',
+                  collection.collectionValue['lumina']?.toStringAsFixed(0) ??
+                      '0',
                 ),
               ],
             ),
@@ -57,10 +67,7 @@ class NFTCollectionStatsWidget extends StatelessWidget {
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.grey),
-        ),
+        Text(label, style: const TextStyle(color: Colors.grey)),
       ],
     );
   }
@@ -73,10 +80,7 @@ class NFTCollectionStatsWidget extends StatelessWidget {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
-        ),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
       ],
     );
   }

@@ -1,5 +1,5 @@
 /// Trading Position Model for AstraTrade Exchange V2
-/// 
+///
 /// Represents a perpetuals trading position with:
 /// - Position details (leverage, collateral, prices)
 /// - Real-time P&L calculation
@@ -51,10 +51,10 @@ class TradingPosition {
       fundingRateAccumulated: BigInt.parse(data[8]),
       isActive: data[9] == '1',
       createdTimestamp: DateTime.fromMillisecondsSinceEpoch(
-        int.parse(data[10]) * 1000
+        int.parse(data[10]) * 1000,
       ),
       lastUpdatedTimestamp: DateTime.fromMillisecondsSinceEpoch(
-        int.parse(data[11]) * 1000
+        int.parse(data[11]) * 1000,
       ),
     );
   }
@@ -70,10 +70,14 @@ class TradingPosition {
       collateral: BigInt.parse(json['collateral'] as String),
       entryPrice: BigInt.parse(json['entryPrice'] as String),
       liquidationPrice: BigInt.parse(json['liquidationPrice'] as String),
-      fundingRateAccumulated: BigInt.parse(json['fundingRateAccumulated'] as String),
+      fundingRateAccumulated: BigInt.parse(
+        json['fundingRateAccumulated'] as String,
+      ),
       isActive: json['isActive'] as bool,
       createdTimestamp: DateTime.parse(json['createdTimestamp'] as String),
-      lastUpdatedTimestamp: DateTime.parse(json['lastUpdatedTimestamp'] as String),
+      lastUpdatedTimestamp: DateTime.parse(
+        json['lastUpdatedTimestamp'] as String,
+      ),
     );
   }
 
@@ -103,10 +107,10 @@ class TradingPosition {
   /// Calculate unrealized P&L based on current price
   PositionPnL calculatePnL(BigInt currentPrice) {
     final sizeBigInt = positionSize;
-    
+
     BigInt pnlAmount;
     bool isProfit;
-    
+
     if (isLong) {
       if (currentPrice > entryPrice) {
         final priceDiff = currentPrice - entryPrice;
@@ -128,7 +132,7 @@ class TradingPosition {
         isProfit = false;
       }
     }
-    
+
     return PositionPnL(
       amount: pnlAmount,
       isProfit: isProfit,
@@ -139,7 +143,7 @@ class TradingPosition {
   /// Calculate P&L percentage
   double _calculatePnLPercentage(BigInt pnlAmount, bool isProfit) {
     if (collateral == BigInt.zero) return 0.0;
-    
+
     final percentage = (pnlAmount.toDouble() / collateral.toDouble()) * 100.0;
     return isProfit ? percentage : -percentage;
   }
@@ -147,10 +151,10 @@ class TradingPosition {
   /// Check if position is near liquidation (within 10%)
   bool isNearLiquidation(BigInt currentPrice) {
     if (!isActive) return false;
-    
+
     final threshold = BigInt.from(10); // 10% threshold
     BigInt distanceToLiquidation;
-    
+
     if (isLong) {
       if (currentPrice <= liquidationPrice) return true;
       distanceToLiquidation = currentPrice - liquidationPrice;
@@ -158,7 +162,7 @@ class TradingPosition {
       if (currentPrice >= liquidationPrice) return true;
       distanceToLiquidation = liquidationPrice - currentPrice;
     }
-    
+
     final thresholdDistance = (currentPrice * threshold) ~/ BigInt.from(100);
     return distanceToLiquidation <= thresholdDistance;
   }
@@ -241,7 +245,8 @@ class TradingPosition {
       collateral: collateral ?? this.collateral,
       entryPrice: entryPrice ?? this.entryPrice,
       liquidationPrice: liquidationPrice ?? this.liquidationPrice,
-      fundingRateAccumulated: fundingRateAccumulated ?? this.fundingRateAccumulated,
+      fundingRateAccumulated:
+          fundingRateAccumulated ?? this.fundingRateAccumulated,
       isActive: isActive ?? this.isActive,
       createdTimestamp: createdTimestamp ?? this.createdTimestamp,
       lastUpdatedTimestamp: lastUpdatedTimestamp ?? this.lastUpdatedTimestamp,
@@ -251,7 +256,7 @@ class TradingPosition {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is TradingPosition &&
         other.positionId == positionId &&
         other.userAddress == userAddress &&
@@ -327,11 +332,7 @@ class PositionPnL {
 }
 
 /// Position status enum
-enum PositionStatus {
-  active,
-  closed,
-  liquidated,
-}
+enum PositionStatus { active, closed, liquidated }
 
 /// Extension for better display of position status
 extension PositionStatusExtension on PositionStatus {

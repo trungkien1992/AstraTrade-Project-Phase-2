@@ -10,12 +10,12 @@ class OnboardingGate extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final onboardingState = ref.watch(onboardingProvider);
-    
+
     // Show onboarding flow first for complete user experience
     if (!onboardingState.isCompleted) {
       return const ExperienceLevelScreen();
     }
-    
+
     // Show main app after onboarding is completed
     return const TradeEntryScreen();
   }

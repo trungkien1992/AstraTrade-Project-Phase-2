@@ -6,15 +6,15 @@ import 'package:flutter/foundation.dart';
 class HapticService {
   static bool _isInitialized = false;
   static bool _isSupported = false;
-  
+
   /// Initialize haptic service
   static Future<void> initialize() async {
     if (_isInitialized) return;
-    
+
     try {
       _isSupported = true; // Haptic feedback is always available on iOS
       _isInitialized = true;
-      
+
       if (kDebugMode) {
         print('HapticService: Initialized, supported: $_isSupported');
       }
@@ -25,11 +25,11 @@ class HapticService {
       _isSupported = false;
     }
   }
-  
+
   /// Basic tap feedback for planet interactions
   static Future<void> triggerTapFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.lightImpact();
     } catch (e) {
@@ -38,11 +38,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Enhanced haptic for successful trade execution
   static Future<void> triggerTradeSuccessFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.mediumImpact();
     } catch (e) {
@@ -51,11 +51,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Enhanced haptic for failed trade
   static Future<void> triggerTradeFailureFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.heavyImpact();
     } catch (e) {
@@ -64,11 +64,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Biome evolution haptic pattern
   static Future<void> triggerEvolutionFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.heavyImpact();
     } catch (e) {
@@ -77,11 +77,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Level up haptic celebration
   static Future<void> triggerLevelUpFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.heavyImpact();
     } catch (e) {
@@ -90,11 +90,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Stellar shard harvest haptic
   static Future<void> triggerHarvestFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.selectionClick();
     } catch (e) {
@@ -103,11 +103,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Lumina generation haptic
   static Future<void> triggerLuminaGenerationFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.mediumImpact();
     } catch (e) {
@@ -116,11 +116,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Cosmic forge activation haptic
   static Future<void> triggerForgeActivationFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.heavyImpact();
     } catch (e) {
@@ -129,11 +129,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Orbital ascent haptic pattern
   static Future<void> triggerOrbitalAscentFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.mediumImpact();
     } catch (e) {
@@ -142,11 +142,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Gravitational descent haptic pattern
   static Future<void> triggerGravitationalDescentFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.mediumImpact();
     } catch (e) {
@@ -155,11 +155,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Notification haptic for background alerts
   static Future<void> triggerNotificationFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.selectionClick();
     } catch (e) {
@@ -168,11 +168,11 @@ class HapticService {
       }
     }
   }
-  
+
   /// Error haptic for system failures
   static Future<void> triggerErrorFeedback() async {
     if (!_isSupported) return;
-    
+
     try {
       await HapticFeedback.heavyImpact();
     } catch (e) {
@@ -181,14 +181,14 @@ class HapticService {
       }
     }
   }
-  
+
   /// Custom haptic pattern for specific actions
   static Future<void> triggerCustomFeedback({
     required List<int> pattern,
     required List<int> intensities,
   }) async {
     if (!_isSupported) return;
-    
+
     try {
       // Fallback to basic haptic
       await HapticFeedback.mediumImpact();
@@ -198,7 +198,7 @@ class HapticService {
       }
     }
   }
-  
+
   /// Test haptic capabilities
   static Future<Map<String, bool>> testHapticCapabilities() async {
     try {
@@ -218,7 +218,7 @@ class HapticService {
       };
     }
   }
-  
+
   /// Cancel any ongoing vibration
   static Future<void> cancelVibration() async {
     try {

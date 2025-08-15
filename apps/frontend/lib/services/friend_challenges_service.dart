@@ -10,11 +10,11 @@ import '../services/mobile_notification_service.dart';
 
 /// Challenge types for friend competitions
 enum ChallengeType {
-  dailyTrades,     // Complete X trades in a day
-  weeklyProfit,    // Achieve X% profit in a week
+  dailyTrades, // Complete X trades in a day
+  weeklyProfit, // Achieve X% profit in a week
   streakChallenge, // Maintain X day streak
-  xpRace,          // First to reach X XP
-  accuracyTest,    // Achieve X% success rate
+  xpRace, // First to reach X XP
+  accuracyTest, // Achieve X% success rate
 }
 
 /// Friend challenge data model
@@ -71,24 +71,27 @@ class ChallengeParticipant {
 
 /// Challenge status
 enum ChallengeStatus {
-  pending,    // Waiting for participants
-  active,     // Currently running
-  completed,  // Finished
-  cancelled,  // Cancelled by creator
+  pending, // Waiting for participants
+  active, // Currently running
+  completed, // Finished
+  cancelled, // Cancelled by creator
 }
 
 /// Service for managing friend challenges and competitions
 class FriendChallengesService {
-  static final FriendChallengesService _instance = FriendChallengesService._internal();
+  static final FriendChallengesService _instance =
+      FriendChallengesService._internal();
   factory FriendChallengesService() => _instance;
   FriendChallengesService._internal();
 
   final _backendClient = AstraTradeBackendClient();
   final _hapticService = MobileHapticService();
   final _notificationService = MobileNotificationService();
-  
-  final _challengesController = StreamController<List<FriendChallenge>>.broadcast();
-  Stream<List<FriendChallenge>> get challengesStream => _challengesController.stream;
+
+  final _challengesController =
+      StreamController<List<FriendChallenge>>.broadcast();
+  Stream<List<FriendChallenge>> get challengesStream =>
+      _challengesController.stream;
 
   List<FriendChallenge> _activeChallenges = [];
   Timer? _updateTimer;
@@ -97,12 +100,12 @@ class FriendChallengesService {
   Future<void> initialize() async {
     await _hapticService.initialize();
     await _notificationService.initialize();
-    
+
     // Start periodic updates
     _updateTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       _refreshChallenges();
     });
-    
+
     await _refreshChallenges();
   }
 
@@ -115,7 +118,7 @@ class FriendChallengesService {
     required Duration duration,
   }) async {
     await _hapticService.mediumTap();
-    
+
     // Generate challenge data
     final challenge = FriendChallenge(
       id: _generateChallengeId(),
@@ -150,8 +153,10 @@ class FriendChallengesService {
   /// Join an existing challenge
   Future<void> joinChallenge(String challengeId) async {
     await _hapticService.lightTap();
-    
-    final challengeIndex = _activeChallenges.indexWhere((c) => c.id == challengeId);
+
+    final challengeIndex = _activeChallenges.indexWhere(
+      (c) => c.id == challengeId,
+    );
     if (challengeIndex == -1) return;
 
     // Simulate joining (in real app, would call backend)
@@ -217,24 +222,30 @@ class FriendChallengesService {
           message: 'You made progress in "${challenge.title}"',
           color: Colors.orange,
         );
-        
-        await _hapticService.achievementUnlocked(rarity: AchievementRarity.common);
+
+        await _hapticService.achievementUnlocked(
+          rarity: AchievementRarity.common,
+        );
       }
     }
   }
 
   /// Get active challenges for current user
   Future<List<FriendChallenge>> getActiveChallenges() async {
-    return _activeChallenges.where((c) => 
-      c.status == ChallengeStatus.active || c.status == ChallengeStatus.pending
-    ).toList();
+    return _activeChallenges
+        .where(
+          (c) =>
+              c.status == ChallengeStatus.active ||
+              c.status == ChallengeStatus.pending,
+        )
+        .toList();
   }
 
   /// Get completed challenges
   Future<List<FriendChallenge>> getCompletedChallenges() async {
-    return _activeChallenges.where((c) => 
-      c.status == ChallengeStatus.completed
-    ).toList();
+    return _activeChallenges
+        .where((c) => c.status == ChallengeStatus.completed)
+        .toList();
   }
 
   /// Generate challenge templates for quick creation

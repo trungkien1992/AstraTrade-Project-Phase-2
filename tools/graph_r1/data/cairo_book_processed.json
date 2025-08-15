@@ -1,0 +1,429 @@
+[
+    {
+        "question": "What is the financial domain structure?",
+        "answer": "Domain: financial",
+        "supporting_facts": [
+            "Domain: financial | entities.py: DomainEvent, Account, Subscription, Payment, Invoice | services.py: AccountRepositoryInterface, SubscriptionRepositoryInterface, PaymentRepositoryInterface, InvoiceRepositoryInterface, PaymentProcessorInterface, NotificationServiceInterface, PaymentService, SubscriptionService, RevenueService, ComplianceService"
+        ]
+    },
+    {
+        "question": "What is the nft domain structure?",
+        "answer": "Domain: nft",
+        "supporting_facts": [
+            "Domain: nft | entities.py: DomainEvent, GenesisNFT, NFTCollection, MarketplaceItem | services.py: NFTRepositoryInterface, CollectionRepositoryInterface, MarketplaceRepositoryInterface, BlockchainServiceInterface, PaymentServiceInterface, NotificationServiceInterface, GenesisNFTBuilder, NFTMintingService, MarketplaceService, NFTValuationService, CollectionService"
+        ]
+    },
+    {
+        "question": "What is the gamification domain structure?",
+        "answer": "Domain: gamification",
+        "supporting_facts": [
+            "Domain: gamification | entities.py: UserProgression, Constellation, Achievement, Leaderboard, Reward | services.py: UserProgressionRepository, ConstellationRepository, AchievementRepository, LeaderboardRepository, RewardRepository, UserStats, GamificationDomainService | events.py: DomainEvent, XPGainedEvent, LevelUpEvent, AchievementUnlockedEvent, StreakUpdatedEvent, LeaderboardUpdatedEvent"
+        ]
+    },
+    {
+        "question": "What is the user domain structure?",
+        "answer": "Domain: user",
+        "supporting_facts": [
+            "Domain: user | entities.py: ActivityType, User, UserSession, UserActivity | services.py: UserRepositoryInterface, SessionRepositoryInterface, PasswordServiceInterface, UserAuthenticationService, UserManagementService, UserSecurityService, UserActivityService"
+        ]
+    },
+    {
+        "question": "What is the shared domain structure?",
+        "answer": "Domain: shared",
+        "supporting_facts": [
+            "Domain: shared | events.py: DomainEvent, EventBus, EventHandler, EventStore, RedisStreamsEventBus, LegacyEventAdapter | repositories.py: Repository, QueryableRepository, UnitOfWork"
+        ]
+    },
+    {
+        "question": "What is the __pycache__ domain structure?",
+        "answer": "Domain: __pycache__",
+        "supporting_facts": [
+            "Domain: __pycache__"
+        ]
+    },
+    {
+        "question": "What is the social domain structure?",
+        "answer": "Domain: social",
+        "supporting_facts": [
+            "Domain: social | entities.py: SocialProfileCreated, SocialRatingChanged, ConstellationCreated, ConstellationMemberJoined, ViralContentShared, SocialInteractionPerformed, SocialProfile, Constellation, ViralContent, SocialInteraction | services.py: SocialProfileRepository, ConstellationRepository, ViralContentRepository, SocialInteractionRepository, SocialProfileService, ConstellationService, ViralContentService, SocialInteractionService"
+        ]
+    },
+    {
+        "question": "What is the trading domain structure?",
+        "answer": "Domain: trading",
+        "supporting_facts": [
+            "Domain: trading | entities.py: Trade, Position, Portfolio | services.py: TradeExecutedEvent, TradingRewardsCalculatedEvent, ClanBattleScoreUpdatedEvent, TradeRepository, PortfolioRepository, ExchangeClient, StarknetClient, AIAnalysisService, TradingDomainService"
+        ]
+    },
+    {
+        "question": "What does the exchange contract do?",
+        "answer": "Cairo contract: exchange",
+        "supporting_facts": [
+            "Contract: exchange.cairo | Interfaces: ExchangeTrait | Functions: constructor, register_user, get_user, open_practice_position, close_position"
+        ]
+    },
+    {
+        "question": "What does the paymaster contract do?",
+        "answer": "Cairo contract: paymaster",
+        "supporting_facts": [
+            "Contract: paymaster.cairo | Interfaces: IAstraTradePaymaster | Functions: sponsor_user_transaction, validate_paymaster_transaction, execute_sponsored_transaction, get_user_gas_allowance, refill_gas_allowance"
+        ]
+    },
+    {
+        "question": "What does the vault contract do?",
+        "answer": "Cairo contract: vault",
+        "supporting_facts": [
+            "Contract: vault.cairo | Interfaces: IAstraTradeVault | Functions: deposit_collateral, withdraw_collateral, get_user_collateral, get_total_collateral_value, add_supported_asset"
+        ]
+    },
+    {
+        "question": "What does the lib contract do?",
+        "answer": "Cairo contract: lib",
+        "supporting_facts": [
+            "Contract: lib.cairo"
+        ]
+    },
+    {
+        "question": "What is described in SECURITY_SUMMARY.md?",
+        "answer": "Architecture doc: SECURITY_SUMMARY.md",
+        "supporting_facts": [
+            "# AstraTrade Security Summary\n\n## API Key Security\n\nAll API keys and sensitive credentials are secured using environment variables instead of hardcoding them in the source code. This includes:\n\n- Extended Exchange API keys\n- Web3Auth client IDs\n- Private keys for wallet operations\n- Backend service credentials\n\n## Secure Storage\n\nSensitive user data is stored using platform-native secure storage mechanisms:\n- iOS Keychain for iOS devices\n- Android Keystore for Android devices\n- Encrypted local storage for additional protection\n\n## Smart Contract Security\n\n### Paymaster Contract\n- Owner management with access controls\n- Pause/unpause functionality for emergency situations\n- Event emission for monitoring and auditing\n- Proper error handling and validation\n\n### Vault Contract\n- Owner controls for administrative functions\n- Pause functionality for maintenance\n- Access controls for deposit/withdraw operations\n\n## Code Security Practices\n\n- Input validation and sanitization\n- Secure error ha"
+        ]
+    },
+    {
+        "question": "What is described in ARCHITECTURAL_DECISION_RECORDS.md?",
+        "answer": "Architecture doc: ARCHITECTURAL_DECISION_RECORDS.md",
+        "supporting_facts": [
+            "# AstraTrade Architectural Decision Records (ADRs)\n\n## Overview\nThis document contains the architectural decision records for AstraTrade's evolution from v1.0 to global scale. These decisions support the roadmap's progression from 5k users to 100k+ MAU with 99.9% uptime and financial-grade reliability.\n\n---\n\n## ADR-001: Domain-Driven Design Adoption for Business Logic Organization\n\n**Status:** Implemented (83% Complete - 5 of 6 domains)  \n**Date:** 2025-07-31  \n**Updated:** 2025-08-01  \n**Context:** Current codebase has 55+ backend services and 50+ frontend services without clear domain boundaries\n\n### Decision\nRestructure the entire codebase using Domain-Driven Design (DDD) with bounded contexts to isolate complex business logic.\n\n### Rationale\n1. **Business Complexity:** Gamified trading involves multiple complex domains (trading, XP systems, social features, NFTs)\n2. **Team Scaling:** Growing from 1 to 8 developers requires clear ownership boundaries\n3. **Roadmap Requirements:** 4 d"
+        ]
+    },
+    {
+        "question": "What is described in technical_overview.md?",
+        "answer": "Architecture doc: technical_overview.md",
+        "supporting_facts": [
+            "# AstraTrade Technical Overview - v1.0 COMPLETE \u2705\n\n## 1. System Architecture - \u2705 FULLY IMPLEMENTED\n\nAstraTrade follows a modern, distributed architecture with clear separation of concerns between frontend, backend, and blockchain components. All components are production-ready and operational.\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Frontend      \u2502    \u2502    Backend       \u2502    \u2502   Blockchain       \u2502\n\u2502   (Flutter)     \u2502\u25c4\u2500\u2500\u25ba\u2502   (FastAPI)      \u2502\u25c4\u2500\u2500\u25ba\u2502   (Starknet)       \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n       \u2502                        \u2502                       \u2502\n       \u25bc                        \u25bc                       \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  Web3Auth       \u2502    \u2502  Extended        \u2502    \u2502  Paymaster        \u2502\n\u2502  Authentication \u2502    \u2502  Exchange API    \u2502    \u2502  Contract          \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                         "
+        ]
+    },
+    {
+        "question": "What is described in SECURITY_REMEDIATION_PLAN.md?",
+        "answer": "Architecture doc: SECURITY_REMEDIATION_PLAN.md",
+        "supporting_facts": [
+            "# Security Remediation Plan: Secure Trade Execution\n\n**Date:** 2025-08-03\n**Status:** Ready for Development\n**Related Document:** `SECURITY_VULNERABILITY_REPORT.md`\n\n---\n\n### Overview\n\nThis document outlines the engineering tasks required to remediate the critical authentication and authorization vulnerabilities in the AstraTrade backend. The work is broken down into a single Epic with five dependent stories. All tasks must be completed to secure the platform.\n\n---\n\n### **Epic: [SEC-001] Secure the End-to-End Trade Execution Workflow**\n\n**Description:** Implement a zero-trust security model for the trade execution process, from the API Gateway to all downstream services. This involves replacing mock authentication with robust JWT validation, enforcing server-side identity, and adding authorization controls.\n\n**Goal:** Ensure that only authenticated and authorized users can execute trades for themselves, completely eliminating the identity spoofing vulnerability.\n\n---\n\n### Stories / Tas"
+        ]
+    },
+    {
+        "question": "What is described in TECHNICAL_DEBT_ANALYSIS.md?",
+        "answer": "Architecture doc: TECHNICAL_DEBT_ANALYSIS.md",
+        "supporting_facts": [
+            "# Technical Debt and Fragile Workaround Analysis\n\n**Report Date:** 2025-08-03\n**Status:** For Review\n\n---\n\n### 1. Executive Summary\n\nThis document outlines significant technical debt and fragile workarounds identified within the AstraTrade backend infrastructure. While the architecture incorporates modern patterns like microservices, an API Gateway, and an event bus, several critical flaws exist that compromise its security, data integrity, and scalability.\n\nThe most severe issues are the use of **mock authentication**, which exposes a critical security vulnerability, and a **\"fire-and-forget\" eventing model** for financial transactions, which creates a high risk of data inconsistency. Other workarounds, such as mock service fallbacks and in-memory rate limiting, mask underlying problems and will not scale.\n\nAddressing this debt is crucial for building a secure, reliable, and scalable platform.\n\n---\n\n### 2. Identified Issues\n\n#### 2.1. Critical Security Debt: Mock Authentication & Auth"
+        ]
+    },
+    {
+        "question": "What is described in SECURITY_VULNERABILITY_REPORT.md?",
+        "answer": "Architecture doc: SECURITY_VULNERABILITY_REPORT.md",
+        "supporting_facts": [
+            "# Security Vulnerability Report: AstraTrade Backend\n\n**Report Date:** 2025-08-03\n**Severity:** CRITICAL\n**Vulnerability Type:** Authentication Bypass & Identity Spoofing (Broken Access Control)\n**Reporter:** Gemini Security Analysis\n\n---\n\n### 1. Executive Summary\n\nA critical security vulnerability has been identified in the AstraTrade backend application. The system is susceptible to an **authentication bypass** at the API Gateway, which, when combined with a failure to validate client-supplied data, allows a malicious actor to **execute trades on behalf of any user** on the platform.\n\nThis flaw permits an unauthenticated attacker to perform unauthorized actions with catastrophic financial and reputational consequences, including draining user accounts, manipulating market data, and causing a complete loss of customer trust. **Immediate remediation is required.**\n\n---\n\n### 2. Vulnerability Details\n\nThe vulnerability arises from a chain of three distinct but related flaws that together "
+        ]
+    },
+    {
+        "question": "What is described in ARCHITECTURAL_RISK_ANALYSIS.md?",
+        "answer": "Architecture doc: ARCHITECTURAL_RISK_ANALYSIS.md",
+        "supporting_facts": [
+            "# Architectural Risk Analysis: Event-Driven Atomicity\n\n**Report Date:** 2025-08-03\n**Status:** For Review\n**Subject:** Analysis of the trade-offs in the current event-driven architecture and its impact on data integrity for critical financial operations.\n\n---\n\n### 1. Executive Summary\n\nThe AstraTrade backend employs a \"fire-and-forget\" event-driven architecture that provides excellent resilience, scalability, and responsiveness for many of its features. However, this report identifies a critical risk: the architecture applies the same consistency model to both non-essential auxiliary functions (e.g., social feeds) and critical financial operations (e.g., revenue tracking).\n\nWhile this trade-off is acceptable for non-critical systems, it creates an unacceptable risk of data inconsistency for core financial ledgers. A failure in a downstream financial consumer can lead to a permanent mismatch between executed trades and revenue records, requiring complex and error-prone manual interventi"
+        ]
+    },
+    {
+        "question": "What is described in PHASE2A_COMPLETION_SUMMARY.md?",
+        "answer": "Architecture doc: PHASE2A_COMPLETION_SUMMARY.md",
+        "supporting_facts": [
+            "# Phase 2A Completion Summary - Real Microservices Architecture\n\n## \ud83c\udfaf Current Status: PHASE 2A COMPLETE\n**Next Agent Task: Phase 2A Database Schema + Real User Data Integration**\n\n## \ud83d\udccb What Was Accomplished\n\n### \u2705 Phase 1: User Service Foundation (COMPLETE)\n- Fixed critical import errors in user service\n- Deployed working user service on port 8006 with registration/authentication\n- Validated user registration/authentication flow\n- Cleaned up temporary MVP files\n\n### \u2705 Phase 2A: Trading Service Foundation (COMPLETE)\n- **Fixed Infrastructure Dependencies**: Corrected import paths, fixed base config mutable defaults\n- **Completed Domain Integration**: Updated to use real domain entities (Asset, Money, TradeDirection, etc.)\n- **Validated Service Architecture**: Trading service compiles, domain logic works, proper dependency injection\n- **Established Consistent Patterns**: Both user and trading services follow same architectural approach\n\n## \ud83c\udfd7\ufe0f Current Architecture State\n\n### Working Compon"
+        ]
+    },
+    {
+        "question": "What is described in PHASE2_COMPLETION_SUMMARY.md?",
+        "answer": "Architecture doc: PHASE2_COMPLETION_SUMMARY.md",
+        "supporting_facts": [
+            "# AstraTrade Phase 2 Completion Summary\n\n## Redis Streams Event Bus & Cross-Domain Integration\n\n**Completion Date**: August 2, 2025  \n**Phase Duration**: Weeks 3-4 of Infrastructure Bridge Strategy  \n**Status**: \u2705 **COMPLETED** - All objectives achieved\n\n---\n\n## \ud83c\udfaf Phase 2 Objectives Achieved\n\n### \u2705 Core Infrastructure Deployed\n- **Redis Streams Event Bus**: Production-ready deployment with Redis 7.2\n- **Consumer Groups**: 17 consumer groups configured across all domains\n- **Event Schemas**: Standardized event formats with correlation tracking\n- **Performance**: <100ms average latency, <200ms maximum latency\n\n### \u2705 Cross-Domain Integration Validated\n- **All 6 Domains**: Trading, Gamification, Social, Financial, NFT, User\n- **Event Flows**: 36 events across 4 correlation chains in testing\n- **Real-time Communication**: Event propagation working correctly\n- **100% Coverage**: All domains actively publishing and consuming events\n\n### \u2705 Production-Ready Features\n- **Correlation Tracking**: "
+        ]
+    },
+    {
+        "question": "What is described in SECURITY_SUMMARY.md?",
+        "answer": "Architecture doc: SECURITY_SUMMARY.md",
+        "supporting_facts": [
+            "# AstraTrade Security Summary\n\n## API Key Security\n\nAll API keys and sensitive credentials are secured using environment variables instead of hardcoding them in the source code. This includes:\n\n- Extended Exchange API keys\n- Web3Auth client IDs\n- Private keys for wallet operations\n- Backend service credentials\n\n## Secure Storage\n\nSensitive user data is stored using platform-native secure storage mechanisms:\n- iOS Keychain for iOS devices\n- Android Keystore for Android devices\n- Encrypted local storage for additional protection\n\n## Smart Contract Security\n\n### Paymaster Contract\n- Owner management with access controls\n- Pause/unpause functionality for emergency situations\n- Event emission for monitoring and auditing\n- Proper error handling and validation\n\n### Vault Contract\n- Owner controls for administrative functions\n- Pause functionality for maintenance\n- Access controls for deposit/withdraw operations\n\n## Code Security Practices\n\n- Input validation and sanitization\n- Secure error ha"
+        ]
+    },
+    {
+        "question": "What is described in ARCHITECTURAL_DECISION_RECORDS.md?",
+        "answer": "Architecture doc: ARCHITECTURAL_DECISION_RECORDS.md",
+        "supporting_facts": [
+            "# AstraTrade Architectural Decision Records (ADRs)\n\n## Overview\nThis document contains the architectural decision records for AstraTrade's evolution from v1.0 to global scale. These decisions support the roadmap's progression from 5k users to 100k+ MAU with 99.9% uptime and financial-grade reliability.\n\n---\n\n## ADR-001: Domain-Driven Design Adoption for Business Logic Organization\n\n**Status:** Implemented (83% Complete - 5 of 6 domains)  \n**Date:** 2025-07-31  \n**Updated:** 2025-08-01  \n**Context:** Current codebase has 55+ backend services and 50+ frontend services without clear domain boundaries\n\n### Decision\nRestructure the entire codebase using Domain-Driven Design (DDD) with bounded contexts to isolate complex business logic.\n\n### Rationale\n1. **Business Complexity:** Gamified trading involves multiple complex domains (trading, XP systems, social features, NFTs)\n2. **Team Scaling:** Growing from 1 to 8 developers requires clear ownership boundaries\n3. **Roadmap Requirements:** 4 d"
+        ]
+    },
+    {
+        "question": "What is described in technical_overview.md?",
+        "answer": "Architecture doc: technical_overview.md",
+        "supporting_facts": [
+            "# AstraTrade Technical Overview - v1.0 COMPLETE \u2705\n\n## 1. System Architecture - \u2705 FULLY IMPLEMENTED\n\nAstraTrade follows a modern, distributed architecture with clear separation of concerns between frontend, backend, and blockchain components. All components are production-ready and operational.\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Frontend      \u2502    \u2502    Backend       \u2502    \u2502   Blockchain       \u2502\n\u2502   (Flutter)     \u2502\u25c4\u2500\u2500\u25ba\u2502   (FastAPI)      \u2502\u25c4\u2500\u2500\u25ba\u2502   (Starknet)       \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n       \u2502                        \u2502                       \u2502\n       \u25bc                        \u25bc                       \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  Web3Auth       \u2502    \u2502  Extended        \u2502    \u2502  Paymaster        \u2502\n\u2502  Authentication \u2502    \u2502  Exchange API    \u2502    \u2502  Contract          \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                         "
+        ]
+    },
+    {
+        "question": "What is the financial service?",
+        "answer": "Microservice: financial",
+        "supporting_facts": [
+            "Service: financial | Files: main.py"
+        ]
+    },
+    {
+        "question": "What is the nft service?",
+        "answer": "Microservice: nft",
+        "supporting_facts": [
+            "Service: nft | Files: main.py"
+        ]
+    },
+    {
+        "question": "What is the gamification service?",
+        "answer": "Microservice: gamification",
+        "supporting_facts": [
+            "Service: gamification | Files: main.py"
+        ]
+    },
+    {
+        "question": "What is the user service?",
+        "answer": "Microservice: user",
+        "supporting_facts": [
+            "Service: user | Files: main.py"
+        ]
+    },
+    {
+        "question": "What is the social service?",
+        "answer": "Microservice: social",
+        "supporting_facts": [
+            "Service: social | Files: main.py"
+        ]
+    },
+    {
+        "question": "What is the trading service?",
+        "answer": "Microservice: trading",
+        "supporting_facts": [
+            "Service: trading | Files: main.py"
+        ]
+    },
+    {
+        "question": "What is the base service?",
+        "answer": "Microservice: base",
+        "supporting_facts": [
+            "Service: base | Files: metrics.py, config.py, health.py"
+        ]
+    },
+    {
+        "question": "What is language overview in Cairo?",
+        "answer": "Cairo cairo_fundamentals: language_overview",
+        "supporting_facts": [
+            "Topic: cairo_fundamentals | Subtopic: language_overview | Details: {\"type\": \"programming_language\", \"paradigm\": \"functional_with_ownership\", \"inspiration\": \"rust\", \"purpose\": \"provable_programs_for_starknet\", \"key_features\": [\"memory_safety\", \"ownership_system\", \"zer"
+        ]
+    },
+    {
+        "question": "What is data types in Cairo?",
+        "answer": "Cairo cairo_fundamentals: data_types",
+        "supporting_facts": [
+            "Topic: cairo_fundamentals | Subtopic: data_types | Details: {\"primitives\": {\"felt252\": \"field_element_252_bits\", \"u8\": \"unsigned_8_bit\", \"u16\": \"unsigned_16_bit\", \"u32\": \"unsigned_32_bit\", \"u64\": \"unsigned_64_bit\", \"u128\": \"unsigned_128_bit\", \"u256\": \"unsigned"
+        ]
+    },
+    {
+        "question": "What is ownership system in Cairo?",
+        "answer": "Cairo cairo_fundamentals: ownership_system",
+        "supporting_facts": [
+            "Topic: cairo_fundamentals | Subtopic: ownership_system | Details: {\"move_semantics\": \"values_moved_by_default\", \"copy_trait\": \"explicit_copying_required\", \"drop_trait\": \"automatic_cleanup\", \"clone_trait\": \"deep_copying\"}"
+        ]
+    },
+    {
+        "question": "What is contract structure in Cairo?",
+        "answer": "Cairo smart_contract_development: contract_structure",
+        "supporting_facts": [
+            "Topic: smart_contract_development | Subtopic: contract_structure | Details: {\"interface_definition\": {\"attribute\": \"#[starknet::interface]\", \"purpose\": \"define_public_api\", \"generic_parameter\": \"TContractState\"}, \"contract_module\": {\"attribute\": \"#[starknet::contract]\", \"stor"
+        ]
+    },
+    {
+        "question": "What is storage management in Cairo?",
+        "answer": "Cairo smart_contract_development: storage_management",
+        "supporting_facts": [
+            "Topic: smart_contract_development | Subtopic: storage_management | Details: {\"storage_variables\": {\"single_values\": \"StoragePointer<T>\", \"mappings\": \"Map<K, V>\", \"complex_types\": \"custom_structs_with_Store_trait\"}, \"storage_operations\": {\"read\": \"self.storage_var.read()\", \"wr"
+        ]
+    },
+    {
+        "question": "What is events and logging in Cairo?",
+        "answer": "Cairo smart_contract_development: events_and_logging",
+        "supporting_facts": [
+            "Topic: smart_contract_development | Subtopic: events_and_logging | Details: {\"event_definition\": {\"attribute\": \"#[event]\", \"derive_traits\": \"#[derive(Drop, Serde, starknet::Event)]\"}, \"event_emission\": \"self.emit(EventStruct { ... })\"}"
+        ]
+    },
+    {
+        "question": "What is access control in Cairo?",
+        "answer": "Cairo security_best_practices: access_control",
+        "supporting_facts": [
+            "Topic: security_best_practices | Subtopic: access_control | Details: {\"pattern\": \"role_based_access\", \"implementation\": {\"owner_pattern\": \"single_privileged_address\", \"role_mapping\": \"Map<ContractAddress, bool>\", \"guard_functions\": \"assert_based_validation\"}, \"example_"
+        ]
+    },
+    {
+        "question": "What is input validation in Cairo?",
+        "answer": "Cairo security_best_practices: input_validation",
+        "supporting_facts": [
+            "Topic: security_best_practices | Subtopic: input_validation | Details: {\"technique\": \"early_validation\", \"tools\": [\"assert!\", \"panic!\", \"custom_errors\"], \"patterns\": [\"validate_before_state_change\", \"check_invariants\", \"boundary_checks\"]}"
+        ]
+    },
+    {
+        "question": "What is checks effects interactions in Cairo?",
+        "answer": "Cairo security_best_practices: checks_effects_interactions",
+        "supporting_facts": [
+            "Topic: security_best_practices | Subtopic: checks_effects_interactions | Details: {\"purpose\": \"prevent_reentrancy\", \"order\": [\"1_validate_conditions\", \"2_update_state\", \"3_external_calls\"]}"
+        ]
+    },
+    {
+        "question": "What is integer overflow in Cairo?",
+        "answer": "Cairo security_best_practices: integer_overflow",
+        "supporting_facts": [
+            "Topic: security_best_practices | Subtopic: integer_overflow | Details: {\"cairo_behavior\": \"automatic_overflow_protection\", \"felt252_wraparound\": \"modular_arithmetic\", \"safe_math\": \"built_in_protection\"}"
+        ]
+    },
+    {
+        "question": "What is common vulnerabilities in Cairo?",
+        "answer": "Cairo security_best_practices: common_vulnerabilities",
+        "supporting_facts": [
+            "Topic: security_best_practices | Subtopic: common_vulnerabilities | Details: {\"reentrancy\": {\"risk\": \"medium_on_starknet\", \"prevention\": \"checks_effects_interactions\"}, \"access_control_bypass\": {\"risk\": \"high\", \"prevention\": \"proper_role_validation\"}, \"state_corruption\": {\"ris"
+        ]
+    },
+    {
+        "question": "What is upgradeable contracts in Cairo?",
+        "answer": "Cairo development_patterns: upgradeable_contracts",
+        "supporting_facts": [
+            "Topic: development_patterns | Subtopic: upgradeable_contracts | Details: {\"proxy_pattern\": \"diamond_standard_recommended\", \"storage_layout\": \"maintain_compatibility\", \"initialization\": \"constructor_vs_initializer\"}"
+        ]
+    },
+    {
+        "question": "What is component system in Cairo?",
+        "answer": "Cairo development_patterns: component_system",
+        "supporting_facts": [
+            "Topic: development_patterns | Subtopic: component_system | Details: {\"purpose\": \"code_reusability\", \"implementation\": \"embeddable_impl_blocks\", \"storage_embedding\": \"component_storage_in_contract\"}"
+        ]
+    },
+    {
+        "question": "What is library usage in Cairo?",
+        "answer": "Cairo development_patterns: library_usage",
+        "supporting_facts": [
+            "Topic: development_patterns | Subtopic: library_usage | Details: {\"openzeppelin\": \"standard_contract_templates\", \"alexandria\": \"utility_functions\", \"custom_libraries\": \"domain_specific_logic\"}"
+        ]
+    },
+    {
+        "question": "What is unit tests in Cairo?",
+        "answer": "Cairo testing_strategies: unit_tests",
+        "supporting_facts": [
+            "Topic: testing_strategies | Subtopic: unit_tests | Details: {\"framework\": \"cairo_test\", \"attributes\": \"#[test]\", \"setup\": \"deploy_contract_for_testing\"}"
+        ]
+    },
+    {
+        "question": "What is integration tests in Cairo?",
+        "answer": "Cairo testing_strategies: integration_tests",
+        "supporting_facts": [
+            "Topic: testing_strategies | Subtopic: integration_tests | Details: {\"starknet_foundry\": \"snforge_test_runner\", \"test_environment\": \"local_starknet_devnet\"}"
+        ]
+    },
+    {
+        "question": "What is property testing in Cairo?",
+        "answer": "Cairo testing_strategies: property_testing",
+        "supporting_facts": [
+            "Topic: testing_strategies | Subtopic: property_testing | Details: {\"fuzzing\": \"input_space_exploration\", \"invariant_testing\": \"state_consistency_checks\"}"
+        ]
+    },
+    {
+        "question": "What is gas optimization in Cairo?",
+        "answer": "Cairo optimization_techniques: gas_optimization",
+        "supporting_facts": [
+            "Topic: optimization_techniques | Subtopic: gas_optimization | Details: {\"storage_packing\": \"efficient_struct_layouts\", \"batch_operations\": \"reduce_syscall_count\", \"lazy_evaluation\": \"compute_on_demand\"}"
+        ]
+    },
+    {
+        "question": "What is memory efficiency in Cairo?",
+        "answer": "Cairo optimization_techniques: memory_efficiency",
+        "supporting_facts": [
+            "Topic: optimization_techniques | Subtopic: memory_efficiency | Details: {\"ownership_transfer\": \"avoid_unnecessary_clones\", \"span_usage\": \"read_only_array_views\", \"dictionary_operations\": \"efficient_key_value_storage\"}"
+        ]
+    },
+    {
+        "question": "What is architecture review in Cairo?",
+        "answer": "Cairo audit_checklist: architecture_review",
+        "supporting_facts": [
+            "Topic: audit_checklist | Subtopic: architecture_review | Details: [\"contract_separation_of_concerns\", \"upgrade_mechanism_security\", \"access_control_implementation\", \"state_transition_validation\"]"
+        ]
+    },
+    {
+        "question": "What is code quality in Cairo?",
+        "answer": "Cairo audit_checklist: code_quality",
+        "supporting_facts": [
+            "Topic: audit_checklist | Subtopic: code_quality | Details: [\"error_handling_completeness\", \"input_validation_coverage\", \"event_emission_consistency\", \"documentation_quality\"]"
+        ]
+    },
+    {
+        "question": "What is security checks in Cairo?",
+        "answer": "Cairo audit_checklist: security_checks",
+        "supporting_facts": [
+            "Topic: audit_checklist | Subtopic: security_checks | Details: [\"privilege_escalation_prevention\", \"reentrancy_protection\", \"integer_overflow_handling\", \"external_call_safety\"]"
+        ]
+    },
+    {
+        "question": "What is testing coverage in Cairo?",
+        "answer": "Cairo audit_checklist: testing_coverage",
+        "supporting_facts": [
+            "Topic: audit_checklist | Subtopic: testing_coverage | Details: [\"unit_test_completeness\", \"integration_test_scenarios\", \"edge_case_handling\", \"failure_condition_testing\"]"
+        ]
+    },
+    {
+        "question": "What is execution model in Cairo?",
+        "answer": "Cairo starknet_specifics: execution_model",
+        "supporting_facts": [
+            "Topic: starknet_specifics | Subtopic: execution_model | Details: {\"cairo_vm\": \"virtual_machine_execution\", \"sierra\": \"intermediate_representation\", \"casm\": \"cairo_assembly_output\"}"
+        ]
+    },
+    {
+        "question": "What is system calls in Cairo?",
+        "answer": "Cairo starknet_specifics: system_calls",
+        "supporting_facts": [
+            "Topic: starknet_specifics | Subtopic: system_calls | Details: {\"storage_read\": \"read_contract_storage\", \"storage_write\": \"write_contract_storage\", \"call_contract\": \"invoke_external_contract\", \"get_caller_address\": \"transaction_sender\", \"get_contract_address\": \"c"
+        ]
+    },
+    {
+        "question": "What is fee mechanism in Cairo?",
+        "answer": "Cairo starknet_specifics: fee_mechanism",
+        "supporting_facts": [
+            "Topic: starknet_specifics | Subtopic: fee_mechanism | Details: {\"computation_cost\": \"step_based_pricing\", \"storage_cost\": \"per_word_storage_fee\", \"optimization_importance\": \"critical_for_mainnet\"}"
+        ]
+    },
+    {
+        "question": "What are Cairo smart contract security best practices?",
+        "answer": "Cairo Security: Access control, input validation, CEI pattern",
+        "supporting_facts": [
+            "Security patterns: Access control with role-based permissions, Input validation using assert! macros, Checks-Effects-Interactions pattern, Integer overflow protection built-in"
+        ]
+    },
+    {
+        "question": "How to implement access control in Cairo contracts?",
+        "answer": "Cairo Access Control: Owner pattern, role mappings, guard functions",
+        "supporting_facts": [
+            "Access control implementation: Use Map<ContractAddress, bool> for roles, Implement guard functions with assert!, Example: fn only_owner(self: @ContractState) { assert!(self.is_owner(), 'Not owner'); }"
+        ]
+    },
+    {
+        "question": "What are Cairo contract function types?",
+        "answer": "Cairo Functions: Constructor, external, view, internal functions",
+        "supporting_facts": [
+            "Function types: Constructor (ref self, runs once), External (ref self, mutable), View (self: @ContractState, read-only), Internal (private, no ABI export)"
+        ]
+    },
+    {
+        "question": "How to audit Cairo smart contracts?",
+        "answer": "Cairo Audit: Architecture review, code quality, security checks, testing",
+        "supporting_facts": [
+            "Audit checklist: Architecture (separation of concerns, upgrade security), Code quality (error handling, validation), Security (privilege escalation, reentrancy), Testing (unit tests, edge cases)"
+        ]
+    }
+]

@@ -6,7 +6,9 @@ import 'package:astratrade_app/services/social_sharing_service.dart';
 import 'package:astratrade_app/services/viral_engagement_service.dart';
 
 class MockSocialSharingService extends Mock implements SocialSharingService {}
-class MockViralEngagementService extends Mock implements ViralEngagementService {}
+
+class MockViralEngagementService extends Mock
+    implements ViralEngagementService {}
 
 void main() {
   group('SocialSharingWidget', () {
@@ -16,18 +18,22 @@ void main() {
     setUp(() {
       mockSharingService = MockSocialSharingService();
       mockViralService = MockViralEngagementService();
-      
+
       // Mock viral service getters
       when(() => mockViralService.shareCount).thenReturn(5);
       when(() => mockViralService.viralScore).thenReturn(125.0);
-      when(() => mockViralService.getViralRank()).thenReturn('Rising Influencer');
-      
+      when(
+        () => mockViralService.getViralRank(),
+      ).thenReturn('Rising Influencer');
+
       // Mock track share
-      when(() => mockViralService.trackShare(
-        contentType: any(named: 'contentType'),
-        platform: any(named: 'platform'),
-        metadata: any(named: 'metadata'),
-      )).thenAnswer((_) async {});
+      when(
+        () => mockViralService.trackShare(
+          contentType: any(named: 'contentType'),
+          platform: any(named: 'platform'),
+          metadata: any(named: 'metadata'),
+        ),
+      ).thenAnswer((_) async {});
     });
 
     Widget createWidget({
@@ -39,26 +45,32 @@ void main() {
         home: Scaffold(
           body: SocialSharingWidget(
             contentType: contentType,
-            contentData: contentData ?? {
-              'achievement': 'Test Achievement',
-              'stellarShards': 100.0,
-              'lumina': 25.0,
-              'level': 5,
-            },
+            contentData:
+                contentData ??
+                {
+                  'achievement': 'Test Achievement',
+                  'stellarShards': 100.0,
+                  'lumina': 25.0,
+                  'level': 5,
+                },
             showMemeOptions: showMemeOptions,
           ),
         ),
       );
     }
 
-    testWidgets('should display share header correctly', (WidgetTester tester) async {
+    testWidgets('should display share header correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget());
 
       expect(find.text('Share Your Cosmic Achievement!'), findsOneWidget);
       expect(find.byIcon(Icons.share), findsOneWidget);
     });
 
-    testWidgets('should expand when toggle button is pressed', (WidgetTester tester) async {
+    testWidgets('should expand when toggle button is pressed', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget());
 
       // Initially collapsed
@@ -72,7 +84,9 @@ void main() {
       expect(find.text('Quick Share Options'), findsOneWidget);
     });
 
-    testWidgets('should display quick share options when expanded', (WidgetTester tester) async {
+    testWidgets('should display quick share options when expanded', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget());
 
       // Expand the widget
@@ -86,28 +100,36 @@ void main() {
       expect(find.text('Meme'), findsOneWidget);
     });
 
-    testWidgets('should display meme generator toggle when showMemeOptions is true', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidget(showMemeOptions: true));
+    testWidgets(
+      'should display meme generator toggle when showMemeOptions is true',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(createWidget(showMemeOptions: true));
 
-      // Expand the widget
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
-      await tester.pumpAndSettle();
+        // Expand the widget
+        await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Meme Generator'), findsOneWidget);
-      expect(find.byType(Switch), findsOneWidget);
-    });
+        expect(find.text('Meme Generator'), findsOneWidget);
+        expect(find.byType(Switch), findsOneWidget);
+      },
+    );
 
-    testWidgets('should not display meme generator toggle when showMemeOptions is false', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidget(showMemeOptions: false));
+    testWidgets(
+      'should not display meme generator toggle when showMemeOptions is false',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(createWidget(showMemeOptions: false));
 
-      // Expand the widget
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
-      await tester.pumpAndSettle();
+        // Expand the widget
+        await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Meme Generator'), findsNothing);
-    });
+        expect(find.text('Meme Generator'), findsNothing);
+      },
+    );
 
-    testWidgets('should show meme generator options when toggle is enabled', (WidgetTester tester) async {
+    testWidgets('should show meme generator options when toggle is enabled', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget());
 
       // Expand the widget
@@ -126,7 +148,9 @@ void main() {
       expect(find.text('Generic Cosmic'), findsOneWidget);
     });
 
-    testWidgets('should select meme template when tapped', (WidgetTester tester) async {
+    testWidgets('should select meme template when tapped', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget());
 
       // Expand and enable meme generator
@@ -166,21 +190,27 @@ void main() {
       expect(find.text('Rank'), findsOneWidget);
     });
 
-    testWidgets('should handle different content types', (WidgetTester tester) async {
+    testWidgets('should handle different content types', (
+      WidgetTester tester,
+    ) async {
       // Test with levelup content
-      await tester.pumpWidget(createWidget(
-        contentType: 'levelup',
-        contentData: {
-          'newLevel': 10,
-          'totalShards': 500.0,
-          'specialUnlock': 'Advanced Trading',
-        },
-      ));
+      await tester.pumpWidget(
+        createWidget(
+          contentType: 'levelup',
+          contentData: {
+            'newLevel': 10,
+            'totalShards': 500.0,
+            'specialUnlock': 'Advanced Trading',
+          },
+        ),
+      );
 
       expect(find.text('Share Your Cosmic Achievement!'), findsOneWidget);
     });
 
-    testWidgets('should handle tap on quick share buttons', (WidgetTester tester) async {
+    testWidgets('should handle tap on quick share buttons', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget());
 
       // Expand the widget
@@ -207,19 +237,24 @@ void main() {
       expect(find.text('Share Your Cosmic Achievement!'), findsOneWidget);
     });
 
-    testWidgets('should display generate meme button when meme generator is enabled', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidget());
+    testWidgets(
+      'should display generate meme button when meme generator is enabled',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(createWidget());
 
-      // Expand and enable meme generator
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byType(Switch));
-      await tester.pumpAndSettle();
+        // Expand and enable meme generator
+        await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(Switch));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Generate & Share Meme'), findsOneWidget);
-    });
+        expect(find.text('Generate & Share Meme'), findsOneWidget);
+      },
+    );
 
-    testWidgets('should handle meme generation button tap', (WidgetTester tester) async {
+    testWidgets('should handle meme generation button tap', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget());
 
       // Expand and enable meme generator
@@ -236,20 +271,26 @@ void main() {
       expect(find.text('Generate & Share Meme'), findsOneWidget);
     });
 
-    testWidgets('should display correct icons for different content types', (WidgetTester tester) async {
+    testWidgets('should display correct icons for different content types', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget());
 
       expect(find.byIcon(Icons.share), findsOneWidget);
       expect(find.byIcon(Icons.keyboard_arrow_down), findsOneWidget);
     });
 
-    testWidgets('should handle empty content data gracefully', (WidgetTester tester) async {
+    testWidgets('should handle empty content data gracefully', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget(contentData: {}));
 
       expect(find.text('Share Your Cosmic Achievement!'), findsOneWidget);
     });
 
-    testWidgets('should handle null content data gracefully', (WidgetTester tester) async {
+    testWidgets('should handle null content data gracefully', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidget(contentData: null));
 
       expect(find.text('Share Your Cosmic Achievement!'), findsOneWidget);

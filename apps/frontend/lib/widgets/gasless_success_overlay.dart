@@ -39,24 +39,18 @@ class _GaslessSuccessOverlayState extends State<GaslessSuccessOverlay>
     _scaleAnimation = TweenSequence([
       TweenSequenceItem(tween: Tween(begin: 0.5, end: 1.2), weight: 30),
       TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 20),
-    ]).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    ));
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
     _opacityAnimation = TweenSequence([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 20),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.0), weight: 60),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 20),
-    ]).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    _burstAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
+    _burstAnimation = Tween(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _controller.forward();
     _controller.addStatusListener((status) {
@@ -74,8 +68,12 @@ class _GaslessSuccessOverlayState extends State<GaslessSuccessOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final directionText = widget.direction == 'ORBITAL_ASCENT' ? 'ORBITAL ASCENT' : 'GRAVITATIONAL DESCENT';
-    final directionColor = widget.direction == 'ORBITAL_ASCENT' ? Colors.green : Colors.red;
+    final directionText = widget.direction == 'ORBITAL_ASCENT'
+        ? 'ORBITAL ASCENT'
+        : 'GRAVITATIONAL DESCENT';
+    final directionColor = widget.direction == 'ORBITAL_ASCENT'
+        ? Colors.green
+        : Colors.red;
 
     return AnimatedBuilder(
       animation: _controller,
@@ -114,7 +112,7 @@ class _GaslessSuccessOverlayState extends State<GaslessSuccessOverlay>
                             particleCount: 20,
                           ),
                         ),
-                        
+
                         // Main content
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -126,7 +124,10 @@ class _GaslessSuccessOverlayState extends State<GaslessSuccessOverlay>
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
-                                  colors: [Colors.purple.shade400, Colors.cyan.shade400],
+                                  colors: [
+                                    Colors.purple.shade400,
+                                    Colors.cyan.shade400,
+                                  ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -145,7 +146,7 @@ class _GaslessSuccessOverlayState extends State<GaslessSuccessOverlay>
                               ),
                             ),
                             const SizedBox(height: 20),
-                            
+
                             // Trade secured text
                             Text(
                               'TRADE SECURED',
@@ -157,10 +158,13 @@ class _GaslessSuccessOverlayState extends State<GaslessSuccessOverlay>
                               ),
                             ),
                             const SizedBox(height: 8),
-                            
+
                             // Gasless badge
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.green.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(12),
@@ -179,7 +183,7 @@ class _GaslessSuccessOverlayState extends State<GaslessSuccessOverlay>
                               ),
                             ),
                             const SizedBox(height: 12),
-                            
+
                             // Trade details
                             Text(
                               '$directionText',
@@ -215,10 +219,7 @@ class StellarBurstPainter extends CustomPainter {
   final double progress;
   final int particleCount;
 
-  StellarBurstPainter({
-    required this.progress,
-    required this.particleCount,
-  });
+  StellarBurstPainter({required this.progress, required this.particleCount});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -228,21 +229,22 @@ class StellarBurstPainter extends CustomPainter {
     // Draw particles radiating outward
     for (int i = 0; i < particleCount; i++) {
       final angle = (i * 2 * math.pi) / particleCount;
-      final particleProgress = progress * (1.0 - (i * 0.05)); // Staggered animation
-      
+      final particleProgress =
+          progress * (1.0 - (i * 0.05)); // Staggered animation
+
       if (particleProgress <= 0) continue;
-      
+
       final radius = maxRadius * particleProgress;
       final x = center.dx + math.cos(angle) * radius;
       final y = center.dy + math.sin(angle) * radius;
-      
+
       final particleSize = 3.0 * (1.0 - particleProgress * 0.5);
       final opacity = (1.0 - particleProgress).clamp(0.0, 1.0);
-      
+
       final paint = Paint()
         ..color = Colors.white.withOpacity(opacity)
         ..style = PaintingStyle.fill;
-      
+
       // Star-shaped particle
       final path = Path();
       for (int j = 0; j < 4; j++) {
@@ -250,7 +252,7 @@ class StellarBurstPainter extends CustomPainter {
         final starRadius = j % 2 == 0 ? particleSize : particleSize * 0.5;
         final starX = x + math.cos(starAngle) * starRadius;
         final starY = y + math.sin(starAngle) * starRadius;
-        
+
         if (j == 0) {
           path.moveTo(starX, starY);
         } else {
@@ -258,7 +260,7 @@ class StellarBurstPainter extends CustomPainter {
         }
       }
       path.close();
-      
+
       canvas.drawPath(path, paint);
     }
   }

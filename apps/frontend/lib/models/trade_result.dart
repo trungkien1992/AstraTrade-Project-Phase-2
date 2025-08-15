@@ -31,11 +31,11 @@ class TradeResult {
   /// Calculate profit/loss if this is a completed trade
   double get profitLoss {
     if (!success || executedAmount == 0) return 0.0;
-    
+
     // Simplified P&L calculation for demo
     // In production, this would use entry/exit prices
     final marketMovement = 0.5; // Simulated 0.5% market movement
-    return side == 'BUY' 
+    return side == 'BUY'
         ? (executedAmount * executedPrice * marketMovement / 100)
         : -(executedAmount * executedPrice * marketMovement / 100);
   }

@@ -52,11 +52,17 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
 
       if (_selectedType == ImportType.seedPhrase) {
         final seedPhrase = _seedPhraseController.text.trim();
-        address = await _walletImportService.deriveAddressFromSeedPhrase(seedPhrase);
-        privateKey = await _walletImportService.derivePrivateKeyFromSeedPhrase(seedPhrase);
+        address = await _walletImportService.deriveAddressFromSeedPhrase(
+          seedPhrase,
+        );
+        privateKey = await _walletImportService.derivePrivateKeyFromSeedPhrase(
+          seedPhrase,
+        );
       } else {
         final privateKeyHex = _privateKeyController.text.trim();
-        address = await _walletImportService.deriveAddressFromPrivateKey(privateKeyHex);
+        address = await _walletImportService.deriveAddressFromPrivateKey(
+          privateKeyHex,
+        );
         privateKey = privateKeyHex;
       }
 
@@ -89,9 +95,7 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E1B4B),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Confirm Wallet Import',
           style: GoogleFonts.orbitron(
@@ -105,10 +109,7 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
           children: [
             Text(
               'Starknet Address:',
-              style: GoogleFonts.rajdhani(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
+              style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 8),
             Container(
@@ -119,19 +120,13 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
               ),
               child: Text(
                 '${address.substring(0, 6)}...${address.substring(address.length - 4)}',
-                style: GoogleFonts.rajdhani(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+                style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16),
               ),
             ),
             const SizedBox(height: 16),
             Text(
               'This wallet will be securely stored on your device.',
-              style: GoogleFonts.rajdhani(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
+              style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 14),
             ),
           ],
         ),
@@ -164,16 +159,16 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
   Future<void> _completeImport(String address, String privateKey) async {
     try {
       print('🔑 Starting wallet import with trading setup...');
-      
+
       // Use unified wallet setup service for consistent Extended Exchange integration
       final user = await UnifiedWalletSetupService.setupImportedWallet(
         privateKey: privateKey,
         username: 'ImportedTrader',
         email: 'imported@astratrade.cosmic',
       );
-      
+
       print('✅ Imported wallet with trading capabilities setup successfully');
-      
+
       // Update auth provider with the imported user
       ref.read(authProvider.notifier).setUser(user);
 
@@ -186,7 +181,7 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
-        
+
         // Navigate back to login screen - auth provider will handle showing main hub
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
@@ -261,10 +256,7 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
         const SizedBox(height: 8),
         Text(
           'Securely connect your existing Starknet wallet',
-          style: GoogleFonts.rajdhani(
-            fontSize: 16,
-            color: Colors.white70,
-          ),
+          style: GoogleFonts.rajdhani(fontSize: 16, color: Colors.white70),
         ),
       ],
     );
@@ -282,14 +274,16 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
             child: _ImportTypeButton(
               title: 'Seed Phrase',
               isSelected: _selectedType == ImportType.seedPhrase,
-              onTap: () => setState(() => _selectedType = ImportType.seedPhrase),
+              onTap: () =>
+                  setState(() => _selectedType = ImportType.seedPhrase),
             ),
           ),
           Expanded(
             child: _ImportTypeButton(
               title: 'Private Key',
               isSelected: _selectedType == ImportType.privateKey,
-              onTap: () => setState(() => _selectedType = ImportType.privateKey),
+              onTap: () =>
+                  setState(() => _selectedType = ImportType.privateKey),
             ),
           ),
         ],
@@ -329,7 +323,8 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
                 _obscureSeedPhrase ? Icons.visibility : Icons.visibility_off,
                 color: Colors.white70,
               ),
-              onPressed: () => setState(() => _obscureSeedPhrase = !_obscureSeedPhrase),
+              onPressed: () =>
+                  setState(() => _obscureSeedPhrase = !_obscureSeedPhrase),
             ),
           ),
           validator: (value) {
@@ -378,7 +373,8 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
                 _obscurePrivateKey ? Icons.visibility : Icons.visibility_off,
                 color: Colors.white70,
               ),
-              onPressed: () => setState(() => _obscurePrivateKey = !_obscurePrivateKey),
+              onPressed: () =>
+                  setState(() => _obscurePrivateKey = !_obscurePrivateKey),
             ),
           ),
           validator: (value) {
@@ -388,9 +384,11 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
             if (!value.trim().startsWith('0x')) {
               return 'Private key must start with 0x';
             }
-            String cleanKey = value.trim().startsWith('0x') ? value.trim().substring(2) : value.trim();
+            String cleanKey = value.trim().startsWith('0x')
+                ? value.trim().substring(2)
+                : value.trim();
             if (cleanKey.length < 64 || cleanKey.length > 66) {
-              return 'Private key must be 64-66 hex characters (after 0x)'; 
+              return 'Private key must be 64-66 hex characters (after 0x)';
             }
             if (!RegExp(r'^[0-9a-fA-F]{64,66}$').hasMatch(cleanKey)) {
               return 'Private key must contain only hex characters (0-9, a-f, A-F)';
@@ -521,7 +519,4 @@ class _ImportTypeButton extends StatelessWidget {
   }
 }
 
-enum ImportType {
-  seedPhrase,
-  privateKey,
-}
+enum ImportType { seedPhrase, privateKey }

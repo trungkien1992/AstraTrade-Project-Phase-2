@@ -49,10 +49,7 @@ class _TradingScreenState extends State<TradingScreen> {
       appBar: AppBar(
         title: const Text(
           'AstraTrade',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -124,7 +121,9 @@ class _TradingScreenState extends State<TradingScreen> {
                               Text(
                                 pair['symbol'],
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.white70,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.white70,
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -132,7 +131,9 @@ class _TradingScreenState extends State<TradingScreen> {
                               Text(
                                 '\$${pair['price'].toStringAsFixed(2)}',
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.white,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.white,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -158,7 +159,9 @@ class _TradingScreenState extends State<TradingScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: TradingChartWidget(
-                key: ValueKey(selectedSymbol), // Force rebuild when symbol changes
+                key: ValueKey(
+                  selectedSymbol,
+                ), // Force rebuild when symbol changes
                 symbol: selectedSymbol,
                 interval: '1m',
               ),
@@ -221,32 +224,27 @@ class _TradingScreenState extends State<TradingScreen> {
     );
   }
 
-  Widget _buildMarketCard(String title, String value, Color color, IconData icon) {
+  Widget _buildMarketCard(
+    String title,
+    String value,
+    Color color,
+    IconData icon,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            color.withOpacity(0.2),
-            color.withOpacity(0.1),
-          ],
+          colors: [color.withOpacity(0.2), color.withOpacity(0.1)],
         ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                color: color,
-                size: 16,
-              ),
+              Icon(icon, color: color, size: 16),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(

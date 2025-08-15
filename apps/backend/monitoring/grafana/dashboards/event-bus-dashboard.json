@@ -1,0 +1,309 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "AstraTrade Event Bus Performance",
+    "tags": ["astra-trade", "event-bus", "redis-streams"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Event Bus Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "redis_streams_length",
+            "legendFormat": "Total Events"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "displayMode": "list",
+              "orientation": "horizontal"
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 10000}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "options": {
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "textMode": "auto"
+        }
+      },
+      {
+        "id": 2,
+        "title": "Event Throughput (Events/sec)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(redis_streams_length[5m])",
+            "legendFormat": "{{stream}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        }
+      },
+      {
+        "id": 3,
+        "title": "Redis Streams by Domain",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "redis_streams_length{stream=~\"astra\\.trading\\..*\"}",
+            "legendFormat": "Trading"
+          },
+          {
+            "expr": "redis_streams_length{stream=~\"astra\\.gamification\\..*\"}",
+            "legendFormat": "Gamification"
+          },
+          {
+            "expr": "redis_streams_length{stream=~\"astra\\.social\\..*\"}",
+            "legendFormat": "Social"
+          },
+          {
+            "expr": "redis_streams_length{stream=~\"astra\\.financial\\..*\"}",
+            "legendFormat": "Financial"
+          },
+          {
+            "expr": "redis_streams_length{stream=~\"astra\\.nft\\..*\"}",
+            "legendFormat": "NFT"
+          },
+          {
+            "expr": "redis_streams_length{stream=~\"astra\\.user\\..*\"}",
+            "legendFormat": "User"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Stream Length",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Consumer Group Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "redis_stream_group_consumers",
+            "legendFormat": "{{group}} consumers"
+          },
+          {
+            "expr": "redis_stream_group_pending",
+            "legendFormat": "{{group}} pending"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Count",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 5,
+        "title": "Event Processing Latency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(event_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(event_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Seconds",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Cross-Domain Event Flows",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(events_published_total{domain=\"trading\"}[5m])",
+            "legendFormat": "Trading → Others"
+          },
+          {
+            "expr": "rate(events_consumed_total{consumer_group=~\".*gamification.*\"}[5m])",
+            "legendFormat": "→ Gamification"
+          },
+          {
+            "expr": "rate(events_consumed_total{consumer_group=~\".*social.*\"}[5m])",
+            "legendFormat": "→ Social"
+          },
+          {
+            "expr": "rate(events_consumed_total{consumer_group=~\".*financial.*\"}[5m])",
+            "legendFormat": "→ Financial"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24}
+      },
+      {
+        "id": 7,
+        "title": "Redis Memory Usage",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "redis_memory_used_bytes / redis_memory_max_bytes * 100",
+            "legendFormat": "Memory Usage %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 90}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 32}
+      },
+      {
+        "id": 8,
+        "title": "Redis Operations/sec",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(redis_commands_processed_total[5m])",
+            "legendFormat": "Ops/sec"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1000},
+                {"color": "red", "value": 5000}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 32}
+      },
+      {
+        "id": 9,
+        "title": "Event Correlation Coverage",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "events_with_correlation_total / events_published_total * 100",
+            "legendFormat": "Correlation %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 80},
+                {"color": "green", "value": 95}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 32}
+      },
+      {
+        "id": 10,
+        "title": "Failed Events",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(events_failed_total[5m])",
+            "legendFormat": "Failed/sec"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 10}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 32}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": [
+        {
+          "name": "domain",
+          "type": "query",
+          "query": "label_values(redis_streams_length, domain)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        }
+      ]
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "5s",
+    "schemaVersion": 27,
+    "version": 1,
+    "links": []
+  }
+}

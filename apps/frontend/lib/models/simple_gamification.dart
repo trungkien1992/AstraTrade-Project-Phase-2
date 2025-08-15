@@ -17,7 +17,7 @@ class PlayerProgress {
   final DateTime createdAt;
   final List<String> achievements;
   final Map<String, int> stats;
-  
+
   const PlayerProgress({
     required this.playerId,
     required this.xp,
@@ -31,7 +31,8 @@ class PlayerProgress {
     required this.stats,
   });
 
-  factory PlayerProgress.fromJson(Map<String, dynamic> json) => _$PlayerProgressFromJson(json);
+  factory PlayerProgress.fromJson(Map<String, dynamic> json) =>
+      _$PlayerProgressFromJson(json);
   Map<String, dynamic> toJson() => _$PlayerProgressToJson(this);
 
   /// Create initial progress for new player
@@ -87,11 +88,16 @@ class PlayerProgress {
   /// Check if player has active streak
   bool get hasActiveStreak {
     final now = DateTime.now();
-    final lastActive = DateTime(lastActiveDate.year, lastActiveDate.month, lastActiveDate.day);
+    final lastActive = DateTime(
+      lastActiveDate.year,
+      lastActiveDate.month,
+      lastActiveDate.day,
+    );
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    
-    return lastActive.isAtSameMomentAs(today) || lastActive.isAtSameMomentAs(yesterday);
+
+    return lastActive.isAtSameMomentAs(today) ||
+        lastActive.isAtSameMomentAs(yesterday);
   }
 
   /// Get daily reward multiplier based on streak
@@ -150,7 +156,7 @@ class Achievement {
   final String iconName;
   final AchievementRarity rarity;
   final List<String> requirements;
-  
+
   const Achievement({
     required this.id,
     required this.name,
@@ -164,29 +170,43 @@ class Achievement {
     required this.requirements,
   });
 
-  factory Achievement.fromJson(Map<String, dynamic> json) => _$AchievementFromJson(json);
+  factory Achievement.fromJson(Map<String, dynamic> json) =>
+      _$AchievementFromJson(json);
   Map<String, dynamic> toJson() => _$AchievementToJson(this);
 }
 
 /// Types of achievements
 enum AchievementType {
-  @JsonValue('first_trade') firstTrade,
-  @JsonValue('trade_count') tradeCount,
-  @JsonValue('profit_target') profitTarget,
-  @JsonValue('streak_milestone') streakMilestone,
-  @JsonValue('level_milestone') levelMilestone,
-  @JsonValue('practice_milestone') practiceMilestone,
-  @JsonValue('real_trading') realTrading,
-  @JsonValue('special_event') specialEvent,
+  @JsonValue('first_trade')
+  firstTrade,
+  @JsonValue('trade_count')
+  tradeCount,
+  @JsonValue('profit_target')
+  profitTarget,
+  @JsonValue('streak_milestone')
+  streakMilestone,
+  @JsonValue('level_milestone')
+  levelMilestone,
+  @JsonValue('practice_milestone')
+  practiceMilestone,
+  @JsonValue('real_trading')
+  realTrading,
+  @JsonValue('special_event')
+  specialEvent,
 }
 
 /// Achievement rarity levels
 enum AchievementRarity {
-  @JsonValue('common') common,
-  @JsonValue('uncommon') uncommon,
-  @JsonValue('rare') rare,
-  @JsonValue('epic') epic,
-  @JsonValue('legendary') legendary,
+  @JsonValue('common')
+  common,
+  @JsonValue('uncommon')
+  uncommon,
+  @JsonValue('rare')
+  rare,
+  @JsonValue('epic')
+  epic,
+  @JsonValue('legendary')
+  legendary,
 }
 
 /// XP gain event for tracking
@@ -214,20 +234,29 @@ class XPGainEvent {
     required this.metadata,
   });
 
-  factory XPGainEvent.fromJson(Map<String, dynamic> json) => _$XPGainEventFromJson(json);
+  factory XPGainEvent.fromJson(Map<String, dynamic> json) =>
+      _$XPGainEventFromJson(json);
   Map<String, dynamic> toJson() => _$XPGainEventToJson(this);
 }
 
 /// Sources of XP gain
 enum XPGainSource {
-  @JsonValue('practice_trade') practiceTrade,
-  @JsonValue('real_trade') realTrade,
-  @JsonValue('profitable_trade') profitableTrade,
-  @JsonValue('daily_login') dailyLogin,
-  @JsonValue('streak_bonus') streakBonus,
-  @JsonValue('level_up') levelUp,
-  @JsonValue('achievement') achievement,
-  @JsonValue('first_time_bonus') firstTimeBonus,
+  @JsonValue('practice_trade')
+  practiceTrade,
+  @JsonValue('real_trade')
+  realTrade,
+  @JsonValue('profitable_trade')
+  profitableTrade,
+  @JsonValue('daily_login')
+  dailyLogin,
+  @JsonValue('streak_bonus')
+  streakBonus,
+  @JsonValue('level_up')
+  levelUp,
+  @JsonValue('achievement')
+  achievement,
+  @JsonValue('first_time_bonus')
+  firstTimeBonus,
 }
 
 /// Daily streak reward
@@ -249,28 +278,31 @@ class DailyReward {
     required this.bonusRewards,
   });
 
-  factory DailyReward.fromJson(Map<String, dynamic> json) => _$DailyRewardFromJson(json);
+  factory DailyReward.fromJson(Map<String, dynamic> json) =>
+      _$DailyRewardFromJson(json);
   Map<String, dynamic> toJson() => _$DailyRewardToJson(this);
 
   /// Calculate daily reward based on streak
   static DailyReward calculateReward(int streakDay) {
     final baseXP = 25 + (streakDay * 5);
     final baseTP = 10 + (streakDay * 2);
-    
+
     final isMilestone = streakDay % 7 == 0 || [30, 50, 100].contains(streakDay);
-    
+
     return DailyReward(
       streakDay: streakDay,
       xpReward: isMilestone ? (baseXP * 2) : baseXP,
       tradingPointsReward: isMilestone ? (baseTP * 2) : baseTP,
-      description: isMilestone 
-          ? 'Milestone Achieved! 🏆' 
+      description: isMilestone
+          ? 'Milestone Achieved! 🏆'
           : 'Daily Login Bonus ✨',
       isMilestone: isMilestone,
-      bonusRewards: isMilestone ? {
-        'title': _getMilestoneTitle(streakDay),
-        'special_reward': _getSpecialReward(streakDay),
-      } : {},
+      bonusRewards: isMilestone
+          ? {
+              'title': _getMilestoneTitle(streakDay),
+              'special_reward': _getSpecialReward(streakDay),
+            }
+          : {},
     );
   }
 

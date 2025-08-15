@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('App launches and shows splash screen', (WidgetTester tester) async {
+  testWidgets('App launches and shows splash screen', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const ProviderScope(child: TradingPracticeApp()));
 
     // Verify splash screen elements
@@ -22,4 +24,4 @@ void main() {
     expect(find.byType(MaterialApp), findsOneWidget);
     // You can add more checks for main UI widgets here
   });
-} 
+}

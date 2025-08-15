@@ -1,0 +1,109 @@
+# Prometheus Configuration for Tournament System Monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'astratrade-tournament'
+    environment: 'production'
+
+rule_files:
+  - "alert-rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Competition Service Metrics
+  - job_name: 'competition-service'
+    static_configs:
+      - targets: ['competition-service:8001']
+    scrape_interval: 15s
+    metrics_path: '/metrics'
+    scrape_timeout: 10s
+    honor_labels: true
+
+  # API Gateway Metrics
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8000']
+    scrape_interval: 15s
+    metrics_path: '/metrics'
+    scrape_timeout: 10s
+    honor_labels: true
+
+  # Redis Metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # System Metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # NGINX Load Balancer Metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-lb:8080']
+    scrape_interval: 15s
+    metrics_path: '/nginx_status'
+    scrape_timeout: 10s
+
+  # Docker Container Metrics (if using cAdvisor)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # Blackbox Exporter for External Monitoring
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - https://api.astratrade.com/health
+        - https://api.astratrade.com/ws/tournament/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Tournament-specific Custom Metrics
+  - job_name: 'tournament-metrics'
+    static_configs:
+      - targets: ['competition-service:8001']
+    scrape_interval: 30s
+    metrics_path: '/api/v1/tournaments/metrics'
+    scrape_timeout: 15s
+    honor_labels: true
+
+  # WebSocket Connection Metrics
+  - job_name: 'websocket-metrics'
+    static_configs:
+      - targets: ['api-gateway:8000']
+    scrape_interval: 10s
+    metrics_path: '/api/v1/websocket/metrics'
+    scrape_timeout: 10s
+    honor_labels: true
+
+  # AI Trading Scheduler Metrics
+  - job_name: 'ai-scheduler'
+    static_configs:
+      - targets: ['ai-trading-scheduler:8002']
+    scrape_interval: 30s
+    metrics_path: '/metrics'
+    scrape_timeout: 10s
+    honor_labels: true

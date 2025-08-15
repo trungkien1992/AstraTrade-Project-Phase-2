@@ -11,28 +11,27 @@ class MobileHapticService {
   static final _instance = MobileHapticService._internal();
   factory MobileHapticService() => _instance;
   MobileHapticService._internal();
-  
+
   bool _isEnabled = true;
   bool _isInitialized = false;
   double _intensityMultiplier = 1.0;
-  
+
   /// Initialize haptic service
   Future<void> initialize() async {
     if (_isInitialized) return;
-    
+
     try {
       await _loadSettings();
-      
+
       // Test haptic capability
       final hasVibrator = await Vibration.hasVibrator() ?? false;
       if (!hasVibrator) {
         debugPrint('📳 Device does not support vibration');
         _isEnabled = false;
       }
-      
+
       _isInitialized = true;
       debugPrint('📳 Mobile haptic service initialized (enabled: $_isEnabled)');
-      
     } catch (e) {
       debugPrint('❌ Failed to initialize haptics: $e');
       _isEnabled = false;
@@ -64,7 +63,7 @@ class MobileHapticService {
   /// Basic tap feedback
   Future<void> lightTap() async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       await HapticFeedback.lightImpact();
     } catch (e) {
@@ -75,7 +74,7 @@ class MobileHapticService {
   /// Medium tap feedback
   Future<void> mediumTap() async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       await HapticFeedback.mediumImpact();
     } catch (e) {
@@ -86,7 +85,7 @@ class MobileHapticService {
   /// Heavy tap feedback
   Future<void> heavyTap() async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       await HapticFeedback.heavyImpact();
     } catch (e) {
@@ -97,7 +96,7 @@ class MobileHapticService {
   /// Selection feedback
   Future<void> selectionClick() async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       await HapticFeedback.selectionClick();
     } catch (e) {
@@ -108,7 +107,7 @@ class MobileHapticService {
   /// Trade execution feedback
   Future<void> tradeExecuted({required bool isRealTrade}) async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       if (isRealTrade) {
         // Real trade: Strong, confident pattern
@@ -128,10 +127,10 @@ class MobileHapticService {
     required bool isProfit,
   }) async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       final profit = trade.profitLoss ?? 0.0;
-      
+
       if (isProfit) {
         if (profit > 100) {
           // Big profit: Celebration pattern
@@ -157,7 +156,7 @@ class MobileHapticService {
   /// Achievement unlock feedback
   Future<void> achievementUnlocked({required AchievementRarity rarity}) async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       switch (rarity) {
         case AchievementRarity.common:
@@ -173,7 +172,18 @@ class MobileHapticService {
           await _customVibration([0, 250, 125, 300, 125, 350, 125, 400]);
           break;
         case AchievementRarity.legendary:
-          await _customVibration([0, 400, 200, 500, 200, 600, 200, 700, 200, 800]);
+          await _customVibration([
+            0,
+            400,
+            200,
+            500,
+            200,
+            600,
+            200,
+            700,
+            200,
+            800,
+          ]);
           break;
       }
     } catch (e) {
@@ -184,7 +194,7 @@ class MobileHapticService {
   /// Level up feedback
   Future<void> levelUp({required int newLevel}) async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       // Level up: Ascending pattern
       final pattern = <int>[0];
@@ -192,7 +202,7 @@ class MobileHapticService {
         pattern.addAll([100 + (i * 20), 50]);
       }
       pattern.add(300); // Final strong vibration
-      
+
       await _customVibration(pattern);
     } catch (e) {
       debugPrint('❌ Level up haptic failed: $e');
@@ -200,13 +210,27 @@ class MobileHapticService {
   }
 
   /// Daily streak feedback
-  Future<void> dailyStreak({required int streakDays, required bool isMilestone}) async {
+  Future<void> dailyStreak({
+    required int streakDays,
+    required bool isMilestone,
+  }) async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       if (isMilestone) {
         // Milestone: Celebration pattern
-        await _customVibration([0, 200, 100, 250, 100, 300, 100, 350, 100, 400]);
+        await _customVibration([
+          0,
+          200,
+          100,
+          250,
+          100,
+          300,
+          100,
+          350,
+          100,
+          400,
+        ]);
       } else {
         // Regular streak: Simple positive pattern
         await _customVibration([0, 100, 50, 120, 50, 140]);
@@ -219,7 +243,7 @@ class MobileHapticService {
   /// Error feedback
   Future<void> error({bool isSerious = false}) async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       if (isSerious) {
         // Serious error: Strong warning pattern
@@ -236,7 +260,7 @@ class MobileHapticService {
   /// Success feedback
   Future<void> success({bool isMajor = false}) async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       if (isMajor) {
         // Major success: Celebration pattern
@@ -253,7 +277,7 @@ class MobileHapticService {
   /// Warning feedback
   Future<void> warning() async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       await _customVibration([0, 250, 125, 250, 125, 250]);
     } catch (e) {
@@ -264,7 +288,7 @@ class MobileHapticService {
   /// Button press feedback
   Future<void> buttonPress({bool isImportant = false}) async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       if (isImportant) {
         await mediumTap();
@@ -279,7 +303,7 @@ class MobileHapticService {
   /// Swipe feedback
   Future<void> swipeGesture() async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       await _customVibration([0, 50, 25, 75]);
     } catch (e) {
@@ -290,7 +314,7 @@ class MobileHapticService {
   /// Long press feedback
   Future<void> longPress() async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       await _customVibration([0, 150, 100, 200]);
     } catch (e) {
@@ -309,13 +333,15 @@ class MobileHapticService {
   Future<void> setIntensity(double intensity) async {
     _intensityMultiplier = intensity.clamp(0.1, 2.0);
     await _saveSettings();
-    debugPrint('📳 Haptic intensity set to ${(_intensityMultiplier * 100).round()}%');
+    debugPrint(
+      '📳 Haptic intensity set to ${(_intensityMultiplier * 100).round()}%',
+    );
   }
 
   /// Test haptic patterns
   Future<void> testPattern(String patternName) async {
     if (!_shouldVibrate()) return;
-    
+
     try {
       switch (patternName) {
         case 'light':
@@ -355,7 +381,7 @@ class MobileHapticService {
         if (duration == 0) return 0; // Don't modify pauses
         return (duration * _intensityMultiplier).round();
       }).toList();
-      
+
       await Vibration.vibrate(pattern: adjustedPattern);
     } catch (e) {
       // Fallback to basic haptic feedback

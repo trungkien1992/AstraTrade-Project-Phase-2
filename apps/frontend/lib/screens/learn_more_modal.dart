@@ -25,7 +25,7 @@ class LearnMoreModal extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -61,10 +61,7 @@ class LearnMoreModal extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           'Understanding Starknet Wallets in AstraTrade',
-          style: GoogleFonts.rajdhani(
-            fontSize: 16,
-            color: Colors.white70,
-          ),
+          style: GoogleFonts.rajdhani(fontSize: 16, color: Colors.white70),
         ),
       ],
     );
@@ -87,7 +84,7 @@ class LearnMoreModal extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        
+
         _buildEducationCard(
           title: 'Starknet Power',
           description: 'Access fast, low-cost trades',
@@ -102,7 +99,7 @@ class LearnMoreModal extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        
+
         _buildEducationCard(
           title: 'Seamless Experience',
           description: 'Your single key to the AstraTrade universe',
@@ -180,28 +177,36 @@ class LearnMoreModal extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            ...content.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4.0),
-                    child: Icon(Icons.star, size: 12, color: Colors.white54),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      item,
-                      style: GoogleFonts.rajdhani(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
+            ...content
+                .map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 4.0),
+                          child: Icon(
+                            Icons.star,
+                            size: 12,
+                            color: Colors.white54,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            item,
+                            style: GoogleFonts.rajdhani(
+                              fontSize: 14,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            )).toList(),
+                )
+                .toList(),
           ],
         ),
       ),

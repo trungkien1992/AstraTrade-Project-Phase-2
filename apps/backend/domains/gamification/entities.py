@@ -278,18 +278,18 @@ class Constellation:
             return Decimal('0')
         return self.total_contribution_value / Decimal(str(self.member_count))
     
-    def add_member(self, user_id: int) -> ConstellationRank:
+    def add_member(self, user_id: int, actor_id: Optional[int] = None) -> ConstellationRank:
         """Add a new member to the constellation"""
+        if actor_id is not None and actor_id not in (user_id, self.owner_id):
+            raise PermissionError("Not authorized to add member")
         if self.is_full:
             raise ValueError("Constellation is at maximum capacity")
         
         self.member_count += 1
         self.updated_at = datetime.utcnow()
         
-        # Create new member rank
         member_rank = ConstellationRank.new_member()
         
-        # Emit member joined event
         self._events.append(DomainEvent(
             event_type="member_joined",
             entity_id=str(self.constellation_id),
@@ -302,15 +302,16 @@ class Constellation:
         
         return member_rank
     
-    def remove_member(self, user_id: int):
+    def remove_member(self, user_id: int, actor_id: Optional[int] = None):
         """Remove a member from the constellation"""
+        if actor_id is not None and actor_id not in (user_id, self.owner_id):
+            raise PermissionError("Not authorized to remove member")
         if self.member_count <= 1 and user_id == self.owner_id:
             raise ValueError("Cannot remove the last member who is also the owner")
         
         self.member_count = max(0, self.member_count - 1)
         self.updated_at = datetime.utcnow()
         
-        # Emit member left event
         self._events.append(DomainEvent(
             event_type="member_left",
             entity_id=str(self.constellation_id),
@@ -419,11 +420,12 @@ class Achievement:
         
         return True
     
-    def record_unlock(self, user_id: int):
+    def record_unlock(self, user_id: int, actor_id: Optional[int] = None):
         """Record that this achievement was unlocked by a user"""
+        if actor_id is not None and actor_id != user_id:
+            raise PermissionError("Not authorized to record unlock")
         self.unlock_count += 1
         
-        # Emit achievement unlocked event
         self._events.append(DomainEvent(
             event_type="achievement_unlock_recorded",
             entity_id=self.achievement_id,
@@ -555,8 +557,10 @@ class Reward:
         """Check if reward can be claimed"""
         return not self.is_claimed and not self.is_expired
     
-    def claim(self) -> RewardPackage:
+    def claim(self, actor_id: Optional[int] = None) -> RewardPackage:
         """Claim the reward"""
+        if actor_id is not None and actor_id != self.user_id:
+            raise PermissionError("Not authorized to claim reward")
         if self.is_claimed:
             raise ValueError("Reward has already been claimed")
         if self.is_expired:
@@ -565,7 +569,6 @@ class Reward:
         self.is_claimed = True
         self.claimed_at = datetime.utcnow()
         
-        # Emit reward claimed event
         self._events.append(DomainEvent(
             event_type="reward_claimed",
             entity_id=self.reward_id,

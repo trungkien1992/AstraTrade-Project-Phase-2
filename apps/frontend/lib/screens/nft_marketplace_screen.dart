@@ -9,7 +9,8 @@ class NFTMarketplaceScreen extends ConsumerStatefulWidget {
   const NFTMarketplaceScreen({super.key});
 
   @override
-  ConsumerState<NFTMarketplaceScreen> createState() => _NFTMarketplaceScreenState();
+  ConsumerState<NFTMarketplaceScreen> createState() =>
+      _NFTMarketplaceScreenState();
 }
 
 class _NFTMarketplaceScreenState extends ConsumerState<NFTMarketplaceScreen> {
@@ -53,7 +54,8 @@ class _NFTMarketplaceScreenState extends ConsumerState<NFTMarketplaceScreen> {
                 Text('Error loading marketplace: $error'),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => ref.invalidate(nftMarketplaceProvider(_filters)),
+                  onPressed: () =>
+                      ref.invalidate(nftMarketplaceProvider(_filters)),
                   child: const Text('Retry'),
                 ),
               ],
@@ -64,7 +66,10 @@ class _NFTMarketplaceScreenState extends ConsumerState<NFTMarketplaceScreen> {
     );
   }
 
-  Widget _buildMarketplaceContent(BuildContext context, List<NFTMarketplaceItem> items) {
+  Widget _buildMarketplaceContent(
+    BuildContext context,
+    List<NFTMarketplaceItem> items,
+  ) {
     if (items.isEmpty) {
       return const Center(
         child: Column(
@@ -93,9 +98,9 @@ class _NFTMarketplaceScreenState extends ConsumerState<NFTMarketplaceScreen> {
         children: [
           // Filter summary
           _buildFilterSummary(),
-          
+
           const SizedBox(height: 16),
-          
+
           // Marketplace items
           GridView.builder(
             shrinkWrap: true,
@@ -132,10 +137,7 @@ class _NFTMarketplaceScreenState extends ConsumerState<NFTMarketplaceScreen> {
             style: const TextStyle(fontSize: 14),
           ),
           const Spacer(),
-          TextButton(
-            onPressed: _clearFilters,
-            child: const Text('Clear'),
-          ),
+          TextButton(onPressed: _clearFilters, child: const Text('Clear')),
         ],
       ),
     );

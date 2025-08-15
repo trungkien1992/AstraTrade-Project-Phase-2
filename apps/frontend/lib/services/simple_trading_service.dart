@@ -3,7 +3,14 @@ import '../models/simple_trade.dart';
 
 class SimpleTradingService {
   static const List<String> _symbols = [
-    'BTC-USD', 'ETH-USD', 'BNB-USD', 'ADA-USD', 'SOL-USD', 'MATIC-USD', 'AVAX-USD', 'DOT-USD'
+    'BTC-USD',
+    'ETH-USD',
+    'BNB-USD',
+    'ADA-USD',
+    'SOL-USD',
+    'MATIC-USD',
+    'AVAX-USD',
+    'DOT-USD',
   ];
 
   static const List<double> _amounts = [50, 100, 250, 500, 1000];
@@ -12,10 +19,10 @@ class SimpleTradingService {
   /// Returns profit/loss percentage between -15% and +15%
   static double simulateTradeOutcome() {
     final random = Random();
-    
+
     // 55% chance of profit (slightly bullish bias)
     final isProfit = random.nextDouble() > 0.45;
-    
+
     if (isProfit) {
       // Profit: 0.1% to 15%
       return random.nextDouble() * 14.9 + 0.1;
@@ -28,7 +35,7 @@ class SimpleTradingService {
   /// Creates a new trade with random parameters
   static SimpleTrade createRandomTrade() {
     final random = Random();
-    
+
     return SimpleTrade(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       amount: _amounts[random.nextInt(_amounts.length)],
@@ -45,7 +52,7 @@ class SimpleTradingService {
     String? symbol,
   }) {
     final random = Random();
-    
+
     return SimpleTrade(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       amount: amount,
@@ -59,11 +66,8 @@ class SimpleTradingService {
   static SimpleTrade completeTrade(SimpleTrade trade) {
     final outcomePercentage = simulateTradeOutcome();
     final profitLoss = trade.amount * (outcomePercentage / 100);
-    
-    return trade.copyWith(
-      profitLoss: profitLoss,
-      isCompleted: true,
-    );
+
+    return trade.copyWith(profitLoss: profitLoss, isCompleted: true);
   }
 
   /// Simulates 24-hour delayed trade completion
@@ -83,7 +87,7 @@ class SimpleTradingService {
     final percentage = trade.profitLossPercentage;
     final isProfit = percentage > 0;
     final symbol = trade.symbol;
-    
+
     if (isProfit) {
       if (percentage > 10) {
         return '🚀 Excellent trade on $symbol! +${percentage.toStringAsFixed(1)}%';

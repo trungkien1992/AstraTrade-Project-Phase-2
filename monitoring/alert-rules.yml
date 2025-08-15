@@ -1,0 +1,326 @@
+# Prometheus Alert Rules for Tournament System
+
+groups:
+  # WebSocket Connection Alerts
+  - name: websocket.rules
+    rules:
+      - alert: WebSocketConnectionsHigh
+        expr: websocket_active_connections > 1500
+        for: 2m
+        labels:
+          severity: warning
+          component: websocket
+        annotations:
+          summary: "High WebSocket connection count"
+          description: "WebSocket connections ({{ $value }}) exceed 1500 for more than 2 minutes"
+
+      - alert: WebSocketConnectionsCritical
+        expr: websocket_active_connections > 2000
+        for: 1m
+        labels:
+          severity: critical
+          component: websocket
+        annotations:
+          summary: "Critical WebSocket connection count"
+          description: "WebSocket connections ({{ $value }}) exceed critical threshold of 2000"
+
+      - alert: WebSocketConnectionDropRate
+        expr: rate(websocket_connection_drops_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          component: websocket
+        annotations:
+          summary: "High WebSocket connection drop rate"
+          description: "WebSocket connections dropping at rate of {{ $value }}/sec for more than 2 minutes"
+
+      - alert: WebSocketMessageThroughputLow
+        expr: rate(websocket_messages_sent_total[5m]) < 1
+        for: 5m
+        labels:
+          severity: warning
+          component: websocket
+        annotations:
+          summary: "Low WebSocket message throughput"
+          description: "WebSocket message throughput below 1 msg/sec for 5 minutes"
+
+  # Competition Service Alerts
+  - name: competition.rules
+    rules:
+      - alert: CompetitionServiceDown
+        expr: up{job="competition-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: competition-service
+        annotations:
+          summary: "Competition service is down"
+          description: "Competition service has been down for more than 1 minute"
+
+      - alert: AITradingCycleFailures
+        expr: rate(ai_trading_cycle_failures_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: ai-trading
+        annotations:
+          summary: "High AI trading cycle failure rate"
+          description: "AI trading cycle failures at rate {{ $value }}/sec for more than 2 minutes"
+
+      - alert: TournamentLeaderboardLag
+        expr: time() - tournament_leaderboard_last_update_timestamp > 120
+        for: 2m
+        labels:
+          severity: warning
+          component: leaderboard
+        annotations:
+          summary: "Tournament leaderboard update lag"
+          description: "Leaderboard hasn't been updated in {{ $value }} seconds"
+
+      - alert: ActiveTournamentMissing
+        expr: tournament_active_count == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: tournament
+        annotations:
+          summary: "No active tournament"
+          description: "No active tournament found for more than 5 minutes"
+
+  # Redis Alerts
+  - name: redis.rules
+    rules:
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis server is down"
+          description: "Redis server has been down for more than 1 minute"
+
+      - alert: RedisMemoryHigh
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis memory usage high"
+          description: "Redis memory usage is {{ $value | humanizePercentage }} for more than 5 minutes"
+
+      - alert: RedisConnectionsHigh
+        expr: redis_connected_clients > 800
+        for: 2m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "High Redis connection count"
+          description: "Redis connections ({{ $value }}) are high for more than 2 minutes"
+
+      - alert: RedisSentinelDown
+        expr: redis_sentinel_masters < 1
+        for: 1m
+        labels:
+          severity: critical
+          component: redis-sentinel
+        annotations:
+          summary: "Redis Sentinel has no masters"
+          description: "Redis Sentinel is not monitoring any masters"
+
+      - alert: RedisSlowQueries
+        expr: rate(redis_slowlog_length[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis slow queries detected"
+          description: "Redis slow queries detected at rate {{ $value }}/sec"
+
+  # System Resource Alerts
+  - name: system.rules
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage on {{ $labels.instance }} is {{ $value }}% for more than 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage on {{ $labels.instance }} is {{ $value | humanizePercentage }} for more than 5 minutes"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space on {{ $labels.instance }} is {{ $value | humanizePercentage }} available"
+
+      - alert: LoadAverageHigh
+        expr: node_load15 / count by(instance)(node_cpu_seconds_total{mode="idle"}) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High system load average"
+          description: "Load average on {{ $labels.instance }} is {{ $value }} for more than 10 minutes"
+
+  # API Gateway Alerts
+  - name: api-gateway.rules
+    rules:
+      - alert: APIGatewayDown
+        expr: up{job="api-gateway"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: api-gateway
+        annotations:
+          summary: "API Gateway is down"
+          description: "API Gateway has been down for more than 1 minute"
+
+      - alert: APIGatewayHighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          component: api-gateway
+        annotations:
+          summary: "High API error rate"
+          description: "API error rate is {{ $value | humanizePercentage }} for more than 2 minutes"
+
+      - alert: APIGatewaySlowResponse
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: api-gateway
+        annotations:
+          summary: "API Gateway slow responses"
+          description: "95th percentile response time is {{ $value }}s for more than 5 minutes"
+
+      - alert: APIGatewayRateLimitHit
+        expr: rate(http_requests_rate_limited_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          component: api-gateway
+        annotations:
+          summary: "API Gateway rate limiting active"
+          description: "Rate limiting triggered at {{ $value }} requests/sec for more than 2 minutes"
+
+  # Tournament-specific Business Logic Alerts
+  - name: tournament-business.rules
+    rules:
+      - alert: LowAITradingActivity
+        expr: rate(ai_trades_generated_total[10m]) < 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: ai-trading
+        annotations:
+          summary: "Low AI trading activity"
+          description: "AI trading rate is {{ $value }} trades/sec for more than 5 minutes"
+
+      - alert: TournamentParticipantsLow
+        expr: tournament_participants_count < 10
+        for: 10m
+        labels:
+          severity: info
+          component: tournament
+        annotations:
+          summary: "Low tournament participation"
+          description: "Tournament has only {{ $value }} participants for more than 10 minutes"
+
+      - alert: LeaderboardScoreAnomaly
+        expr: abs(increase(tournament_top_score[1h]) - increase(tournament_top_score[1h] offset 1h)) > 10000
+        for: 5m
+        labels:
+          severity: warning
+          component: leaderboard
+        annotations:
+          summary: "Unusual leaderboard score change"
+          description: "Top leaderboard score changed by {{ $value }} in the last hour"
+
+      - alert: UserEngagementDrop
+        expr: rate(tournament_user_actions_total[30m]) < rate(tournament_user_actions_total[30m] offset 30m) * 0.5
+        for: 15m
+        labels:
+          severity: info
+          component: engagement
+        annotations:
+          summary: "User engagement dropped significantly"
+          description: "User engagement is 50% lower than previous 30-minute period"
+
+  # Infrastructure Health Alerts
+  - name: infrastructure.rules
+    rules:
+      - alert: ServiceInstanceDown
+        expr: count by(job) (up == 1) < 2
+        for: 2m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Service has insufficient healthy instances"
+          description: "Service {{ $labels.job }} has less than 2 healthy instances"
+
+      - alert: DockerContainerRestart
+        expr: increase(container_start_time_seconds[10m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          component: docker
+        annotations:
+          summary: "Docker container restarted"
+          description: "Container {{ $labels.name }} has restarted"
+
+      - alert: NetworkLatencyHigh
+        expr: blackbox_probe_duration_seconds > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: network
+        annotations:
+          summary: "High network latency"
+          description: "Network latency to {{ $labels.instance }} is {{ $value }}s for more than 5 minutes"
+
+  # Security Alerts
+  - name: security.rules
+    rules:
+      - alert: UnusualTrafficSpike
+        expr: rate(http_requests_total[5m]) > rate(http_requests_total[5m] offset 1h) * 5
+        for: 2m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "Unusual traffic spike detected"
+          description: "Traffic is 5x higher than 1 hour ago: {{ $value }} req/sec"
+
+      - alert: FailedAuthenticationAttempts
+        expr: rate(http_requests_total{status="401"}[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High authentication failure rate"
+          description: "Failed authentication attempts: {{ $value }}/sec for more than 2 minutes"

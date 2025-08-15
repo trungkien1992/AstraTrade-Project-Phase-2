@@ -6,7 +6,8 @@ import 'dart:io' show Platform;
 /// Cross-Platform Excellence Service for Phase 4
 /// Optimizes Flutter mobile experience and provides React web fallback capabilities
 class PlatformOptimizationService {
-  static final PlatformOptimizationService _instance = PlatformOptimizationService._internal();
+  static final PlatformOptimizationService _instance =
+      PlatformOptimizationService._internal();
   factory PlatformOptimizationService() => _instance;
   PlatformOptimizationService._internal();
 
@@ -20,13 +21,13 @@ class PlatformOptimizationService {
     try {
       // Detect platform capabilities
       await _detectPlatformCapabilities();
-      
+
       // Apply platform-specific optimizations
       await _applyPlatformOptimizations();
-      
+
       // Configure performance settings
       await _configurePerformanceSettings();
-      
+
       _isInitialized = true;
       debugPrint('🚀 Platform optimization service initialized');
     } catch (e) {
@@ -55,7 +56,7 @@ class PlatformOptimizationService {
     if (_platformCapabilities['is_mobile'] == true) {
       await _optimizeForMobile();
     }
-    
+
     if (_platformCapabilities['is_web'] == true) {
       await _optimizeForWeb();
     }
@@ -142,14 +143,14 @@ class PlatformOptimizationService {
   /// Enable low memory mode optimizations
   Future<void> _enableLowMemoryMode() async {
     debugPrint('🔧 Enabling low memory mode optimizations');
-    
+
     // Reduce image cache size
     PaintingBinding.instance.imageCache.maximumSize = 50;
     PaintingBinding.instance.imageCache.maximumSizeBytes = 10 << 20; // 10MB
-    
+
     // Configure aggressive garbage collection
     await _configureAggressiveGC();
-    
+
     // Disable expensive visual effects
     await _disableExpensiveEffects();
   }
@@ -157,14 +158,14 @@ class PlatformOptimizationService {
   /// Enable high performance mode for capable devices
   Future<void> _enableHighPerformanceMode() async {
     debugPrint('⚡ Enabling high performance mode');
-    
+
     // Increase image cache for better performance
     PaintingBinding.instance.imageCache.maximumSize = 200;
     PaintingBinding.instance.imageCache.maximumSizeBytes = 100 << 20; // 100MB
-    
+
     // Enable advanced visual effects
     await _enableAdvancedEffects();
-    
+
     // Configure for maximum performance
     await _configureMaxPerformance();
   }
@@ -195,10 +196,10 @@ class PlatformOptimizationService {
   Future<void> _optimizeMemoryUsage() async {
     // Configure image decoding
     await _configureImageDecoding();
-    
+
     // Optimize widget lifecycle
     await _optimizeWidgetLifecycle();
-    
+
     // Configure garbage collection
     await _configureGarbageCollection();
   }
@@ -207,10 +208,10 @@ class PlatformOptimizationService {
   Future<void> _configureRenderingOptimizations() async {
     // Enable const constructors optimization
     debugPrint('🏗️ Enabling const constructor optimizations');
-    
+
     // Configure RepaintBoundary optimization
     await _configureRepaintBoundaries();
-    
+
     // Enable automatic keep alive for lists
     await _configureKeepAlive();
   }
@@ -345,7 +346,8 @@ class PlatformOptimizationService {
 
   // Public getters for platform information
   bool get isInitialized => _isInitialized;
-  Map<String, dynamic> get platformCapabilities => Map.from(_platformCapabilities);
+  Map<String, dynamic> get platformCapabilities =>
+      Map.from(_platformCapabilities);
   bool get isMobile => _platformCapabilities['is_mobile'] ?? false;
   bool get isWeb => _platformCapabilities['is_web'] ?? false;
   bool get supportsHaptic => _platformCapabilities['supports_haptic'] ?? false;
@@ -355,7 +357,9 @@ class PlatformOptimizationService {
   /// Get optimized configuration for current platform
   Map<String, dynamic> getOptimizedConfig() {
     return {
-      'target_fps': _platformCapabilities['has_high_refresh'] == true ? 120 : 60,
+      'target_fps': _platformCapabilities['has_high_refresh'] == true
+          ? 120
+          : 60,
       'enable_3d': _platformCapabilities['supports_3d'] ?? false,
       'enable_haptic': _platformCapabilities['supports_haptic'] ?? false,
       'memory_mode': _platformCapabilities['memory_class'] ?? 'medium',
@@ -367,12 +371,12 @@ class PlatformOptimizationService {
   /// Apply runtime performance optimizations
   void applyRuntimeOptimizations() {
     final config = getOptimizedConfig();
-    
+
     if (config['memory_mode'] == 'low') {
       // Apply low memory optimizations
       PaintingBinding.instance.imageCache.maximumSize = 50;
     } else if (config['memory_mode'] == 'high') {
-      // Apply high performance optimizations  
+      // Apply high performance optimizations
       PaintingBinding.instance.imageCache.maximumSize = 200;
     }
 

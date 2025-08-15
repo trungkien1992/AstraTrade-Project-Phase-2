@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+"""
+HRM Reasoning CLI Tool
+
+Command-line interface for HRM-powered reasoning assistance for Claude Code.
+Provides hierarchical reasoning capabilities for complex development problems.
+"""
+
+import sys
+import os
+import argparse
+import logging
+from pathlib import Path
+
+# Add src to Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+from reasoning.code_analyzer import CodeAnalyzer
+from reasoning.architecture_advisor import ArchitectureAdvisor
+from reasoning.debug_assistant import DebugAssistant
+from reasoning.performance_optimizer import PerformanceOptimizer
+
+
+def setup_logging(verbose: bool = False):
+    """Set up logging configuration"""
+    level = logging.INFO if verbose else logging.WARNING
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+
+def cmd_analyze(args):
+    """Analyze code with HRM reasoning"""
+    analyzer = CodeAnalyzer(model_path=args.model)
+    
+    if os.path.isfile(args.path):
+        print(f"🧠 Analyzing file: {args.path}")
+        result = analyzer.analyze_file(args.path)
+        results = [result]
+    else:
+        print(f"🧠 Analyzing directory: {args.path}")
+        results = analyzer.analyze_directory(args.path)
+    
+    # Generate report
+    report = analyzer.generate_report(results)
+    
+    if args.output:
+        with open(args.output, 'w') as f:
+            f.write(report)
+        print(f"📄 Report saved to {args.output}")
+    else:
+        print(report)
+
+
+def cmd_architecture(args):
+    """Get architecture advice using HRM"""
+    advisor = ArchitectureAdvisor(model_path=args.model)
+    
+    print(f"🏗️  Analyzing architecture: {args.question}")
+    advice = advisor.get_advice(args.question, context_path=args.context)
+    
+    print("\n" + "="*60)
+    print("ARCHITECTURE ADVICE")
+    print("="*60)
+    print(advice)
+    
+    if args.output:
+        with open(args.output, 'w') as f:
+            f.write(advice)
+        print(f"\n📄 Advice saved to {args.output}")
+
+
+def cmd_debug(args):
+    """Debug complex problems with HRM reasoning"""
+    debugger = DebugAssistant(model_path=args.model)
+    
+    print(f"🐛 Debugging: {args.problem}")
+    solution = debugger.debug_problem(args.problem, context_path=args.context)
+    
+    print("\n" + "="*60)
+    print("DEBUG ANALYSIS")
+    print("="*60)
+    print(solution)
+    
+    if args.output:
+        with open(args.output, 'w') as f:
+            f.write(solution)
+        print(f"\n📄 Debug analysis saved to {args.output}")
+
+
+def cmd_optimize(args):
+    """Optimize performance with HRM reasoning"""
+    optimizer = PerformanceOptimizer(model_path=args.model)
+    
+    print(f"⚡ Optimizing: {args.target}")
+    recommendations = optimizer.optimize(args.target, context_path=args.context)
+    
+    print("\n" + "="*60)
+    print("OPTIMIZATION RECOMMENDATIONS")
+    print("="*60)
+    print(recommendations)
+    
+    if args.output:
+        with open(args.output, 'w') as f:
+            f.write(recommendations)
+        print(f"\n📄 Recommendations saved to {args.output}")
+
+
+def cmd_train(args):
+    """Train HRM on AstraTrade corpus"""
+    from training.astratrade_corpus import AstraTradeCorpusBuilder
+    
+    print(f"📚 Building training corpus from {args.astratrade_root}")
+    builder = AstraTradeCorpusBuilder(args.astratrade_root)
+    corpus = builder.build_corpus()
+    
+    corpus_file = args.output or "astratrade_corpus.json"
+    builder.save_corpus(corpus_file)
+    
+    print(f"✅ Training corpus saved to {corpus_file}")
+    print(f"   Patterns: {corpus['metadata']['total_patterns']}")
+    print(f"   Problems: {corpus['metadata']['total_problems']}")
+    
+    # TODO: Implement actual HRM training
+    print("\n🚧 HRM training not yet implemented - corpus ready for training")
+
+
+def main():
+    """Main CLI entry point"""
+    parser = argparse.ArgumentParser(
+        description='HRM Reasoning Assistant for Claude Code',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Analyze a file
+  hrm-reason analyze apps/backend/domains/trading/services.py
+  
+  # Get architecture advice
+  hrm-reason architecture "How should I refactor the trading service?"
+  
+  # Debug a complex problem
+  hrm-reason debug "Why is the gamification integration failing?"
+  
+  # Optimize performance
+  hrm-reason optimize "trading service performance under high load"
+  
+  # Train on AstraTrade codebase
+  hrm-reason train /path/to/AstraTrade-Submission
+        """
+    )
+    
+    parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
+    parser.add_argument('--model', '-m', help='Path to trained HRM model')
+    
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    
+    # Analyze command
+    analyze_parser = subparsers.add_parser('analyze', help='Analyze code with HRM')
+    analyze_parser.add_argument('path', help='File or directory to analyze')
+    analyze_parser.add_argument('--output', '-o', help='Output file for report')
+    analyze_parser.set_defaults(func=cmd_analyze)
+    
+    # Architecture command
+    arch_parser = subparsers.add_parser('architecture', help='Get architecture advice')
+    arch_parser.add_argument('question', help='Architecture question')
+    arch_parser.add_argument('--context', '-c', help='Context directory for analysis')
+    arch_parser.add_argument('--output', '-o', help='Output file for advice')
+    arch_parser.set_defaults(func=cmd_architecture)
+    
+    # Debug command
+    debug_parser = subparsers.add_parser('debug', help='Debug complex problems')
+    debug_parser.add_argument('problem', help='Problem description')
+    debug_parser.add_argument('--context', '-c', help='Context directory for analysis')
+    debug_parser.add_argument('--output', '-o', help='Output file for analysis')
+    debug_parser.set_defaults(func=cmd_debug)
+    
+    # Optimize command
+    opt_parser = subparsers.add_parser('optimize', help='Optimize performance')
+    opt_parser.add_argument('target', help='Optimization target')
+    opt_parser.add_argument('--context', '-c', help='Context directory for analysis')  
+    opt_parser.add_argument('--output', '-o', help='Output file for recommendations')
+    opt_parser.set_defaults(func=cmd_optimize)
+    
+    # Train command
+    train_parser = subparsers.add_parser('train', help='Train HRM on AstraTrade corpus')
+    train_parser.add_argument('astratrade_root', help='Path to AstraTrade root directory')
+    train_parser.add_argument('--output', '-o', help='Output corpus file')
+    train_parser.set_defaults(func=cmd_train)
+    
+    args = parser.parse_args()
+    
+    if not args.command:
+        parser.print_help()
+        return 1
+    
+    setup_logging(args.verbose)
+    
+    try:
+        args.func(args)
+        return 0
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        return 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

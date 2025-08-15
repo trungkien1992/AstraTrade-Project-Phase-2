@@ -1,5 +1,5 @@
 /// AstraTrade Vault Service for Flutter Integration
-/// 
+///
 /// Provides complete integration with the AstraTradeVault Cairo contract:
 /// - Multi-collateral deposit/withdrawal with mobile optimization
 /// - Real-time gamification (XP rewards, streak tracking, tier unlocking)
@@ -19,19 +19,22 @@ import '../models/vault_benefits.dart';
 class AstraTradeVaultService {
   final String contractAddress;
   final StarknetClient client;
-  
-  // Event signatures for real-time listening
-  static const String _collateralDepositedSignature = '0x1234567890abcdef'; // Replace with actual signature
-  static const String _collateralWithdrawnSignature = '0x1234567890abcdeg'; // Replace with actual signature
-  static const String _yieldClaimedSignature = '0x1234567890abcdeh'; // Replace with actual signature
-  static const String _assetTierUnlockedSignature = '0x1234567890abcdei'; // Replace with actual signature
-  static const String _positionLiquidatedSignature = '0x1234567890abcdej'; // Replace with actual signature
-  static const String _healthFactorUpdatedSignature = '0x1234567890abcdek'; // Replace with actual signature
 
-  AstraTradeVaultService({
-    required this.contractAddress,
-    required this.client,
-  });
+  // Event signatures for real-time listening
+  static const String _collateralDepositedSignature =
+      '0x1234567890abcdef'; // Replace with actual signature
+  static const String _collateralWithdrawnSignature =
+      '0x1234567890abcdeg'; // Replace with actual signature
+  static const String _yieldClaimedSignature =
+      '0x1234567890abcdeh'; // Replace with actual signature
+  static const String _assetTierUnlockedSignature =
+      '0x1234567890abcdei'; // Replace with actual signature
+  static const String _positionLiquidatedSignature =
+      '0x1234567890abcdej'; // Replace with actual signature
+  static const String _healthFactorUpdatedSignature =
+      '0x1234567890abcdek'; // Replace with actual signature
+
+  AstraTradeVaultService({required this.contractAddress, required this.client});
 
   // === Core Vault Operations ===
 
@@ -46,15 +49,12 @@ class AstraTradeVaultService {
       final contractAddr = Felt.fromHex(contractAddress);
       final caller = Felt.fromHex(userAddress);
       final assetFelt = _stringToFelt(asset);
-      
+
       // Prepare transaction
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('deposit_collateral'),
-        calldata: [
-          assetFelt,
-          Felt(amount),
-        ],
+        calldata: [assetFelt, Felt(amount)],
       );
 
       // Execute transaction with mobile-optimized gas settings
@@ -111,7 +111,7 @@ class AstraTradeVaultService {
       // Pre-validate withdrawal won't liquidate position
       final currentHealthFactor = await getHealthFactor(userAddress);
       final minHealthFactor = BigInt.from(1100000000000000000); // 1.1 * 10^18
-      
+
       if (currentHealthFactor < minHealthFactor * BigInt.from(2)) {
         return WithdrawalResult(
           success: false,
@@ -124,14 +124,11 @@ class AstraTradeVaultService {
 
       final contractAddr = Felt.fromHex(contractAddress);
       final assetFelt = _stringToFelt(asset);
-      
+
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('withdraw_collateral'),
-        calldata: [
-          assetFelt,
-          Felt(amount),
-        ],
+        calldata: [assetFelt, Felt(amount)],
       );
 
       final response = await client.execute(
@@ -311,7 +308,7 @@ class AstraTradeVaultService {
   }) async {
     try {
       final contractAddr = Felt.fromHex(contractAddress);
-      
+
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('claim_yield_rewards'),
@@ -382,7 +379,7 @@ class AstraTradeVaultService {
   }) async {
     try {
       final contractAddr = Felt.fromHex(contractAddress);
-      
+
       final call = Call(
         to: contractAddr,
         selector: getSelectorByName('unlock_asset_tier'),
@@ -477,7 +474,9 @@ class AstraTradeVaultService {
       final response = await client.call(
         request: CallRequest(
           contractAddress: contractAddr,
-          entryPointSelector: getSelectorByName('calculate_liquidation_threshold'),
+          entryPointSelector: getSelectorByName(
+            'calculate_liquidation_threshold',
+          ),
           calldata: [userAddr],
         ),
       );
@@ -495,10 +494,10 @@ class AstraTradeVaultService {
   Stream<VaultEvent> monitorUserEvents(String userAddress) async* {
     // In a real implementation, this would use WebSocket or polling
     // to monitor contract events in real-time
-    
+
     while (true) {
       await Future.delayed(const Duration(seconds: 5));
-      
+
       // Poll for recent events
       final events = await _getRecentEvents(userAddress);
       for (final event in events) {
@@ -542,28 +541,28 @@ class AstraTradeVaultService {
     // Convert ASCII string to felt252 representation
     final bytes = utf8.encode(str);
     BigInt value = BigInt.zero;
-    
+
     for (int i = 0; i < bytes.length && i < 31; i++) {
       value += BigInt.from(bytes[i]) << (8 * (bytes.length - 1 - i));
     }
-    
+
     return Felt(value);
   }
 
   /// Wait for specific event to be emitted
   Future<Map<String, dynamic>?> _waitForEvent(
     String transactionHash,
-    String eventSignature,
-    {Duration timeout = const Duration(seconds: 30)}
-  ) async {
+    String eventSignature, {
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
     final startTime = DateTime.now();
-    
+
     while (DateTime.now().difference(startTime) < timeout) {
       try {
         // In real implementation, query transaction receipt for events
         // This is a simplified mock
         await Future.delayed(const Duration(milliseconds: 500));
-        
+
         // Mock event data - replace with actual event parsing
         return {
           'transaction_hash': transactionHash,
@@ -574,7 +573,7 @@ class AstraTradeVaultService {
         await Future.delayed(const Duration(seconds: 1));
       }
     }
-    
+
     return null;
   }
 
@@ -585,7 +584,11 @@ class AstraTradeVaultService {
   }
 
   /// Format amount for display
-  static String formatAmount(BigInt amount, {int decimals = 18, int displayDecimals = 4}) {
+  static String formatAmount(
+    BigInt amount, {
+    int decimals = 18,
+    int displayDecimals = 4,
+  }) {
     final divisor = BigInt.from(10).pow(decimals);
     final value = amount.toDouble() / divisor.toDouble();
     return value.toStringAsFixed(displayDecimals);
@@ -602,7 +605,7 @@ class AstraTradeVaultService {
   static RiskLevel getRiskLevel(BigInt healthFactor, {int decimals = 18}) {
     final divisor = BigInt.from(10).pow(decimals);
     final ratio = healthFactor.toDouble() / divisor.toDouble();
-    
+
     if (ratio >= 1.5) return RiskLevel.safe;
     if (ratio >= 1.25) return RiskLevel.low;
     if (ratio >= 1.1) return RiskLevel.medium;
@@ -615,27 +618,34 @@ class AstraTradeVaultService {
 
 final vaultServiceProvider = Provider<AstraTradeVaultService>((ref) {
   return AstraTradeVaultService(
-    contractAddress: ContractAddresses.vaultContract, // ✅ Updated with deployed address
+    contractAddress:
+        ContractAddresses.vaultContract, // ✅ Updated with deployed address
     client: StarknetClient(), // Configure with appropriate network
   );
 });
 
-final userVaultDataProvider = FutureProvider.family<UserVaultData, String>((ref, userAddress) async {
+final userVaultDataProvider = FutureProvider.family<UserVaultData, String>((
+  ref,
+  userAddress,
+) async {
   final service = ref.read(vaultServiceProvider);
   return service.getUserVaultData(userAddress);
 });
 
-final vaultEventsProvider = StreamProvider.family<VaultEvent, String>((ref, userAddress) {
+final vaultEventsProvider = StreamProvider.family<VaultEvent, String>((
+  ref,
+  userAddress,
+) {
   final service = ref.read(vaultServiceProvider);
   return service.monitorUserEvents(userAddress);
 });
 
 // === Risk Level Enum ===
 enum RiskLevel {
-  safe,        // > 150% health factor
-  low,         // 125-150% health factor  
-  medium,      // 110-125% health factor
-  high,        // 100-110% health factor
+  safe, // > 150% health factor
+  low, // 125-150% health factor
+  medium, // 110-125% health factor
+  high, // 100-110% health factor
   liquidation, // < 100% health factor
 }
 

@@ -1,11 +1,7 @@
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum ABTestVariant {
-  control,
-  variant_a,
-  variant_b,
-}
+enum ABTestVariant { control, variant_a, variant_b }
 
 class ABTestConfig {
   final String testName;
@@ -24,7 +20,7 @@ class ABTestConfig {
 class ABTestingService {
   static const String _userVariantPrefix = 'ab_test_';
   static const String _testResultPrefix = 'ab_result_';
-  
+
   static final Map<String, ABTestConfig> _activeTests = {
     'paywall_presentation': ABTestConfig(
       testName: 'paywall_presentation',
@@ -36,24 +32,18 @@ class ABTestingService {
     ),
     'onboarding_flow': ABTestConfig(
       testName: 'onboarding_flow',
-      weights: {
-        ABTestVariant.control: 0.5,
-        ABTestVariant.variant_a: 0.5,
-      },
+      weights: {ABTestVariant.control: 0.5, ABTestVariant.variant_a: 0.5},
     ),
     'rating_prompt_timing': ABTestConfig(
       testName: 'rating_prompt_timing',
-      weights: {
-        ABTestVariant.control: 0.6,
-        ABTestVariant.variant_a: 0.4,
-      },
+      weights: {ABTestVariant.control: 0.6, ABTestVariant.variant_a: 0.4},
     ),
   };
 
   static Future<ABTestVariant> getVariant(String testName) async {
     final prefs = await SharedPreferences.getInstance();
     final savedVariant = prefs.getString('$_userVariantPrefix$testName');
-    
+
     if (savedVariant != null) {
       return ABTestVariant.values.firstWhere(
         (v) => v.name == savedVariant,
@@ -69,14 +59,14 @@ class ABTestingService {
 
     final variant = _assignVariant(config.weights);
     await prefs.setString('$_userVariantPrefix$testName', variant.name);
-    
+
     return variant;
   }
 
   static ABTestVariant _assignVariant(Map<ABTestVariant, double> weights) {
     final random = Random();
     final randomValue = random.nextDouble();
-    
+
     double cumulativeWeight = 0.0;
     for (final entry in weights.entries) {
       cumulativeWeight += entry.value;
@@ -84,14 +74,18 @@ class ABTestingService {
         return entry.key;
       }
     }
-    
+
     return ABTestVariant.control;
   }
 
-  static Future<void> trackConversion(String testName, String eventName, Map<String, dynamic>? properties) async {
+  static Future<void> trackConversion(
+    String testName,
+    String eventName,
+    Map<String, dynamic>? properties,
+  ) async {
     final variant = await getVariant(testName);
     final prefs = await SharedPreferences.getInstance();
-    
+
     final conversionData = {
       'test_name': testName,
       'variant': variant.name,
@@ -99,9 +93,10 @@ class ABTestingService {
       'timestamp': DateTime.now().millisecondsSinceEpoch,
       'properties': properties ?? {},
     };
-    
+
     // Store conversion data for analytics
-    final existingData = prefs.getStringList('$_testResultPrefix$testName') ?? [];
+    final existingData =
+        prefs.getStringList('$_testResultPrefix$testName') ?? [];
     existingData.add(_encodeConversionData(conversionData));
     await prefs.setStringList('$_testResultPrefix$testName', existingData);
   }
@@ -114,20 +109,20 @@ class ABTestingService {
   static Future<Map<String, dynamic>> getTestResults(String testName) async {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getStringList('$_testResultPrefix$testName') ?? [];
-    
+
     final results = <String, Map<String, int>>{};
-    
+
     for (final entry in data) {
       final parts = entry.split('|');
       if (parts.length >= 3) {
         final variant = parts[0];
         final event = parts[1];
-        
+
         results[variant] ??= {};
         results[variant]![event] = (results[variant]![event] ?? 0) + 1;
       }
     }
-    
+
     return {
       'test_name': testName,
       'results': results,
@@ -135,7 +130,10 @@ class ABTestingService {
     };
   }
 
-  static Future<bool> isInVariant(String testName, ABTestVariant variant) async {
+  static Future<bool> isInVariant(
+    String testName,
+    ABTestVariant variant,
+  ) async {
     final userVariant = await getVariant(testName);
     return userVariant == variant;
   }
@@ -180,18 +178,8 @@ class ABTestingService {
   }
 }
 
-enum PaywallVariant {
-  standard,
-  discount_first,
-  social_proof,
-}
+enum PaywallVariant { standard, discount_first, social_proof }
 
-enum OnboardingVariant {
-  standard,
-  simplified,
-}
+enum OnboardingVariant { standard, simplified }
 
-enum RatingPromptVariant {
-  standard,
-  early_prompt,
-}
+enum RatingPromptVariant { standard, early_prompt }

@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 class TradingChartWidget extends StatefulWidget {
   final String symbol;
   final String interval;
-  
+
   const TradingChartWidget({
     Key? key,
     required this.symbol,
@@ -52,22 +52,28 @@ class _TradingChartWidgetState extends State<TradingChartWidget> {
 
       // Load candlestick data
       final candleResponse = await http.get(
-        Uri.parse('http://localhost:8002/trading/candles/${widget.symbol}?limit=100&interval=${widget.interval}'),
+        Uri.parse(
+          'http://localhost:8002/trading/candles/${widget.symbol}?limit=100&interval=${widget.interval}',
+        ),
       );
 
       if (candleResponse.statusCode == 200) {
         final candleData = json.decode(candleResponse.body);
         final candleList = candleData['candles'] as List;
-        
+
         setState(() {
-          candles = candleList.map((item) => Candle(
-            date: DateTime.fromMillisecondsSinceEpoch(item['timestamp']),
-            high: item['high'].toDouble(),
-            low: item['low'].toDouble(),
-            open: item['open'].toDouble(),
-            close: item['close'].toDouble(),
-            volume: item['volume'].toDouble(),
-          )).toList();
+          candles = candleList
+              .map(
+                (item) => Candle(
+                  date: DateTime.fromMillisecondsSinceEpoch(item['timestamp']),
+                  high: item['high'].toDouble(),
+                  low: item['low'].toDouble(),
+                  open: item['open'].toDouble(),
+                  close: item['close'].toDouble(),
+                  volume: item['volume'].toDouble(),
+                ),
+              )
+              .toList();
         });
       }
 
@@ -103,12 +109,14 @@ class _TradingChartWidgetState extends State<TradingChartWidget> {
         (data) {
           try {
             final message = json.decode(data);
-            if (message['type'] == 'ticker' && message['data']['symbol'] == widget.symbol) {
+            if (message['type'] == 'ticker' &&
+                message['data']['symbol'] == widget.symbol) {
               final tickerData = message['data'];
               setState(() {
                 currentPrice = tickerData['price'].toDouble();
                 priceChange = tickerData['change_24h'].toDouble();
-                priceChangePercent = tickerData['change_percent_24h'].toDouble();
+                priceChangePercent = tickerData['change_percent_24h']
+                    .toDouble();
               });
             }
           } catch (e) {
@@ -146,10 +154,7 @@ class _TradingChartWidgetState extends State<TradingChartWidget> {
           end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.cyan.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.cyan.withOpacity(0.3), width: 1),
       ),
       child: Column(
         children: [
@@ -208,7 +213,9 @@ class _TradingChartWidgetState extends State<TradingChartWidget> {
                       Text(
                         '${priceChangePercent! >= 0 ? '+' : ''}${priceChangePercent!.toStringAsFixed(2)}%',
                         style: TextStyle(
-                          color: priceChangePercent! >= 0 ? Colors.green : Colors.red,
+                          color: priceChangePercent! >= 0
+                              ? Colors.green
+                              : Colors.red,
                           fontSize: 14,
                         ),
                       ),
@@ -217,7 +224,7 @@ class _TradingChartWidgetState extends State<TradingChartWidget> {
               ],
             ),
           ),
-          
+
           // Chart area
           Expanded(
             child: Container(
@@ -237,50 +244,50 @@ class _TradingChartWidgetState extends State<TradingChartWidget> {
                       ),
                     )
                   : error != null
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 48,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                error!,
-                                style: const TextStyle(color: Colors.red),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: _loadInitialData,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.cyan,
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: const Text('Retry'),
-                              ),
-                            ],
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 48,
                           ),
-                        )
-                      : candles.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'No chart data available',
-                                style: TextStyle(color: Colors.white70),
-                              ),
-                            )
-                          : Candlesticks(
-                              candles: candles,
-                              onLoadMoreCandles: () async {
-                                // Could implement pagination here
-                                return null;
-                              },
+                          const SizedBox(height: 16),
+                          Text(
+                            error!,
+                            style: const TextStyle(color: Colors.red),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _loadInitialData,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.cyan,
+                              foregroundColor: Colors.white,
                             ),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : candles.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No chart data available',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    )
+                  : Candlesticks(
+                      candles: candles,
+                      onLoadMoreCandles: () async {
+                        // Could implement pagination here
+                        return null;
+                      },
+                    ),
             ),
           ),
-          
+
           // Trading controls
           Container(
             padding: const EdgeInsets.all(16),
@@ -377,8 +384,12 @@ class _TradingChartWidgetState extends State<TradingChartWidget> {
                 // Show a more informative message about trading implementation
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Trading functionality is being implemented. $action order for ${widget.symbol} would be placed in a future update.'),
-                    backgroundColor: action == 'BUY' ? Colors.green : Colors.red,
+                    content: Text(
+                      'Trading functionality is being implemented. $action order for ${widget.symbol} would be placed in a future update.',
+                    ),
+                    backgroundColor: action == 'BUY'
+                        ? Colors.green
+                        : Colors.red,
                   ),
                 );
               },

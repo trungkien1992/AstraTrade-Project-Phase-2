@@ -1,5 +1,5 @@
 /// Trading Pair Model for AstraTrade Exchange V2
-/// 
+///
 /// Represents a trading pair (e.g., BTC/USD, ETH/USD) with:
 /// - Market information (prices, symbols)
 /// - Trading parameters (leverage limits, margins)
@@ -92,7 +92,7 @@ class TradingPair {
   String getSmartFormattedPrice({int decimals = 18}) {
     final divisor = BigInt.from(10).pow(decimals);
     final price = currentPrice.toDouble() / divisor.toDouble();
-    
+
     if (price >= 1000) {
       return '\$${price.toStringAsFixed(0)}';
     } else if (price >= 100) {
@@ -110,7 +110,7 @@ class TradingPair {
   String getFormattedDailyVolume({int decimals = 18}) {
     final divisor = BigInt.from(10).pow(decimals);
     final volume = dailyVolume.toDouble() / divisor.toDouble();
-    
+
     if (volume >= 1000000) {
       return '\$${(volume / 1000000).toStringAsFixed(1)}M';
     } else if (volume >= 1000) {
@@ -125,7 +125,7 @@ class TradingPair {
     final divisor = BigInt.from(10).pow(decimals);
     final rate = fundingRate.toDouble() / divisor.toDouble();
     final percentage = rate * 100;
-    
+
     final sign = percentage >= 0 ? '+' : '';
     return '$sign${percentage.toStringAsFixed(4)}%';
   }
@@ -144,12 +144,14 @@ class TradingPair {
   }) {
     final marginFactor = (10000 - maintenanceMargin) * 100;
     final leverageFactor = marginFactor ~/ leverage;
-    
+
     if (isLong) {
-      final priceReduction = (entryPrice * BigInt.from(leverageFactor)) ~/ BigInt.from(1000000);
+      final priceReduction =
+          (entryPrice * BigInt.from(leverageFactor)) ~/ BigInt.from(1000000);
       return entryPrice - priceReduction;
     } else {
-      final priceIncrease = (entryPrice * BigInt.from(leverageFactor)) ~/ BigInt.from(1000000);
+      final priceIncrease =
+          (entryPrice * BigInt.from(leverageFactor)) ~/ BigInt.from(1000000);
       return entryPrice + priceIncrease;
     }
   }
@@ -227,7 +229,9 @@ class TradingPair {
   BigInt getMinimumPositionSize({int decimals = 18}) {
     // Minimum $10 position
     final minUsdValue = BigInt.from(10) * BigInt.from(10).pow(decimals);
-    return minUsdValue ~/ currentPrice * currentPrice; // Round to price precision
+    return minUsdValue ~/
+        currentPrice *
+        currentPrice; // Round to price precision
   }
 
   /// Copy with updated values
@@ -260,7 +264,7 @@ class TradingPair {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is TradingPair &&
         other.pairId == pairId &&
         other.name == name &&
@@ -315,18 +319,18 @@ class TradingPair {
 
 /// Market category enum
 enum MarketCategory {
-  major,    // BTC, ETH
-  altcoin,  // Other major cryptocurrencies
-  defi,     // DeFi tokens
-  other,    // Everything else
+  major, // BTC, ETH
+  altcoin, // Other major cryptocurrencies
+  defi, // DeFi tokens
+  other, // Everything else
 }
 
 /// Risk level enum
 enum RiskLevel {
-  low,      // Conservative leverage and margins
-  medium,   // Moderate risk
-  high,     // High leverage/risk
-  extreme,  // Maximum risk
+  low, // Conservative leverage and margins
+  medium, // Moderate risk
+  high, // High leverage/risk
+  extreme, // Maximum risk
 }
 
 /// Extensions for better display

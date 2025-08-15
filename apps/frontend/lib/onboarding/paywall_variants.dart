@@ -7,8 +7,8 @@ import '../services/ab_testing_service.dart';
 
 // Advanced paywall variants for conversion optimization
 enum PaywallVariantType {
-  urgency_focused,    // Variant D: Scarcity and urgency
-  value_proposition,  // Variant E: Feature comparison
+  urgency_focused, // Variant D: Scarcity and urgency
+  value_proposition, // Variant E: Feature comparison
   money_back_guarantee, // Variant F: Risk reversal
   free_trial_extended, // Variant G: Extended trial
 }
@@ -17,7 +17,7 @@ class AdvancedPaywallScreen extends ConsumerStatefulWidget {
   final PaywallVariantType variantType;
   final String trigger;
   final bool showDiscount;
-  
+
   const AdvancedPaywallScreen({
     super.key,
     required this.variantType,
@@ -26,7 +26,8 @@ class AdvancedPaywallScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AdvancedPaywallScreen> createState() => _AdvancedPaywallScreenState();
+  ConsumerState<AdvancedPaywallScreen> createState() =>
+      _AdvancedPaywallScreenState();
 }
 
 class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
@@ -34,50 +35,52 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
   bool _isLoading = false;
   late AnimationController _urgencyAnimationController;
   late Animation<double> _pulseAnimation;
-  
+
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _trackPaywallShown();
   }
-  
+
   void _initializeAnimations() {
     _urgencyAnimationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _urgencyAnimationController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(
+        parent: _urgencyAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
     if (widget.variantType == PaywallVariantType.urgency_focused) {
       _urgencyAnimationController.repeat(reverse: true);
     }
   }
-  
+
   @override
   void dispose() {
     _urgencyAnimationController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _trackPaywallShown() async {
     await AnalyticsService.trackPaywallShown(
       trigger: widget.trigger,
       variant: 'advanced_${widget.variantType.name}',
     );
-    
-    await AnalyticsService.trackScreenView('advanced_paywall_screen', properties: {
-      'variant_type': widget.variantType.name,
-      'trigger': widget.trigger,
-      'show_discount': widget.showDiscount,
-    });
+
+    await AnalyticsService.trackScreenView(
+      'advanced_paywall_screen',
+      properties: {
+        'variant_type': widget.variantType.name,
+        'trigger': widget.trigger,
+        'show_discount': widget.showDiscount,
+      },
+    );
   }
 
   @override
@@ -166,7 +169,10 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
               return Transform.scale(
                 scale: _pulseAnimation.value,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -202,10 +208,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
           const SizedBox(height: 8),
           const Text(
             'Only 47 spots left at this price',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -228,11 +231,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.trending_up,
-            size: 64,
-            color: Colors.white,
-          ),
+          const Icon(Icons.trending_up, size: 64, color: Colors.white),
           const SizedBox(height: 16),
           const Text(
             'Join Elite Traders',
@@ -246,10 +245,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
           const SizedBox(height: 8),
           const Text(
             'Everything you need to trade like a professional',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -297,10 +293,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
           const SizedBox(height: 8),
           const Text(
             '30-day money-back guarantee. No questions asked.',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
         ],
@@ -321,11 +314,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.access_time,
-            size: 64,
-            color: Colors.white,
-          ),
+          const Icon(Icons.access_time, size: 64, color: Colors.white),
           const SizedBox(height: 16),
           const Text(
             'Extended 14-Day Trial',
@@ -339,10 +328,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
           const SizedBox(height: 8),
           const Text(
             'Double the time to explore all Pro features',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -428,13 +414,14 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
           children: [
             const Text(
               'Free vs Pro Comparison',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildComparisonRow('Virtual Trading Funds', 'Limited', 'Unlimited'),
+            _buildComparisonRow(
+              'Virtual Trading Funds',
+              'Limited',
+              'Unlimited',
+            ),
             _buildComparisonRow('Real Market Data', '❌', '✅'),
             _buildComparisonRow('Advanced Analytics', '❌', '✅'),
             _buildComparisonRow('Pro Trading Lessons', '❌', '✅'),
@@ -534,8 +521,9 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
 
   Widget _buildPricingSection() {
     final regularPrice = 9.99;
-    final discountPrice = widget.variantType == PaywallVariantType.urgency_focused ? 1.99 : 2.99;
-    
+    final discountPrice =
+        widget.variantType == PaywallVariantType.urgency_focused ? 1.99 : 2.99;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -565,7 +553,10 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
                 ),
                 const SizedBox(width: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(4),
@@ -597,10 +588,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
               ),
               const Text(
                 '/month',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             ],
           ),
@@ -608,10 +596,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
           Text(
             _getPricingSubtext(),
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
         ],
       ),
@@ -674,18 +659,12 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
       children: [
         const Text(
           '⭐⭐⭐⭐⭐ 4.8/5 from 12,000+ reviews',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
         const SizedBox(height: 8),
         const Text(
           'Secure payment • Powered by App Store',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey),
         ),
         if (widget.variantType == PaywallVariantType.money_back_guarantee) ...[
           const SizedBox(height: 8),
@@ -717,10 +696,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
           SizedBox(width: 8),
           Text(
             'Ends in: 23:47:12',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -751,10 +727,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
         ),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white70,
-          ),
+          style: const TextStyle(fontSize: 12, color: Colors.white70),
         ),
       ],
     );
@@ -769,18 +742,20 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
     ];
 
     return Column(
-      children: features.map((feature) => 
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green[600], size: 20),
-              const SizedBox(width: 12),
-              Text(feature, style: const TextStyle(fontSize: 16)),
-            ],
-          ),
-        ),
-      ).toList(),
+      children: features
+          .map(
+            (feature) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green[600], size: 20),
+                  const SizedBox(width: 12),
+                  Text(feature, style: const TextStyle(fontSize: 16)),
+                ],
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -789,7 +764,13 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Expanded(flex: 2, child: Text(feature, style: const TextStyle(fontWeight: FontWeight.w500))),
+          Expanded(
+            flex: 2,
+            child: Text(
+              feature,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
           Expanded(child: Text(free, textAlign: TextAlign.center)),
           Expanded(
             child: Text(
@@ -831,10 +812,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
                     fontSize: 16,
                   ),
                 ),
-                Text(
-                  description,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                Text(description, style: const TextStyle(color: Colors.grey)),
               ],
             ),
           ),
@@ -868,10 +846,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
                     fontSize: 16,
                   ),
                 ),
-                Text(
-                  description,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                Text(description, style: const TextStyle(color: Colors.grey)),
               ],
             ),
           ),
@@ -982,7 +957,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
 
       // Simulate successful upgrade for demo
       ref.read(tradingProvider.notifier).updateSubscription(true);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -991,7 +966,7 @@ class _AdvancedPaywallScreenState extends ConsumerState<AdvancedPaywallScreen>
             duration: const Duration(seconds: 3),
           ),
         );
-        
+
         Navigator.pop(context, true);
       }
     } catch (e) {

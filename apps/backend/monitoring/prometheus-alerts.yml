@@ -1,0 +1,345 @@
+groups:
+  - name: astratrade.business.alerts
+    rules:
+      # Trading System Alerts
+      - alert: LowTradingVolume
+        expr: rate(astra_trade_executed_total[5m]) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: trading
+          team: business
+        annotations:
+          summary: "Trading volume is below expected threshold"
+          description: "Trading rate is {{ $value }} trades/second, which is below the warning threshold of 0.1 trades/second for 5 minutes."
+          runbook_url: "https://docs.astratrade.app/runbooks/trading-volume"
+
+      - alert: CriticalTradingVolumeDropoff
+        expr: rate(astra_trade_executed_total[5m]) < 0.01
+        for: 2m
+        labels:
+          severity: critical
+          component: trading
+          team: business
+        annotations:
+          summary: "CRITICAL: Trading volume severely degraded"
+          description: "Trading rate is {{ $value }} trades/second, which is critically low for 2 minutes."
+          runbook_url: "https://docs.astratrade.app/runbooks/trading-critical"
+
+      - alert: HighTradingErrorRate
+        expr: rate(astra_gateway_failed_requests{endpoint=~".*trading.*"}[5m]) / rate(astra_api_request_total{endpoint=~".*trading.*"}[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          component: trading
+          team: platform
+        annotations:
+          summary: "High error rate in trading endpoints"
+          description: "Trading endpoint error rate is {{ $value | humanizePercentage }}, above 5% threshold."
+
+      # User Engagement Alerts
+      - alert: LowDailyActiveUsers
+        expr: astra_kpi_daily_active_users < 100
+        for: 1h
+        labels:
+          severity: warning
+          component: user-engagement
+          team: growth
+        annotations:
+          summary: "Daily active users below target"
+          description: "Current DAU is {{ $value }}, below the warning threshold of 100 users."
+          runbook_url: "https://docs.astratrade.app/runbooks/user-engagement"
+
+      - alert: UserEngagementScoreLow
+        expr: astra_kpi_user_engagement_score < 4.0
+        for: 30m
+        labels:
+          severity: warning
+          component: user-engagement
+          team: product
+        annotations:
+          summary: "User engagement score is low"
+          description: "User engagement score is {{ $value }}, below the critical threshold of 4.0."
+
+      - alert: NoNewUserRegistrations
+        expr: increase(astra_user_registered_total[1h]) == 0
+        for: 2h
+        labels:
+          severity: warning
+          component: user-acquisition
+          team: growth
+        annotations:
+          summary: "No new user registrations in the last hour"
+          description: "No new users have registered in the past 2 hours."
+
+      # Revenue Alerts
+      - alert: LowDailyRevenue
+        expr: astra_kpi_daily_revenue < 1000
+        for: 4h
+        labels:
+          severity: warning
+          component: revenue
+          team: business
+        annotations:
+          summary: "Daily revenue below target"
+          description: "Current daily revenue is ${{ $value }}, below the warning threshold of $1000."
+          runbook_url: "https://docs.astratrade.app/runbooks/revenue"
+
+      - alert: CriticalRevenueDrop
+        expr: astra_kpi_daily_revenue < 100
+        for: 1h
+        labels:
+          severity: critical
+          component: revenue
+          team: business
+        annotations:
+          summary: "CRITICAL: Revenue severely impacted"
+          description: "Daily revenue is only ${{ $value }}, which is critically low."
+
+      - alert: RevenuePerUserLow
+        expr: astra_kpi_revenue_per_user < 10
+        for: 6h
+        labels:
+          severity: warning
+          component: monetization
+          team: product
+        annotations:
+          summary: "Revenue per user is low"
+          description: "Revenue per user is ${{ $value }}, below $10 threshold."
+
+      # Circuit Breaker Alerts
+      - alert: CircuitBreakerOpen
+        expr: astra_gateway_circuit_breaker_opens > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: infrastructure
+          team: platform
+        annotations:
+          summary: "Circuit breaker opened for service"
+          description: "{{ $value }} circuit breakers have opened, indicating service degradation."
+          runbook_url: "https://docs.astratrade.app/runbooks/circuit-breaker"
+
+      - alert: HighServiceFailureRate
+        expr: rate(astra_gateway_failed_requests[5m]) / rate(astra_gateway_requests_total[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          component: infrastructure
+          team: platform
+        annotations:
+          summary: "High service failure rate"
+          description: "Service failure rate is {{ $value | humanizePercentage }}, above 10% threshold."
+
+      # Service Discovery Alerts
+      - alert: ServiceInstanceDown
+        expr: astra_gateway_service_health{health_percentage} < 50
+        for: 2m
+        labels:
+          severity: critical
+          component: service-discovery
+          team: platform
+        annotations:
+          summary: "Service has low healthy instance percentage"
+          description: "Service {{ $labels.service }} has only {{ $value }}% healthy instances."
+
+      - alert: NoHealthyServiceInstances
+        expr: astra_gateway_service_health{healthy_instances} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: service-discovery
+          team: platform
+        annotations:
+          summary: "No healthy instances available for service"
+          description: "Service {{ $labels.service }} has no healthy instances available."
+
+      # Performance Alerts
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(astra_api_request_duration_bucket[5m])) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          component: performance
+          team: platform
+        annotations:
+          summary: "High API response latency"
+          description: "95th percentile API response time is {{ $value }}s, above 1 second threshold."
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes / 1024 / 1024 > 512
+        for: 10m
+        labels:
+          severity: warning
+          component: resources
+          team: platform
+        annotations:
+          summary: "High memory usage detected"
+          description: "Process memory usage is {{ $value }}MB, above 512MB threshold."
+
+  - name: astratrade.gamification.alerts
+    rules:
+      # Gamification System Alerts
+      - alert: LowXPGeneration
+        expr: rate(astra_xp_gained_total[1h]) < 10
+        for: 1h
+        labels:
+          severity: warning
+          component: gamification
+          team: product
+        annotations:
+          summary: "Low XP generation rate"
+          description: "XP generation rate is {{ $value }} XP/hour, below expected threshold."
+
+      - alert: NoAchievementsUnlocked
+        expr: increase(astra_achievement_unlocked_total[2h]) == 0
+        for: 2h
+        labels:
+          severity: warning
+          component: gamification
+          team: product
+        annotations:
+          summary: "No achievements unlocked recently"
+          description: "No achievements have been unlocked in the past 2 hours."
+
+  - name: astratrade.social.alerts
+    rules:
+      # Social Engagement Alerts
+      - alert: LowSocialInteraction
+        expr: rate(astra_social_interaction_total[1h]) < 5
+        for: 1h
+        labels:
+          severity: warning
+          component: social
+          team: community
+        annotations:
+          summary: "Low social interaction rate"
+          description: "Social interaction rate is {{ $value }} interactions/hour, below expected threshold."
+
+      - alert: SocialInteractionRateDropoff
+        expr: astra_kpi_social_interaction_rate < 1.0
+        for: 2h
+        labels:
+          severity: warning
+          component: social
+          team: community
+        annotations:
+          summary: "Social interaction rate per user is low"
+          description: "Social interactions per user per day is {{ $value }}, below 1.0 threshold."
+
+  - name: astratrade.nft.alerts
+    rules:
+      # NFT Marketplace Alerts
+      - alert: LowNFTMarketplaceActivity
+        expr: rate(astra_nft_sale_total[24h]) < 1
+        for: 12h
+        labels:
+          severity: warning
+          component: nft-marketplace
+          team: product
+        annotations:
+          summary: "Low NFT marketplace activity"
+          description: "NFT marketplace has less than 1 sale per day for 12 hours."
+
+      - alert: NFTMarketplaceRevenueDropoff
+        expr: rate(astra_marketplace_revenue_total[24h]) < 10
+        for: 6h
+        labels:
+          severity: warning
+          component: nft-marketplace
+          team: business
+        annotations:
+          summary: "NFT marketplace revenue below expectations"
+          description: "NFT marketplace daily revenue rate is ${{ $value }}, below $10 threshold."
+
+  - name: astratrade.operational.alerts
+    rules:
+      # Operational Health Alerts
+      - alert: ServiceRegistryDown
+        expr: up{job="astra-service-registry"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+          team: platform
+        annotations:
+          summary: "Service registry is down"
+          description: "Service registry has been down for 1 minute."
+          runbook_url: "https://docs.astratrade.app/runbooks/service-registry"
+
+      - alert: EventBusDown
+        expr: up{job="astra-redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+          team: platform
+        annotations:
+          summary: "Event bus (Redis) is down"
+          description: "Redis event bus has been down for 1 minute."
+          runbook_url: "https://docs.astratrade.app/runbooks/redis"
+
+      - alert: DatabaseConnectionIssues
+        expr: up{job="astra-postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+          team: platform
+        annotations:
+          summary: "Database connection issues"
+          description: "PostgreSQL database has been unreachable for 1 minute."
+          runbook_url: "https://docs.astratrade.app/runbooks/database"
+
+      # Rate Limiting Alerts
+      - alert: HighRateLimitingActivity
+        expr: rate(astra_gateway_rate_limit_exceeded_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: api-gateway
+          team: platform
+        annotations:
+          summary: "High rate limiting activity"
+          description: "Rate limiting is being triggered {{ $value }} times per second."
+
+      - alert: PotentialDDoSAttack
+        expr: rate(astra_gateway_rate_limit_exceeded_total[1m]) > 100
+        for: 1m
+        labels:
+          severity: critical
+          component: security
+          team: platform
+        annotations:
+          summary: "Potential DDoS attack detected"
+          description: "Extremely high rate limiting activity: {{ $value }} blocked requests per second."
+          runbook_url: "https://docs.astratrade.app/runbooks/ddos"
+
+      # Business Continuity Alerts
+      - alert: AllServicesUsingFallback
+        expr: astra_gateway_fallback_responses_total / astra_gateway_requests_total > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          component: business-continuity
+          team: platform
+        annotations:
+          summary: "Majority of requests using fallback services"
+          description: "{{ $value | humanizePercentage }} of requests are using fallback services."
+
+      - alert: BusinessKPIsAllCritical
+        expr: |
+          (
+            (astra_kpi_trades_per_second < 2) and
+            (astra_kpi_daily_active_users < 100) and
+            (astra_kpi_daily_revenue < 100)
+          )
+        for: 30m
+        labels:
+          severity: critical
+          component: business-health
+          team: leadership
+        annotations:
+          summary: "CRITICAL: All major business KPIs are in critical state"
+          description: "Trading, user engagement, and revenue are all critically low simultaneously."
+          runbook_url: "https://docs.astratrade.app/runbooks/business-critical"

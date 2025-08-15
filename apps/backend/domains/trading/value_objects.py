@@ -37,6 +37,8 @@ class TradeStatus(Enum):
     """Lifecycle status of a trade."""
     PENDING = "pending"      # Trade created but not executed
     ACTIVE = "active"        # Trade executed and open
+    PARTIALLY_FILLED = "partially_filled"  # Trade partially executed
+    FILLED = "filled"        # Trade fully executed
     COMPLETED = "completed"  # Trade closed with profit/loss
     FAILED = "failed"        # Trade execution failed
     CANCELLED = "cancelled"  # Trade cancelled before execution

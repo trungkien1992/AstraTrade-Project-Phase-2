@@ -1,5 +1,5 @@
 /// User Progression Model for AstraTrade Exchange V2
-/// 
+///
 /// Represents the gamification state of a user including:
 /// - XP and level progression
 /// - Achievement tracking
@@ -43,7 +43,7 @@ class UserProgression {
       currentLevel: int.parse(response[2]),
       streakDays: int.parse(response[3]),
       lastActivityTimestamp: DateTime.fromMillisecondsSinceEpoch(
-        int.parse(response[4]) * 1000
+        int.parse(response[4]) * 1000,
       ),
       achievementMask: BigInt.parse(response[5]),
       practiceBalance: BigInt.parse(response[6]),
@@ -61,7 +61,9 @@ class UserProgression {
       totalXp: BigInt.parse(json['totalXp'] as String),
       currentLevel: json['currentLevel'] as int,
       streakDays: json['streakDays'] as int,
-      lastActivityTimestamp: DateTime.parse(json['lastActivityTimestamp'] as String),
+      lastActivityTimestamp: DateTime.parse(
+        json['lastActivityTimestamp'] as String,
+      ),
       achievementMask: BigInt.parse(json['achievementMask'] as String),
       practiceBalance: BigInt.parse(json['practiceBalance'] as String),
       totalTrades: json['totalTrades'] as int,
@@ -91,7 +93,8 @@ class UserProgression {
   /// Get XP required for next level
   int get xpForNextLevel {
     final nextLevel = currentLevel + 1;
-    final requiredXp = nextLevel * nextLevel * 100; // Level formula: sqrt(XP/100) + 1
+    final requiredXp =
+        nextLevel * nextLevel * 100; // Level formula: sqrt(XP/100) + 1
     return requiredXp;
   }
 
@@ -101,7 +104,7 @@ class UserProgression {
     final nextLevelXp = xpForNextLevel;
     final progressXp = totalXp.toInt() - currentLevelXp;
     final totalNeededXp = nextLevelXp - currentLevelXp;
-    
+
     if (totalNeededXp <= 0) return 1.0;
     return (progressXp / totalNeededXp).clamp(0.0, 1.0);
   }
@@ -122,20 +125,21 @@ class UserProgression {
   /// Get list of unlocked achievements
   List<Achievement> get unlockedAchievements {
     List<Achievement> achievements = [];
-    
+
     // Check each achievement bit
     for (int i = 0; i < 32; i++) {
       if (hasAchievement(i + 1)) {
         achievements.add(Achievement.fromId(i + 1));
       }
     }
-    
+
     return achievements;
   }
 
   /// Get practice balance in readable format
   String get practiceBalanceFormatted {
-    final balance = practiceBalance / BigInt.from(10).pow(18); // Assume 18 decimals
+    final balance =
+        practiceBalance / BigInt.from(10).pow(18); // Assume 18 decimals
     return balance.toString();
   }
 
@@ -166,7 +170,8 @@ class UserProgression {
       totalXp: totalXp ?? this.totalXp,
       currentLevel: currentLevel ?? this.currentLevel,
       streakDays: streakDays ?? this.streakDays,
-      lastActivityTimestamp: lastActivityTimestamp ?? this.lastActivityTimestamp,
+      lastActivityTimestamp:
+          lastActivityTimestamp ?? this.lastActivityTimestamp,
       achievementMask: achievementMask ?? this.achievementMask,
       practiceBalance: practiceBalance ?? this.practiceBalance,
       totalTrades: totalTrades ?? this.totalTrades,
@@ -179,7 +184,7 @@ class UserProgression {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is UserProgression &&
         other.userAddress == userAddress &&
         other.totalXp == totalXp &&
@@ -298,7 +303,7 @@ class Achievement {
     };
   }
 
-  /// Create from JSON  
+  /// Create from JSON
   factory Achievement.fromJson(Map<String, dynamic> json) {
     return Achievement(
       id: json['id'] as int,
@@ -314,21 +319,10 @@ class Achievement {
 }
 
 /// Achievement rarity levels
-enum AchievementRarity {
-  common,
-  uncommon,
-  rare,
-  epic,
-  legendary,
-}
+enum AchievementRarity { common, uncommon, rare, epic, legendary }
 
 /// Trading experience levels
-enum TradingExperience {
-  beginner,
-  intermediate,
-  advanced,
-  expert,
-}
+enum TradingExperience { beginner, intermediate, advanced, expert }
 
 /// Extension for better display of trading experience
 extension TradingExperienceExtension on TradingExperience {

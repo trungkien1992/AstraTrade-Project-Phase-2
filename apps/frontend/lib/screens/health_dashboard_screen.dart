@@ -8,7 +8,8 @@ class HealthDashboardScreen extends ConsumerStatefulWidget {
   const HealthDashboardScreen({super.key});
 
   @override
-  ConsumerState<HealthDashboardScreen> createState() => _HealthDashboardScreenState();
+  ConsumerState<HealthDashboardScreen> createState() =>
+      _HealthDashboardScreenState();
 }
 
 class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
@@ -24,11 +25,13 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
 
   Future<void> _loadHealthData() async {
     setState(() => _isLoading = true);
-    
+
     try {
-      final healthChecks = await HealthMonitoringService().performCompleteHealthCheck();
-      final performanceSummary = PerformanceMonitoringService().getPerformanceSummary();
-      
+      final healthChecks = await HealthMonitoringService()
+          .performCompleteHealthCheck();
+      final performanceSummary = PerformanceMonitoringService()
+          .getPerformanceSummary();
+
       setState(() {
         _healthChecks = healthChecks;
         _performanceSummary = performanceSummary;
@@ -85,11 +88,11 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
     if (_healthChecks == null) return const SizedBox();
 
     final overallStatus = HealthMonitoringService().getOverallHealthStatus();
-    
+
     Color statusColor;
     IconData statusIcon;
     String statusText;
-    
+
     switch (overallStatus) {
       case HealthStatus.healthy:
         statusColor = Colors.green;
@@ -159,13 +162,12 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
       children: [
         const Text(
           'Health Checks',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        ...(_healthChecks!.entries.map((entry) => _buildHealthCheckCard(entry.value))),
+        ...(_healthChecks!.entries.map(
+          (entry) => _buildHealthCheckCard(entry.value),
+        )),
       ],
     );
   }
@@ -173,7 +175,7 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
   Widget _buildHealthCheckCard(HealthCheck check) {
     Color statusColor;
     IconData statusIcon;
-    
+
     switch (check.status) {
       case HealthStatus.healthy:
         statusColor = Colors.green;
@@ -239,10 +241,7 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
       children: [
         const Text(
           'Performance Metrics',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Card(
@@ -250,14 +249,29 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                _buildMetricRow('App Uptime', '${_performanceSummary!['app_uptime_minutes']} minutes'),
-                _buildMetricRow('Total Metrics', '${_performanceSummary!['total_metrics']}'),
+                _buildMetricRow(
+                  'App Uptime',
+                  '${_performanceSummary!['app_uptime_minutes']} minutes',
+                ),
+                _buildMetricRow(
+                  'Total Metrics',
+                  '${_performanceSummary!['total_metrics']}',
+                ),
                 if (_performanceSummary!['appStartup_avg'] != null)
-                  _buildMetricRow('Avg Startup Time', '${_performanceSummary!['appStartup_avg'].toStringAsFixed(0)}ms'),
+                  _buildMetricRow(
+                    'Avg Startup Time',
+                    '${_performanceSummary!['appStartup_avg'].toStringAsFixed(0)}ms',
+                  ),
                 if (_performanceSummary!['screenLoad_avg'] != null)
-                  _buildMetricRow('Avg Screen Load', '${_performanceSummary!['screenLoad_avg'].toStringAsFixed(0)}ms'),
+                  _buildMetricRow(
+                    'Avg Screen Load',
+                    '${_performanceSummary!['screenLoad_avg'].toStringAsFixed(0)}ms',
+                  ),
                 if (_performanceSummary!['networkRequest_avg'] != null)
-                  _buildMetricRow('Avg Network Request', '${_performanceSummary!['networkRequest_avg'].toStringAsFixed(0)}ms'),
+                  _buildMetricRow(
+                    'Avg Network Request',
+                    '${_performanceSummary!['networkRequest_avg'].toStringAsFixed(0)}ms',
+                  ),
               ],
             ),
           ),
@@ -285,10 +299,7 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
       children: [
         const Text(
           'System Information',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Card(
@@ -296,13 +307,28 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                _buildInfoRow('Environment', AppConfig.isProduction ? 'Production' : 'Development'),
+                _buildInfoRow(
+                  'Environment',
+                  AppConfig.isProduction ? 'Production' : 'Development',
+                ),
                 _buildInfoRow('App Version', AppConfig.appVersion),
                 _buildInfoRow('Build Number', AppConfig.buildNumber),
-                _buildInfoRow('Beta Version', AppConfig.isBetaVersion ? 'Yes' : 'No'),
-                _buildInfoRow('Analytics Enabled', AppConfig.enableAnalytics ? 'Yes' : 'No'),
-                _buildInfoRow('Performance Monitoring', AppConfig.enablePerformanceMonitoring ? 'Yes' : 'No'),
-                _buildInfoRow('A/B Testing', AppConfig.enableABTesting ? 'Yes' : 'No'),
+                _buildInfoRow(
+                  'Beta Version',
+                  AppConfig.isBetaVersion ? 'Yes' : 'No',
+                ),
+                _buildInfoRow(
+                  'Analytics Enabled',
+                  AppConfig.enableAnalytics ? 'Yes' : 'No',
+                ),
+                _buildInfoRow(
+                  'Performance Monitoring',
+                  AppConfig.enablePerformanceMonitoring ? 'Yes' : 'No',
+                ),
+                _buildInfoRow(
+                  'A/B Testing',
+                  AppConfig.enableABTesting ? 'Yes' : 'No',
+                ),
               ],
             ),
           ),

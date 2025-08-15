@@ -10,7 +10,11 @@ void main() {
     // Test Data
     const testAddress = "0x123456789abcdef";
     final testCalls = [
-      {"contract_address": "0xcontract1", "entrypoint": "transfer", "calldata": ["0x123", "0x456"]}
+      {
+        "contract_address": "0xcontract1",
+        "entrypoint": "transfer",
+        "calldata": ["0x123", "0x456"],
+      },
     ];
 
     // 1. Test Signature Generation
@@ -28,7 +32,7 @@ void main() {
     if (!paymaster._isValidMobileSignature(signature)) {
       throw Exception("Generated signature failed validation");
     }
-    print("✅ Signature Validated" );
+    print("✅ Signature Validated");
 
     // 3. Test Transaction Execution
     final sponsorship = AVNUSponsorshipResponse(
@@ -52,6 +56,6 @@ void main() {
     if (!txHash.contains("mock") && !txHash.startsWith("0x")) {
       throw Exception("Unexpected transaction hash format");
     }
-    print("✅ Test Completed Successfully" );
+    print("✅ Test Completed Successfully");
   });
- }
+}

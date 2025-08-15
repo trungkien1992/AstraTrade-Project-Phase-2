@@ -10,7 +10,8 @@ import 'package:image/image.dart' as img;
 
 /// Service for handling social sharing and meme generation
 class SocialSharingService {
-  static final SocialSharingService _instance = SocialSharingService._internal();
+  static final SocialSharingService _instance =
+      SocialSharingService._internal();
   factory SocialSharingService() => _instance;
   SocialSharingService._internal();
 
@@ -39,10 +40,7 @@ class SocialSharingService {
         subject: 'AstraTrade Cosmic Achievement! 🚀',
       );
     } else {
-      await Share.share(
-        message,
-        subject: 'AstraTrade Cosmic Achievement! 🚀',
-      );
+      await Share.share(message, subject: 'AstraTrade Cosmic Achievement! 🚀');
     }
   }
 
@@ -53,7 +51,8 @@ class SocialSharingService {
     required String specialUnlock,
     Widget? levelUpWidget,
   }) async {
-    final message = '''
+    final message =
+        '''
 🚀 COSMIC LEVEL UP! 🚀
 
 Level: $newLevel
@@ -72,10 +71,7 @@ Join the cosmic trading adventure!
         subject: 'Level Up in AstraTrade! 🌌',
       );
     } else {
-      await Share.share(
-        message,
-        subject: 'Level Up in AstraTrade! 🌌',
-      );
+      await Share.share(message, subject: 'Level Up in AstraTrade! 🌌');
     }
   }
 
@@ -85,7 +81,8 @@ Join the cosmic trading adventure!
     required double bonusMultiplier,
     Widget? streakWidget,
   }) async {
-    final message = '''
+    final message =
+        '''
 🔥 COSMIC STREAK FIRE! 🔥
 
 ${streakDays} Day Trading Streak!
@@ -103,10 +100,7 @@ The stellar currents are flowing through me! ✨
         subject: 'Epic Trading Streak! 🔥',
       );
     } else {
-      await Share.share(
-        message,
-        subject: 'Epic Trading Streak! 🔥',
-      );
+      await Share.share(message, subject: 'Epic Trading Streak! 🔥');
     }
   }
 
@@ -118,7 +112,8 @@ The stellar currents are flowing through me! ✨
     Widget? artifactWidget,
   }) async {
     final rarityEmoji = _getRarityEmoji(rarity);
-    final message = '''
+    final message =
+        '''
 $rarityEmoji COSMIC ARTIFACT DISCOVERED! $rarityEmoji
 
 Artifact: $artifactName
@@ -137,10 +132,7 @@ The universe has blessed my trading journey! 🌌
         subject: 'Rare Cosmic Artifact! $rarityEmoji',
       );
     } else {
-      await Share.share(
-        message,
-        subject: 'Rare Cosmic Artifact! $rarityEmoji',
-      );
+      await Share.share(message, subject: 'Rare Cosmic Artifact! $rarityEmoji');
     }
   }
 
@@ -151,9 +143,9 @@ The universe has blessed my trading journey! 🌌
   }) async {
     final memeWidget = _generateMemeWidget(memeType, memeData);
     final imageFile = await _captureWidget(memeWidget);
-    
+
     final memeMessage = _generateMemeMessage(memeType, memeData);
-    
+
     await Share.shareXFiles(
       [XFile(imageFile.path)],
       text: memeMessage,
@@ -164,13 +156,16 @@ The universe has blessed my trading journey! 🌌
   /// Capture a widget as an image file (simplified version)
   Future<File> _captureWidget(Widget widget) async {
     final directory = await getTemporaryDirectory();
-    final imagePath = '${directory.path}/cosmic_share_${DateTime.now().millisecondsSinceEpoch}.png';
-    
+    final imagePath =
+        '${directory.path}/cosmic_share_${DateTime.now().millisecondsSinceEpoch}.png';
+
     // For now, create a placeholder file
     // In a real implementation, this would use screenshot or render techniques
     final file = File(imagePath);
-    await file.writeAsBytes(Uint8List.fromList([0x89, 0x50, 0x4E, 0x47])); // PNG header
-    
+    await file.writeAsBytes(
+      Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]),
+    ); // PNG header
+
     return file;
   }
 
@@ -188,9 +183,11 @@ The universe has blessed my trading journey! 🌌
       'Channeling cosmic energy into profits!',
       'The universe aligns with my trades!',
     ];
-    
-    final randomPhrase = cosmicPhrases[DateTime.now().millisecondsSinceEpoch % cosmicPhrases.length];
-    
+
+    final randomPhrase =
+        cosmicPhrases[DateTime.now().millisecondsSinceEpoch %
+            cosmicPhrases.length];
+
     return '''
 🌌 COSMIC TRADING ACHIEVEMENT! 🌌
 
@@ -247,18 +244,12 @@ Join the cosmic trading revolution!
           const SizedBox(height: 20),
           Text(
             'Stellar Shards: +${data['shards']?.toStringAsFixed(1) ?? '0.0'}',
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontSize: 18, color: Colors.white),
           ),
           const SizedBox(height: 10),
           Text(
             'Lumina: +${data['lumina']?.toStringAsFixed(2) ?? '0.0'}',
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.purple,
-            ),
+            style: const TextStyle(fontSize: 18, color: Colors.purple),
           ),
           const SizedBox(height: 30),
           const Text(
@@ -308,18 +299,12 @@ Join the cosmic trading revolution!
           const SizedBox(height: 20),
           Text(
             'Trade Amount: \$${data['amount']?.toStringAsFixed(2) ?? '0.0'}',
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontSize: 18, color: Colors.white),
           ),
           const SizedBox(height: 10),
           Text(
             'Consolation Shards: +${data['consolation']?.toStringAsFixed(1) ?? '0.0'}',
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.cyan,
-            ),
+            style: const TextStyle(fontSize: 18, color: Colors.cyan),
           ),
           const SizedBox(height: 30),
           const Text(
@@ -378,10 +363,7 @@ Join the cosmic trading revolution!
           const SizedBox(height: 10),
           Text(
             'Bonus: ${data['bonus']?.toStringAsFixed(0) ?? '0'}%',
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.yellow,
-            ),
+            style: const TextStyle(fontSize: 18, color: Colors.yellow),
           ),
           const SizedBox(height: 30),
           const Text(
@@ -412,7 +394,7 @@ Join the cosmic trading revolution!
     final rarity = data['rarity'] ?? 'common';
     final rarityColor = _getRarityColor(rarity);
     final rarityEmoji = _getRarityEmoji(rarity);
-    
+
     return Container(
       width: 400,
       height: 600,
@@ -444,19 +426,13 @@ Join the cosmic trading revolution!
           const SizedBox(height: 10),
           Text(
             rarity.toUpperCase(),
-            style: TextStyle(
-              fontSize: 18,
-              color: rarityColor,
-            ),
+            style: TextStyle(fontSize: 18, color: rarityColor),
           ),
           const SizedBox(height: 20),
           Text(
             data['effect'] ?? 'Mystical cosmic power',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontSize: 16, color: Colors.white),
           ),
           const SizedBox(height: 30),
           const Text(
@@ -507,10 +483,7 @@ Join the cosmic trading revolution!
           Text(
             data['message'] ?? 'Trading through the stars!',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontSize: 18, color: Colors.white),
           ),
           const SizedBox(height: 30),
           const Text(

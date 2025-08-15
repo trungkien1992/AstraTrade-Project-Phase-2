@@ -38,10 +38,7 @@ class _NFTFilterWidgetState extends State<NFTFilterWidget> {
           ),
           const SizedBox(height: 24),
           // Currency filter
-          const Text(
-            'Currency',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          const Text('Currency', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -52,10 +49,7 @@ class _NFTFilterWidgetState extends State<NFTFilterWidget> {
           ),
           const SizedBox(height: 16),
           // Rarity filter
-          const Text(
-            'Rarity',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          const Text('Rarity', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -79,7 +73,10 @@ class _NFTFilterWidgetState extends State<NFTFilterWidget> {
             children: [
               _buildAchievementTypeChip('first_trade', 'First Trade'),
               _buildAchievementTypeChip('level_milestone', 'Level Milestone'),
-              _buildAchievementTypeChip('constellation_founder', 'Constellation Founder'),
+              _buildAchievementTypeChip(
+                'constellation_founder',
+                'Constellation Founder',
+              ),
               _buildAchievementTypeChip('viral_legend', 'Viral Legend'),
               _buildAchievementTypeChip('trading_master', 'Trading Master'),
             ],
@@ -109,7 +106,7 @@ class _NFTFilterWidgetState extends State<NFTFilterWidget> {
 
   Widget _buildFilterChip(String value, String label) {
     final isSelected = _filters['currency'] == value;
-    
+
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
@@ -123,7 +120,7 @@ class _NFTFilterWidgetState extends State<NFTFilterWidget> {
 
   Widget _buildRarityChip(String value, String label) {
     final isSelected = _filters['rarity'] == value;
-    
+
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
@@ -138,7 +135,7 @@ class _NFTFilterWidgetState extends State<NFTFilterWidget> {
 
   Widget _buildAchievementTypeChip(String value, String label) {
     final isSelected = _filters['achievementType'] == value;
-    
+
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,

@@ -6,13 +6,14 @@ import 'package:crypto/crypto.dart';
 /// Production Extended Exchange API Client
 /// LIVE TRADING integration with real authentication
 class ProductionExtendedExchangeClient {
-  static const String baseUrl = 'https://starknet.sepolia.extended.exchange/api/v1';
+  static const String baseUrl =
+      'https://starknet.sepolia.extended.exchange/api/v1';
   static const Duration timeout = Duration(seconds: 30);
-  
+
   final String _apiKey;
   final String _apiSecret;
   final http.Client _client;
-  
+
   ProductionExtendedExchangeClient({
     required String apiKey,
     required String apiSecret,
@@ -20,9 +21,14 @@ class ProductionExtendedExchangeClient {
   }) : _apiKey = apiKey,
        _apiSecret = apiSecret,
        _client = client ?? http.Client();
-  
+
   /// Generate HMAC signature for authenticated requests
-  String _generateSignature(String timestamp, String method, String path, String body) {
+  String _generateSignature(
+    String timestamp,
+    String method,
+    String path,
+    String body,
+  ) {
     final message = timestamp + method.toUpperCase() + path + body;
     final key = utf8.encode(_apiSecret);
     final messageBytes = utf8.encode(message);
@@ -30,12 +36,13 @@ class ProductionExtendedExchangeClient {
     final digest = hmac.convert(messageBytes);
     return digest.toString();
   }
-  
+
   /// Build authenticated headers
   Map<String, String> _buildHeaders(String method, String path, String body) {
-    final timestamp = (DateTime.now().millisecondsSinceEpoch / 1000).toStringAsFixed(0);
+    final timestamp = (DateTime.now().millisecondsSinceEpoch / 1000)
+        .toStringAsFixed(0);
     final signature = _generateSignature(timestamp, method, path, body);
-    
+
     return {
       'X-Api-Key': _apiKey,
       'X-Timestamp': timestamp,
@@ -44,7 +51,7 @@ class ProductionExtendedExchangeClient {
       'User-Agent': 'AstraTrade-Production/1.0.0',
     };
   }
-  
+
   /// Execute real trading order
   Future<LiveTradeResult> executeLiveTrade({
     required String symbol,
@@ -53,7 +60,6 @@ class ProductionExtendedExchangeClient {
     String orderType = 'MARKET',
     double? limitPrice,
   }) async {
-    
     final orderData = {
       'market': symbol,
       'side': side,
@@ -63,29 +69,32 @@ class ProductionExtendedExchangeClient {
       'time_in_force': 'IOC', // Immediate or Cancel
       'client_order_id': 'astratrade_${DateTime.now().millisecondsSinceEpoch}',
     };
-    
+
     final body = jsonEncode(orderData);
     final headers = _buildHeaders('POST', '/orders', body);
-    
+
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/orders'),
-        headers: headers,
-        body: body,
-      ).timeout(timeout);
-      
+      final response = await _client
+          .post(Uri.parse('$baseUrl/orders'), headers: headers, body: body)
+          .timeout(timeout);
+
       final responseData = jsonDecode(response.body);
-      
+
       return LiveTradeResult(
         success: response.statusCode == 200 || response.statusCode == 201,
         orderId: responseData['id']?.toString(),
         status: responseData['status']?.toString() ?? 'UNKNOWN',
-        executedAmount: double.tryParse(responseData['filled_size']?.toString() ?? '0') ?? 0,
-        executedPrice: double.tryParse(responseData['average_fill_price']?.toString() ?? '0') ?? 0,
+        executedAmount:
+            double.tryParse(responseData['filled_size']?.toString() ?? '0') ??
+            0,
+        executedPrice:
+            double.tryParse(
+              responseData['average_fill_price']?.toString() ?? '0',
+            ) ??
+            0,
         timestamp: DateTime.now(),
         rawResponse: responseData,
       );
-      
     } catch (e) {
       return LiveTradeResult(
         success: false,
@@ -94,49 +103,48 @@ class ProductionExtendedExchangeClient {
       );
     }
   }
-  
+
   /// Get live market data
   Future<MarketData> getLiveMarketData(String symbol) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/markets/$symbol/ticker'),
-        headers: {'User-Agent': 'AstraTrade-Production/1.0.0'},
-      ).timeout(timeout);
-      
+      final response = await _client
+          .get(
+            Uri.parse('$baseUrl/markets/$symbol/ticker'),
+            headers: {'User-Agent': 'AstraTrade-Production/1.0.0'},
+          )
+          .timeout(timeout);
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return MarketData.fromJson(data);
       }
-      
+
       throw Exception('Failed to fetch market data: ${response.statusCode}');
-      
     } catch (e) {
       throw Exception('Market data request failed: ${e.toString()}');
     }
   }
-  
+
   /// Get account balance and positions
   Future<AccountInfo> getAccountInfo() async {
     final headers = _buildHeaders('GET', '/user/account', '');
-    
+
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/user/account'),
-        headers: headers,
-      ).timeout(timeout);
-      
+      final response = await _client
+          .get(Uri.parse('$baseUrl/user/account'), headers: headers)
+          .timeout(timeout);
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return AccountInfo.fromJson(data);
       }
-      
+
       throw Exception('Failed to fetch account info: ${response.statusCode}');
-      
     } catch (e) {
       throw Exception('Account info request failed: ${e.toString()}');
     }
   }
-  
+
   void dispose() {
     _client.close();
   }
@@ -152,7 +160,7 @@ class LiveTradeResult {
   final DateTime timestamp;
   final String? error;
   final Map<String, dynamic>? rawResponse;
-  
+
   LiveTradeResult({
     required this.success,
     this.orderId,
@@ -163,7 +171,7 @@ class LiveTradeResult {
     this.error,
     this.rawResponse,
   });
-  
+
   Map<String, dynamic> toJson() => {
     'success': success,
     'order_id': orderId,
@@ -184,7 +192,7 @@ class MarketData {
   final double askPrice;
   final double volume24h;
   final double priceChange24h;
-  
+
   MarketData({
     required this.symbol,
     required this.lastPrice,
@@ -193,7 +201,7 @@ class MarketData {
     required this.volume24h,
     required this.priceChange24h,
   });
-  
+
   factory MarketData.fromJson(Map<String, dynamic> json) => MarketData(
     symbol: json['market'] ?? '',
     lastPrice: double.tryParse(json['last']?.toString() ?? '0') ?? 0,
@@ -209,19 +217,25 @@ class AccountInfo {
   final String accountId;
   final Map<String, double> balances;
   final List<Position> positions;
-  
+
   AccountInfo({
     required this.accountId,
     required this.balances,
     required this.positions,
   });
-  
+
   factory AccountInfo.fromJson(Map<String, dynamic> json) => AccountInfo(
     accountId: json['id']?.toString() ?? '',
-    balances: (json['balances'] as Map<String, dynamic>?)?.map(
-      (key, value) => MapEntry(key, double.tryParse(value.toString()) ?? 0),
-    ) ?? {},
-    positions: (json['positions'] as List?)?.map((p) => Position.fromJson(p)).toList() ?? [],
+    balances:
+        (json['balances'] as Map<String, dynamic>?)?.map(
+          (key, value) => MapEntry(key, double.tryParse(value.toString()) ?? 0),
+        ) ??
+        {},
+    positions:
+        (json['positions'] as List?)
+            ?.map((p) => Position.fromJson(p))
+            .toList() ??
+        [],
   );
 }
 
@@ -231,18 +245,19 @@ class Position {
   final double size;
   final double entryPrice;
   final double unrealizedPnl;
-  
+
   Position({
     required this.market,
     required this.size,
     required this.entryPrice,
     required this.unrealizedPnl,
   });
-  
+
   factory Position.fromJson(Map<String, dynamic> json) => Position(
     market: json['market'] ?? '',
     size: double.tryParse(json['size']?.toString() ?? '0') ?? 0,
     entryPrice: double.tryParse(json['entry_price']?.toString() ?? '0') ?? 0,
-    unrealizedPnl: double.tryParse(json['unrealized_pnl']?.toString() ?? '0') ?? 0,
+    unrealizedPnl:
+        double.tryParse(json['unrealized_pnl']?.toString() ?? '0') ?? 0,
   );
 }

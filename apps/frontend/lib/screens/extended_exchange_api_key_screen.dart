@@ -10,10 +10,12 @@ class ExtendedExchangeApiKeyScreen extends ConsumerStatefulWidget {
   const ExtendedExchangeApiKeyScreen({super.key});
 
   @override
-  ConsumerState<ExtendedExchangeApiKeyScreen> createState() => _ExtendedExchangeApiKeyScreenState();
+  ConsumerState<ExtendedExchangeApiKeyScreen> createState() =>
+      _ExtendedExchangeApiKeyScreenState();
 }
 
-class _ExtendedExchangeApiKeyScreenState extends ConsumerState<ExtendedExchangeApiKeyScreen> {
+class _ExtendedExchangeApiKeyScreenState
+    extends ConsumerState<ExtendedExchangeApiKeyScreen> {
   final _formKey = GlobalKey<FormState>();
   final _apiKeyController = TextEditingController();
   bool _isSaving = false;
@@ -28,7 +30,8 @@ class _ExtendedExchangeApiKeyScreenState extends ConsumerState<ExtendedExchangeA
   /// Load existing API key if available
   Future<void> _loadExistingApiKey() async {
     try {
-      final credentials = await SecureStorageService.instance.getTradingCredentials();
+      final credentials = await SecureStorageService.instance
+          .getTradingCredentials();
       if (credentials != null && credentials['api_key'] != null) {
         setState(() {
           _apiKeyController.text = credentials['api_key'];
@@ -50,8 +53,10 @@ class _ExtendedExchangeApiKeyScreenState extends ConsumerState<ExtendedExchangeA
 
     try {
       // Validate the API key by making a real API call
-      final isValid = await ExtendedExchangeApiService.validateApiKey(_apiKeyController.text);
-      
+      final isValid = await ExtendedExchangeApiService.validateApiKey(
+        _apiKeyController.text,
+      );
+
       if (!isValid) {
         setState(() {
           _errorMessage = 'Invalid API key. Please check and try again.';
@@ -62,14 +67,14 @@ class _ExtendedExchangeApiKeyScreenState extends ConsumerState<ExtendedExchangeA
 
       // Save the API key
       await ExtendedExchangeApiService.saveUserApiKey(_apiKeyController.text);
-      
+
       if (!mounted) return;
-      
+
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('API key saved successfully!')),
       );
-      
+
       // Navigate back or to the main screen
       Navigator.of(context).pop();
     } catch (e) {
@@ -105,19 +110,13 @@ class _ExtendedExchangeApiKeyScreenState extends ConsumerState<ExtendedExchangeA
             children: [
               const Text(
                 'Enter your Extended Exchange API Key',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               const Text(
                 'To enable real trading, please enter your Extended Exchange API key. '
                 'You can obtain this from your Extended Exchange account dashboard.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               const SizedBox(height: 24),
               TextFormField(
@@ -142,10 +141,7 @@ class _ExtendedExchangeApiKeyScreenState extends ConsumerState<ExtendedExchangeA
                 const SizedBox(height: 16),
                 Text(
                   _errorMessage!,
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.red, fontSize: 14),
                 ),
               ],
               const SizedBox(height: 24),
@@ -167,10 +163,7 @@ class _ExtendedExchangeApiKeyScreenState extends ConsumerState<ExtendedExchangeA
               const SizedBox(height: 24),
               const Text(
                 'How to get your API key:',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -179,27 +172,18 @@ class _ExtendedExchangeApiKeyScreenState extends ConsumerState<ExtendedExchangeA
                 '3. Go to Account Settings > API Keys\n'
                 '4. Create a new API key with trading permissions\n'
                 '5. Copy the API key and paste it here',
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                ),
+                style: TextStyle(fontSize: 14, height: 1.5),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Security Note:',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               const Text(
                 'Your API key is stored securely on your device using hardware-backed encryption. '
                 'Never share your API key with anyone.',
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                ),
+                style: TextStyle(fontSize: 14, height: 1.5),
               ),
             ],
           ),

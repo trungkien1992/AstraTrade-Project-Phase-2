@@ -6,11 +6,7 @@ class NFTMarketplaceItemWidget extends StatelessWidget {
   final NFTMarketplaceItem item;
   final VoidCallback? onTap;
 
-  const NFTMarketplaceItemWidget({
-    super.key,
-    required this.item,
-    this.onTap,
-  });
+  const NFTMarketplaceItemWidget({super.key, required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -95,10 +91,7 @@ class NFTMarketplaceItemWidget extends StatelessWidget {
               // Seller
               Text(
                 'by ${item.ownerUsername}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white70,
-                ),
+                style: const TextStyle(fontSize: 12, color: Colors.white70),
               ),
             ],
           ),

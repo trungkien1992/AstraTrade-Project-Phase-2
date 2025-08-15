@@ -1,11 +1,5 @@
 /// Application error types
-enum ErrorType {
-  network,
-  authentication,
-  validation,
-  business,
-  unknown
-}
+enum ErrorType { network, authentication, validation, business, unknown }
 
 /// Custom application exception
 class AppException implements Exception {

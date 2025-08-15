@@ -9,22 +9,22 @@ import 'package:crypto/crypto.dart';
 class SecureStorageService {
   static SecureStorageService? _instance;
   late FlutterSecureStorage _secureStorage;
-  
+
   static const String _privateKeyKey = 'user_private_key';
   static const String _walletAddressKey = 'wallet_address';
   static const String _userDataKey = 'encrypted_user_data';
   static const String _sessionTokenKey = 'session_token';
   static const String _biometricEnabledKey = 'biometric_enabled';
-  
+
   SecureStorageService._() {
     _initializeSecureStorage();
   }
-  
+
   static SecureStorageService get instance {
     _instance ??= SecureStorageService._();
     return _instance!;
   }
-  
+
   /// Initialize secure storage with device keystore encryption
   void _initializeSecureStorage() {
     _secureStorage = const FlutterSecureStorage(
@@ -43,13 +43,15 @@ class SecureStorageService {
       ),
     );
   }
-  
+
   /// Store private key with maximum security
   Future<void> storePrivateKey(String privateKey) async {
     try {
       // Store directly with Flutter Secure Storage (already encrypted by device keystore)
       await _secureStorage.write(key: _privateKeyKey, value: privateKey);
-      debugPrint('✅ Private key stored securely with device keystore encryption');
+      debugPrint(
+        '✅ Private key stored securely with device keystore encryption',
+      );
     } catch (e) {
       log('❌ Failed to store private key: $e');
       print('Full error details: $e'); // Add more detailed logging
@@ -75,7 +77,7 @@ class SecureStorageService {
       return null;
     }
   }
-  
+
   /// Retrieve private key with decryption
   Future<String?> getPrivateKey() async {
     try {
@@ -85,7 +87,7 @@ class SecureStorageService {
       throw SecureStorageException('Failed to retrieve private key');
     }
   }
-  
+
   /// Store user data with encryption
   Future<void> storeUserData(Map<String, dynamic> userData) async {
     try {
@@ -98,7 +100,7 @@ class SecureStorageService {
       throw SecureStorageException('Failed to store user data securely');
     }
   }
-  
+
   /// Generic method to store a value with a key
   Future<void> storeValue(String key, String value) async {
     try {
@@ -109,7 +111,7 @@ class SecureStorageService {
       throw SecureStorageException('Failed to store value securely');
     }
   }
-  
+
   /// Generic method to retrieve a value by key
   Future<String?> getValue(String key) async {
     try {
@@ -119,7 +121,7 @@ class SecureStorageService {
       return null;
     }
   }
-  
+
   /// Clear a specific key from storage
   Future<void> clearKey(String key) async {
     try {
@@ -129,13 +131,13 @@ class SecureStorageService {
       log('❌ Failed to clear key $key: $e');
     }
   }
-  
+
   /// Retrieve user data with decryption
   Future<Map<String, dynamic>?> getUserData() async {
     try {
       final encryptedData = await _secureStorage.read(key: _userDataKey);
       if (encryptedData == null) return null;
-      
+
       final jsonString = _decryptData(encryptedData);
       return jsonDecode(jsonString) as Map<String, dynamic>;
     } catch (e) {
@@ -143,7 +145,7 @@ class SecureStorageService {
       return null;
     }
   }
-  
+
   /// Store session token
   Future<void> storeSessionToken(String token) async {
     try {
@@ -154,7 +156,7 @@ class SecureStorageService {
       throw SecureStorageException('Failed to store session token');
     }
   }
-  
+
   /// Retrieve session token
   Future<String?> getSessionToken() async {
     try {
@@ -164,7 +166,7 @@ class SecureStorageService {
       return null;
     }
   }
-  
+
   /// Check if biometric authentication is enabled
   Future<bool> isBiometricEnabled() async {
     try {
@@ -175,12 +177,12 @@ class SecureStorageService {
       return false;
     }
   }
-  
+
   /// Enable/disable biometric authentication
   Future<void> setBiometricEnabled(bool enabled) async {
     try {
       await _secureStorage.write(
-        key: _biometricEnabledKey, 
+        key: _biometricEnabledKey,
         value: enabled.toString(),
       );
       debugPrint('✅ Biometric setting updated: $enabled');
@@ -189,11 +191,11 @@ class SecureStorageService {
       throw SecureStorageException('Failed to update biometric setting');
     }
   }
-  
+
   /// Clear all stored data (for logout/reset)
   Future<void> clearAll() async {
     debugPrint('🗑️ Starting secure data cleanup...');
-    
+
     // Try to clear individual keys first (more reliable)
     final keysToDelete = [
       _privateKeyKey,
@@ -202,7 +204,7 @@ class SecureStorageService {
       _sessionTokenKey,
       _biometricEnabledKey,
     ];
-    
+
     for (final key in keysToDelete) {
       try {
         await _secureStorage.delete(key: key);
@@ -212,7 +214,7 @@ class SecureStorageService {
         // Continue with other keys
       }
     }
-    
+
     // Try deleteAll as backup
     try {
       await _secureStorage.deleteAll();
@@ -220,62 +222,60 @@ class SecureStorageService {
     } catch (e) {
       debugPrint('⚠️ deleteAll failed, but individual keys were cleared: $e');
     }
-    
+
     debugPrint('✅ Secure data cleanup completed');
   }
-  
-  
-  
+
   /// Clear wallet data (for testing login screen)
   Future<void> clearWalletData() async {
     debugPrint('🔑 Clearing wallet data...');
-    
+
     try {
       await _secureStorage.delete(key: _privateKeyKey);
       debugPrint('✅ Private key cleared');
     } catch (e) {
       debugPrint('⚠️ Failed to clear private key: $e');
     }
-    
+
     try {
       await _secureStorage.delete(key: _walletAddressKey);
       debugPrint('✅ Wallet address cleared');
     } catch (e) {
       debugPrint('⚠️ Failed to clear wallet address: $e');
     }
-    
+
     debugPrint('✅ Wallet data cleanup completed - login screen should appear');
   }
-  
+
   /// Check if secure storage is available
   Future<bool> isAvailable() async {
     try {
       // Test write/read operation
       const testKey = 'test_availability';
       const testValue = 'test';
-      
+
       await _secureStorage.write(key: testKey, value: testValue);
       final result = await _secureStorage.read(key: testKey);
       await _secureStorage.delete(key: testKey);
-      
+
       return result == testValue;
     } catch (e) {
       log('❌ Secure storage not available: $e');
       return false;
     }
   }
-  
+
   /// Additional encryption for sensitive data like private keys
   String _encryptData(String data) {
     try {
       // Create a deterministic salt based on device-specific info
       final deviceSalt = _generateDeviceSalt();
       final combined = '$deviceSalt:$data';
-      
+
       // Hash the combined data for additional security
       final bytes = utf8.encode(combined);
       final digest = sha256.convert(bytes);
-      
+
       // Base64 encode for storage
       return base64Encode(digest.bytes + utf8.encode(data));
     } catch (e) {
@@ -283,30 +283,30 @@ class SecureStorageService {
       throw SecureStorageException('Data encryption failed');
     }
   }
-  
+
   /// Decrypt data that was encrypted with _encryptData
   String _decryptData(String encryptedData) {
     try {
       final decodedBytes = base64Decode(encryptedData);
-      
+
       // Extract the original data (skip the hash prefix)
       final hashLength = 32; // SHA-256 produces 32 bytes
       final originalBytes = decodedBytes.sublist(hashLength);
-      
+
       return utf8.decode(originalBytes);
     } catch (e) {
       log('❌ Failed to decrypt data: $e');
       throw SecureStorageException('Data decryption failed');
     }
   }
-  
+
   /// Generate device-specific salt for additional encryption
   String _generateDeviceSalt() {
     // In a real implementation, this would use device-specific identifiers
     // For now, use a constant salt (the device keystore provides the real security)
     return 'astratrade_device_salt_v1';
   }
-  
+
   /// Securely store trading credentials
   Future<void> storeTradingCredentials({
     required String apiKey,
@@ -320,22 +320,27 @@ class SecureStorageService {
         if (passphrase != null) 'passphrase': passphrase,
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       };
-      
+
       final encryptedCredentials = _encryptData(jsonEncode(credentials));
-      await _secureStorage.write(key: 'trading_credentials', value: encryptedCredentials);
+      await _secureStorage.write(
+        key: 'trading_credentials',
+        value: encryptedCredentials,
+      );
       debugPrint('✅ Trading credentials stored securely');
     } catch (e) {
       log('❌ Failed to store trading credentials: $e');
       throw SecureStorageException('Failed to store trading credentials');
     }
   }
-  
+
   /// Retrieve trading credentials
   Future<Map<String, dynamic>?> getTradingCredentials() async {
     try {
-      final encryptedCredentials = await _secureStorage.read(key: 'trading_credentials');
+      final encryptedCredentials = await _secureStorage.read(
+        key: 'trading_credentials',
+      );
       if (encryptedCredentials == null) return null;
-      
+
       final decryptedData = _decryptData(encryptedCredentials);
       return jsonDecode(decryptedData) as Map<String, dynamic>;
     } catch (e) {
@@ -343,7 +348,121 @@ class SecureStorageService {
       return null;
     }
   }
-  
+
+  /// Store Extended Exchange L2 credentials
+  Future<void> storeExtendedExchangeCredentials(
+    Map<String, String> credentials,
+  ) async {
+    try {
+      final credentialsWithTimestamp = {
+        ...credentials,
+        'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+      };
+
+      final jsonString = jsonEncode(credentialsWithTimestamp);
+      final encryptedData = _encryptData(jsonString);
+      await _secureStorage.write(
+        key: 'extended_exchange_credentials',
+        value: encryptedData,
+      );
+      debugPrint('✅ Extended Exchange credentials stored securely');
+    } catch (e) {
+      log('❌ Failed to store Extended Exchange credentials: $e');
+      throw SecureStorageException(
+        'Failed to store Extended Exchange credentials',
+      );
+    }
+  }
+
+  /// Retrieve Extended Exchange L2 credentials
+  Future<Map<String, String>?> getExtendedExchangeCredentials() async {
+    try {
+      final encryptedCredentials = await _secureStorage.read(
+        key: 'extended_exchange_credentials',
+      );
+      if (encryptedCredentials == null) return null;
+
+      final decryptedData = _decryptData(encryptedCredentials);
+      final data = jsonDecode(decryptedData) as Map<String, dynamic>;
+      return data.map((key, value) => MapEntry(key, value.toString()));
+    } catch (e) {
+      log('❌ Failed to retrieve Extended Exchange credentials: $e');
+      return null;
+    }
+  }
+
+  /// Store HMAC API credentials for Extended Exchange
+  Future<void> storeHmacCredentials({
+    required String apiKey,
+    required String apiSecret,
+    String environment = 'sepolia',
+  }) async {
+    try {
+      final credentials = {
+        'api_key': apiKey,
+        'api_secret': apiSecret,
+        'environment': environment,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+        'hmac_enabled': true,
+      };
+
+      final encryptedCredentials = _encryptData(jsonEncode(credentials));
+      await _secureStorage.write(
+        key: 'hmac_trading_credentials',
+        value: encryptedCredentials,
+      );
+      debugPrint('✅ HMAC credentials stored securely for $environment');
+    } catch (e) {
+      log('❌ Failed to store HMAC credentials: $e');
+      throw SecureStorageException('Failed to store HMAC credentials');
+    }
+  }
+
+  /// Retrieve HMAC API credentials
+  Future<Map<String, dynamic>?> getHmacCredentials() async {
+    try {
+      final encryptedCredentials = await _secureStorage.read(
+        key: 'hmac_trading_credentials',
+      );
+      if (encryptedCredentials == null) return null;
+
+      final decryptedData = _decryptData(encryptedCredentials);
+      return jsonDecode(decryptedData) as Map<String, dynamic>;
+    } catch (e) {
+      log('❌ Failed to retrieve HMAC credentials: $e');
+      return null;
+    }
+  }
+
+  /// Validate HMAC credentials are properly stored
+  Future<bool> validateHmacCredentials() async {
+    try {
+      final credentials = await getHmacCredentials();
+      if (credentials == null) return false;
+
+      final apiKey = credentials['api_key'] as String?;
+      final apiSecret = credentials['api_secret'] as String?;
+
+      return apiKey != null &&
+          apiSecret != null &&
+          apiKey.isNotEmpty &&
+          apiSecret.isNotEmpty;
+    } catch (e) {
+      log('❌ HMAC credentials validation failed: $e');
+      return false;
+    }
+  }
+
+  /// Clear HMAC credentials
+  Future<void> clearHmacCredentials() async {
+    try {
+      await _secureStorage.delete(key: 'hmac_trading_credentials');
+      debugPrint('✅ HMAC credentials cleared');
+    } catch (e) {
+      log('❌ Failed to clear HMAC credentials: $e');
+    }
+  }
+
   /// Get all stored keys (for debugging/admin)
   Future<List<String>> getAllKeys() async {
     try {
@@ -360,9 +479,9 @@ class SecureStorageService {
 class SecureStorageException implements Exception {
   final String message;
   final String? code;
-  
+
   SecureStorageException(this.message, {this.code});
-  
+
   @override
   String toString() {
     return 'SecureStorageException: $message${code != null ? ' (Code: $code)' : ''}';
@@ -374,12 +493,12 @@ class SecureStorageConfig {
   static const bool enableBiometrics = true;
   static const bool enableAdditionalEncryption = true;
   static const Duration sessionTimeout = Duration(hours: 24);
-  
+
   /// Check if device supports secure storage features
   static Future<Map<String, bool>> getDeviceCapabilities() async {
     try {
       final secureStorage = SecureStorageService.instance;
-      
+
       return {
         'secure_storage_available': await secureStorage.isAvailable(),
         'biometric_supported': true, // Would check actual biometric support

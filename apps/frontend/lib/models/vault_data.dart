@@ -1,5 +1,5 @@
 /// Vault Data Models for AstraTrade
-/// 
+///
 /// Complete data models for vault operations:
 /// - User vault state with real-time health monitoring
 /// - Deposit/withdrawal results with gamification
@@ -52,7 +52,10 @@ class UserVaultData {
   }
 
   /// Create from contract response
-  factory UserVaultData.fromContractResponse(String userAddress, List<String> response) {
+  factory UserVaultData.fromContractResponse(
+    String userAddress,
+    List<String> response,
+  ) {
     return UserVaultData(
       userAddress: userAddress,
       totalCollateralValue: BigInt.parse(response[0]),
@@ -89,12 +92,16 @@ class UserVaultData {
   factory UserVaultData.fromJson(Map<String, dynamic> json) {
     return UserVaultData(
       userAddress: json['userAddress'] as String,
-      totalCollateralValue: BigInt.parse(json['totalCollateralValue'] as String),
+      totalCollateralValue: BigInt.parse(
+        json['totalCollateralValue'] as String,
+      ),
       healthFactor: BigInt.parse(json['healthFactor'] as String),
       ethBalance: BigInt.parse(json['ethBalance'] as String),
       btcBalance: BigInt.parse(json['btcBalance'] as String),
       usdcBalance: BigInt.parse(json['usdcBalance'] as String),
-      benefits: VaultBenefits.fromJson(json['benefits'] as Map<String, dynamic>),
+      benefits: VaultBenefits.fromJson(
+        json['benefits'] as Map<String, dynamic>,
+      ),
       lastUpdated: DateTime.parse(json['lastUpdated'] as String),
       totalXpEarned: json['totalXpEarned'] as int? ?? 0,
       depositStreak: json['depositStreak'] as int? ?? 0,
@@ -106,7 +113,7 @@ class UserVaultData {
   String getFormattedCollateralValue({int decimals = 18}) {
     final divisor = BigInt.from(10).pow(decimals);
     final value = totalCollateralValue.toDouble() / divisor.toDouble();
-    
+
     if (value >= 1000000) {
       return '\$${(value / 1000000).toStringAsFixed(2)}M';
     } else if (value >= 1000) {
@@ -119,7 +126,7 @@ class UserVaultData {
   /// Get formatted health factor as percentage
   String getFormattedHealthFactor({int decimals = 18}) {
     if (healthFactor == BigInt.zero) return '0%';
-    
+
     final divisor = BigInt.from(10).pow(decimals);
     final percentage = (healthFactor.toDouble() / divisor.toDouble()) * 100;
     return '${percentage.toStringAsFixed(1)}%';
@@ -128,10 +135,10 @@ class UserVaultData {
   /// Get risk level assessment
   RiskLevel get riskLevel {
     if (healthFactor == BigInt.zero) return RiskLevel.liquidation;
-    
+
     final divisor = BigInt.from(10).pow(18);
     final ratio = healthFactor.toDouble() / divisor.toDouble();
-    
+
     if (ratio >= 1.5) return RiskLevel.safe;
     if (ratio >= 1.25) return RiskLevel.low;
     if (ratio >= 1.1) return RiskLevel.medium;
@@ -206,10 +213,10 @@ class UserVaultData {
 // === Vault Benefits ===
 
 class VaultBenefits {
-  final int yieldMultiplier;      // In basis points (11000 = 110% = 10% bonus)
+  final int yieldMultiplier; // In basis points (11000 = 110% = 10% bonus)
   final int reducedLiquidationFee; // In basis points (250 = 2.5%)
   final bool priorityAssetAccess;
-  final int maxLeverageBonus;     // Additional leverage points
+  final int maxLeverageBonus; // Additional leverage points
 
   const VaultBenefits({
     required this.yieldMultiplier,
@@ -221,8 +228,8 @@ class VaultBenefits {
   /// Default benefits for new users
   factory VaultBenefits.defaultBenefits() {
     return const VaultBenefits(
-      yieldMultiplier: 10000,      // 100% = no bonus
-      reducedLiquidationFee: 500,  // 5% full fee
+      yieldMultiplier: 10000, // 100% = no bonus
+      reducedLiquidationFee: 500, // 5% full fee
       priorityAssetAccess: false,
       maxLeverageBonus: 0,
     );
@@ -345,7 +352,9 @@ class WithdrawalResult {
     return WithdrawalResult(
       success: true,
       transactionHash: eventData['transaction_hash'],
-      remainingCollateralValue: BigInt.parse(eventData['remaining_value'] ?? '0'),
+      remainingCollateralValue: BigInt.parse(
+        eventData['remaining_value'] ?? '0',
+      ),
       newHealthFactor: BigInt.parse(eventData['health_factor'] ?? '0'),
       gasUsed: BigInt.parse(eventData['gas_used'] ?? '45000'),
     );
@@ -443,11 +452,11 @@ class TierUnlockResult {
 class AssetConfig {
   final String symbol;
   final String oracle;
-  final int collateralFactor;    // In basis points (8000 = 80%)
-  final int minUserLevel;        // Required user level
+  final int collateralFactor; // In basis points (8000 = 80%)
+  final int minUserLevel; // Required user level
   final bool isActive;
   final BigInt totalDeposits;
-  final int yieldRate;           // Annual yield in basis points
+  final int yieldRate; // Annual yield in basis points
 
   const AssetConfig({
     required this.symbol,
@@ -460,7 +469,10 @@ class AssetConfig {
   });
 
   /// Create from contract response
-  factory AssetConfig.fromContractResponse(String symbol, List<String> response) {
+  factory AssetConfig.fromContractResponse(
+    String symbol,
+    List<String> response,
+  ) {
     return AssetConfig(
       symbol: symbol,
       oracle: response[0],
@@ -578,10 +590,10 @@ class HealthFactorUpdatedEvent extends VaultEvent {
 
 // === Risk Level Enum ===
 enum RiskLevel {
-  safe,        // > 150% health factor
-  low,         // 125-150% health factor  
-  medium,      // 110-125% health factor
-  high,        // 100-110% health factor
+  safe, // > 150% health factor
+  low, // 125-150% health factor
+  medium, // 110-125% health factor
+  high, // 100-110% health factor
   liquidation, // < 100% health factor
 }
 

@@ -12,6 +12,7 @@ import 'package:astratrade_app/models/user.dart';
 import 'package:astratrade_app/services/wallet_import_service.dart';
 import 'package:astratrade_app/services/secure_storage_service.dart';
 import 'package:astratrade_app/services/unified_wallet_setup_service.dart';
+import 'package:astratrade_app/services/biometric_auth_service.dart';
 import 'package:astratrade_app/main.dart';
 import 'dart:math' as math;
 
@@ -22,10 +23,17 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  
+  final BiometricAuthService _biometricService = BiometricAuthService.instance;
+  bool _biometricAvailable = false;
+  bool _showEmailLogin = false;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -38,25 +46,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
+    _checkBiometricAvailability();
+  }
+
+  Future<void> _checkBiometricAvailability() async {
+    try {
+      final available = await _biometricService.isBiometricAvailable();
+      if (mounted) {
+        setState(() {
+          _biometricAvailable = available;
+        });
+      }
+    } catch (e) {
+      // Biometric check failed, continue without biometric option
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -79,23 +97,159 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
   }
 
   Future<void> _handleAppleSignIn() async {
-    // Apple sign-in not yet implemented - using Google as fallback
-    _handleGoogleSignIn();
+    final authNotifier = ref.read(authProvider.notifier);
+
+    try {
+      await authNotifier.signInWithApple();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Apple sign-in failed: ${e.toString()}'),
+            backgroundColor: Colors.red[800],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleDiscordSignIn() async {
+    final authNotifier = ref.read(authProvider.notifier);
+
+    try {
+      await authNotifier.signInWithDiscord();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Discord sign-in failed: ${e.toString()}'),
+            backgroundColor: Colors.red[800],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleTwitterSignIn() async {
+    final authNotifier = ref.read(authProvider.notifier);
+
+    try {
+      await authNotifier.signInWithTwitter();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Twitter sign-in failed: ${e.toString()}'),
+            backgroundColor: Colors.red[800],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleGitHubSignIn() async {
+    final authNotifier = ref.read(authProvider.notifier);
+
+    try {
+      await authNotifier.signInWithGitHub();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('GitHub sign-in failed: ${e.toString()}'),
+            backgroundColor: Colors.red[800],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleEmailSignIn() async {
+    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter both email and password'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final authNotifier = ref.read(authProvider.notifier);
+
+    try {
+      await authNotifier.signInWithEmail(_emailController.text.trim(), _passwordController.text);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Email sign-in failed: ${e.toString()}'),
+            backgroundColor: Colors.red[800],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleBiometricSignIn() async {
+    try {
+      final result = await _biometricService.authenticate(
+        reason: 'Please authenticate to access AstraTrade',
+      );
+
+      if (result.isSuccess) {
+        // Try to restore user from stored data after biometric success
+        final authService = ref.read(authServiceProvider);
+        final user = await authService.restoreUserFromStoredData();
+        
+        if (user != null) {
+          ref.read(authProvider.notifier).setUser(user);
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No stored user data found. Please sign in with a provider.'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Biometric authentication failed: ${result.message}'),
+              backgroundColor: Colors.red[800],
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Biometric sign-in failed: ${e.toString()}'),
+            backgroundColor: Colors.red[800],
+          ),
+        );
+      }
+    }
   }
 
   void _navigateToImportWallet() {
     Navigator.of(context).push(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ImportWalletScreen(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ImportWalletScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeInOut,
-            )),
+            position:
+                Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+                ),
             child: child,
           );
         },
@@ -115,13 +269,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
   Future<void> _createFreshWallet() async {
     try {
       print('🚀 Starting fresh wallet creation with trading setup...');
-      
+
       // Use unified wallet setup service for consistent integration
       final newUser = await UnifiedWalletSetupService.setupFreshWallet(
         username: 'CosmicTrader',
         email: 'fresh-wallet@astratrade.app',
       );
-      
+
       print('✅ Fresh wallet with trading capabilities created successfully');
 
       // Debug the user object
@@ -129,23 +283,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       print('🔑 User ID: ${newUser.id}');
       print('📧 User Email: ${newUser.email}');
       print('🏠 User Address: ${newUser.starknetAddress}');
-      
+
       // Sign in with the new wallet
       print('🔄 Setting user in auth provider...');
       ref.read(authProvider.notifier).setUser(newUser);
       print('✅ User set in auth provider successfully');
-      
+
       // Navigate directly to main hub screen
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => DirectMainHubNavigation(user: newUser),
-          ),
-        );
-      }
-      
+      // if (mounted) {
+      //   Navigator.of(context).pushReplacement(
+      //     MaterialPageRoute(
+      //       builder: (context) => DirectMainHubNavigation(user: newUser),
+      //     ),
+      //   );
+      // }
+
       // Note: Removed page reload workaround - now using proper state management fixes
-      
+
       // Check auth state after setting user
       final authState = ref.read(authProvider);
       print('🔍 Auth state after setUser: ${authState.toString()}');
@@ -155,7 +309,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('🎉 Fresh wallet created with trading! \nAddress: ${newUser.starknetAddress.substring(0, 6)}...${newUser.starknetAddress.substring(newUser.starknetAddress.length - 4)}'),
+            content: Text(
+              '🎉 Fresh wallet created with trading! \nAddress: ${newUser.starknetAddress.substring(0, 6)}...${newUser.starknetAddress.substring(newUser.starknetAddress.length - 4)}',
+            ),
             backgroundColor: Colors.green[700],
             duration: const Duration(seconds: 4),
           ),
@@ -182,14 +338,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       // Generate cryptographically secure random bytes
       final random = math.Random.secure();
       final bytes = List<int>.generate(32, (_) => random.nextInt(256));
-      
+
       // Convert to hex string
-      final hexString = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
-      
+      final hexString = bytes
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join();
+
       // Ensure it's exactly 64 characters (32 bytes)
       final privateKey = '0x$hexString';
-      
-      print('Generated private key: ${privateKey.substring(0, 10)}...${privateKey.substring(privateKey.length - 8)}');
+
+      print(
+        'Generated private key: ${privateKey.substring(0, 10)}...${privateKey.substring(privateKey.length - 8)}',
+      );
       return privateKey;
     } catch (e) {
       print('Error generating private key: $e');
@@ -204,7 +364,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
     return Scaffold(
       body: Stack(
         children: [
-          const EnhancedCosmicParticleBackground(),
+          // const EnhancedCosmicParticleBackground(),
           SafeArea(
             child: Center(
               child: Padding(
@@ -219,11 +379,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                         // Logo and Title
                         _buildCosmicLogo(),
                         const SizedBox(height: 20),
-                        
+
                         // Welcome Text
                         _buildWelcomeText(),
                         const SizedBox(height: 20),
-                        
+
                         // Authentication Cards
                         _buildAuthCards(authState),
                       ],
@@ -233,14 +393,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
               ),
             ),
           ),
-          
+
           if (authState.isLoading)
             Container(
               color: Colors.black54,
               child: const Center(
-                child: CircularProgressIndicator(
-                  color: Color(0xFF7B2CBF),
-                ),
+                child: CircularProgressIndicator(color: Color(0xFF7B2CBF)),
               ),
             ),
         ],
@@ -252,10 +410,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const CosmicLogo(
-          size: 100,
-          animate: true,
-        ),
+        // const CosmicLogo(
+        //   size: 100,
+        //   animate: true,
+        // ),
         const SizedBox(height: 8),
         Text(
           'AstraTrade',
@@ -294,14 +452,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
         // Primary CTA - Fresh Wallet Creation
         _buildCreateWalletCard(),
         const SizedBox(height: 12),
-        
+
         // Secondary - Import Existing Wallet
         _buildImportWalletCard(),
         const SizedBox(height: 12),
-        
+
         // Tertiary - Social Login (inconvenient placement)
         _buildSocialLoginCard(),
-        
+
         // Learn More as subtle text link
         const SizedBox(height: 8),
         _buildLearnMoreLink(),
@@ -309,7 +467,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
     );
   }
 
-    Widget _buildCreateWalletCard() {
+  Widget _buildCreateWalletCard() {
     return _CosmicAuthCard(
       gradient: const LinearGradient(
         colors: [Color(0xFF7B2CBF), Color(0xFF9D4EDD)],
@@ -350,12 +508,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
           const SizedBox(height: 12),
           Text(
             'Or connect with social accounts',
-            style: GoogleFonts.rajdhani(
-              fontSize: 12,
-              color: Colors.white54,
-            ),
+            style: GoogleFonts.rajdhani(fontSize: 12, color: Colors.white54),
           ),
           const SizedBox(height: 12),
+          // Row 1: Google, Apple, Discord
           Row(
             children: [
               Expanded(
@@ -375,23 +531,81 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                   _handleAppleSignIn,
                 ),
               ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildSocialButton(
+                  'Discord',
+                  Icons.discord,
+                  const Color(0xFF5865F2),
+                  _handleDiscordSignIn,
+                ),
+              ),
             ],
           ),
+          const SizedBox(height: 8),
+          // Row 2: Twitter, GitHub, Email
+          Row(
+            children: [
+              Expanded(
+                child: _buildSocialButton(
+                  'Twitter',
+                  Icons.alternate_email,
+                  const Color(0xFF1DA1F2),
+                  _handleTwitterSignIn,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildSocialButton(
+                  'GitHub',
+                  Icons.code,
+                  Colors.white,
+                  _handleGitHubSignIn,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildSocialButton(
+                  'Email',
+                  Icons.email,
+                  Colors.cyan,
+                  () {
+                    setState(() {
+                      _showEmailLogin = !_showEmailLogin;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+          // Email login form
+          if (_showEmailLogin) ...[
+            const SizedBox(height: 16),
+            _buildEmailLoginForm(),
+          ],
+          // Biometric login option
+          if (_biometricAvailable) ...[
+            const SizedBox(height: 12),
+            _buildBiometricButton(),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildSocialButton(String label, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildSocialButton(
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return OutlinedButton(
       onPressed: onTap,
       style: OutlinedButton.styleFrom(
         foregroundColor: Colors.white,
         side: BorderSide(color: color.withOpacity(0.5)),
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         minimumSize: const Size(0, 32),
       ),
       child: Row(
@@ -407,6 +621,115 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmailLoginForm() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[800]!),
+      ),
+      child: Column(
+        children: [
+          TextField(
+            controller: _emailController,
+            decoration: InputDecoration(
+              labelText: 'Email',
+              labelStyle: GoogleFonts.rajdhani(color: Colors.grey[400]),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey[600]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey[600]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFF7B2CBF)),
+              ),
+              filled: true,
+              fillColor: Colors.grey[800],
+            ),
+            style: GoogleFonts.rajdhani(color: Colors.white),
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _passwordController,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              labelStyle: GoogleFonts.rajdhani(color: Colors.grey[400]),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey[600]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey[600]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFF7B2CBF)),
+              ),
+              filled: true,
+              fillColor: Colors.grey[800],
+            ),
+            style: GoogleFonts.rajdhani(color: Colors.white),
+            obscureText: true,
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _handleEmailSignIn,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7B2CBF),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Sign In',
+                style: GoogleFonts.rajdhani(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBiometricButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _handleBiometricSignIn,
+        icon: const Icon(Icons.fingerprint, size: 20),
+        label: Text(
+          'Use Biometric Login',
+          style: GoogleFonts.rajdhani(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.cyan,
+          side: const BorderSide(color: Colors.cyan),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
       ),
     );
   }
@@ -459,7 +782,9 @@ class _CosmicAuthCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: (isPrimary ? const Color(0xFF7B2CBF) : const Color(0xFF06B6D4)).withOpacity(0.3),
+            color:
+                (isPrimary ? const Color(0xFF7B2CBF) : const Color(0xFF06B6D4))
+                    .withOpacity(0.3),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -490,10 +815,7 @@ class _CosmicAuthCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: GoogleFonts.rajdhani(
-                fontSize: 12,
-                color: Colors.white70,
-              ),
+              style: GoogleFonts.rajdhani(fontSize: 12, color: Colors.white70),
             ),
             const SizedBox(height: 12),
             _buildActionButtons(),

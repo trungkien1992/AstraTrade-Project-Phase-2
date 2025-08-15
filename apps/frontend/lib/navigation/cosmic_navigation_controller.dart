@@ -69,13 +69,15 @@ class CosmicNavigationState {
 /// Navigation controller for managing cosmic app navigation
 class CosmicNavigationController extends StateNotifier<CosmicNavigationState> {
   CosmicNavigationController()
-      : super(CosmicNavigationState(
+    : super(
+        CosmicNavigationState(
           currentDestination: CosmicDestination.hub,
           navigatorKeys: {
             for (final destination in CosmicDestination.values)
               destination: GlobalKey<NavigatorState>(),
           },
-        ));
+        ),
+      );
 
   /// Navigate to a specific destination
   void navigateTo(CosmicDestination destination) {
@@ -108,13 +110,13 @@ class CosmicNavigationController extends StateNotifier<CosmicNavigationState> {
       currentKey!.currentState!.pop();
       return true;
     }
-    
+
     // If we're not on hub and can't pop, go to hub
     if (state.currentDestination != CosmicDestination.hub) {
       navigateTo(CosmicDestination.hub);
       return true;
     }
-    
+
     return false;
   }
 
@@ -125,10 +127,10 @@ class CosmicNavigationController extends StateNotifier<CosmicNavigationState> {
 }
 
 /// Provider for the cosmic navigation controller
-final cosmicNavigationProvider = 
+final cosmicNavigationProvider =
     StateNotifierProvider<CosmicNavigationController, CosmicNavigationState>(
-  (ref) => CosmicNavigationController(),
-);
+      (ref) => CosmicNavigationController(),
+    );
 
 /// Provider for the current destination
 final currentDestinationProvider = Provider<CosmicDestination>((ref) {

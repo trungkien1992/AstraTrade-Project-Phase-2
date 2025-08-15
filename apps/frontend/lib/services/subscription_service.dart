@@ -12,13 +12,13 @@ class SubscriptionService {
 
   static Future<void> initialize() async {
     if (_isInitialized) return;
-    
+
     try {
       // Temporarily disabled for iOS build - stub implementation
       // await Purchases.setLogLevel(LogLevel.debug);
       // PurchasesConfiguration configuration = PurchasesConfiguration(_apiKey);
       // await Purchases.configure(configuration);
-      
+
       _isInitialized = true;
       debugPrint('RevenueCat initialized successfully');
     } catch (e) {
@@ -56,7 +56,10 @@ class SubscriptionService {
     try {
       // Stub implementation - simulate purchase
       debugPrint('Simulating purchase for: $productId');
-      return PurchaseResult(success: false, error: 'Demo mode - purchases disabled');
+      return PurchaseResult(
+        success: false,
+        error: 'Demo mode - purchases disabled',
+      );
     } catch (e) {
       debugPrint('Purchase failed: $e');
       return PurchaseResult(success: false, error: e.toString());
@@ -76,11 +79,8 @@ class SubscriptionService {
 class PurchaseResult {
   final bool success;
   final String? error;
-  final Map<String, dynamic>? customerInfo; // Changed from CustomerInfo for demo
+  final Map<String, dynamic>?
+  customerInfo; // Changed from CustomerInfo for demo
 
-  PurchaseResult({
-    required this.success,
-    this.error,
-    this.customerInfo,
-  });
+  PurchaseResult({required this.success, this.error, this.customerInfo});
 }

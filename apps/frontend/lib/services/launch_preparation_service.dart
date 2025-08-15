@@ -8,7 +8,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 /// Launch Preparation Service for Phase 4.4
 /// Creates viral marketing assets, implements analytics, and prepares app store submissions
 class LaunchPreparationService {
-  static final LaunchPreparationService _instance = LaunchPreparationService._internal();
+  static final LaunchPreparationService _instance =
+      LaunchPreparationService._internal();
   factory LaunchPreparationService() => _instance;
   LaunchPreparationService._internal();
 
@@ -25,19 +26,19 @@ class LaunchPreparationService {
     try {
       // Initialize analytics and tracking
       await _initializeAnalytics();
-      
+
       // Generate viral marketing assets
       await _generateMarketingAssets();
-      
+
       // Setup comprehensive testing
       await _setupTestingSuite();
-      
+
       // Prepare app store submission
       await _prepareAppStoreSubmission();
-      
+
       // Check launch readiness
       await _assessLaunchReadiness();
-      
+
       _isInitialized = true;
       debugPrint('🚀 Launch preparation service initialized');
     } catch (e) {
@@ -60,7 +61,7 @@ class LaunchPreparationService {
 
     // Initialize tracking SDKs
     await _initializeTrackingSDKs();
-    
+
     debugPrint('📊 Analytics and tracking initialized');
   }
 
@@ -82,19 +83,19 @@ class LaunchPreparationService {
   Future<void> _setupTestingSuite() async {
     // Run performance tests
     await _runPerformanceTests();
-    
+
     // Run accessibility tests
     await _runAccessibilityTests();
-    
+
     // Run integration tests
     await _runIntegrationTests();
-    
+
     // Run user journey tests
     await _runUserJourneyTests();
-    
+
     // Run viral feature tests
     await _runViralFeatureTests();
-    
+
     debugPrint('🧪 Comprehensive testing suite completed');
   }
 
@@ -102,16 +103,16 @@ class LaunchPreparationService {
   Future<void> _prepareAppStoreSubmission() async {
     // Generate app store metadata
     await _generateAppStoreMetadata();
-    
+
     // Prepare binary submissions
     await _prepareBinarySubmissions();
-    
+
     // Setup staged rollout plan
     await _setupStagedRollout();
-    
+
     // Configure crash reporting
     await _configureCrashReporting();
-    
+
     debugPrint('📱 App store submission prepared');
   }
 
@@ -138,7 +139,9 @@ class LaunchPreparationService {
       _readinessStatus = LaunchReadinessStatus.notReady;
     }
 
-    debugPrint('🎯 Launch readiness assessed: ${_readinessStatus.name} ($readinessScore)');
+    debugPrint(
+      '🎯 Launch readiness assessed: ${_readinessStatus.name} ($readinessScore)',
+    );
   }
 
   /// Initialize tracking SDKs
@@ -146,16 +149,15 @@ class LaunchPreparationService {
     try {
       // Initialize Firebase Analytics
       await _initializeFirebaseAnalytics();
-      
+
       // Initialize attribution tracking
       await _initializeAttributionTracking();
-      
+
       // Initialize crash reporting
       await _initializeCrashReporting();
-      
+
       // Initialize performance monitoring
       await _initializePerformanceMonitoring();
-      
     } catch (e) {
       debugPrint('❌ Tracking SDK initialization failed: $e');
     }
@@ -179,12 +181,13 @@ class LaunchPreparationService {
     };
 
     // Update acquisition metrics
-    final acquisitionMetrics = _analyticsData['user_acquisition'] as Map<String, int>;
+    final acquisitionMetrics =
+        _analyticsData['user_acquisition'] as Map<String, int>;
     acquisitionMetrics[source] = (acquisitionMetrics[source] ?? 0) + 1;
 
     // Send to analytics
     await _sendAnalyticsEvent(event);
-    
+
     debugPrint('📈 User acquisition tracked: $source/$medium/$campaign');
   }
 
@@ -206,14 +209,16 @@ class LaunchPreparationService {
     };
 
     // Update viral metrics
-    final viralMetrics = _analyticsData['viral_metrics'] as Map<String, dynamic>;
+    final viralMetrics =
+        _analyticsData['viral_metrics'] as Map<String, dynamic>;
     viralMetrics['total_shares'] = (viralMetrics['total_shares'] ?? 0) + 1;
     viralMetrics['shares_by_type'] ??= <String, int>{};
-    viralMetrics['shares_by_type'][shareType] = (viralMetrics['shares_by_type'][shareType] ?? 0) + 1;
+    viralMetrics['shares_by_type'][shareType] =
+        (viralMetrics['shares_by_type'][shareType] ?? 0) + 1;
 
     // Send to analytics
     await _sendAnalyticsEvent(event);
-    
+
     debugPrint('🌟 Viral share tracked: $shareType on $platform');
   }
 
@@ -233,10 +238,13 @@ class LaunchPreparationService {
     };
 
     // Update engagement metrics
-    final engagementMetrics = _analyticsData['engagement_metrics'] as Map<String, dynamic>;
-    engagementMetrics['total_actions'] = (engagementMetrics['total_actions'] ?? 0) + 1;
+    final engagementMetrics =
+        _analyticsData['engagement_metrics'] as Map<String, dynamic>;
+    engagementMetrics['total_actions'] =
+        (engagementMetrics['total_actions'] ?? 0) + 1;
     engagementMetrics['actions_by_screen'] ??= <String, int>{};
-    engagementMetrics['actions_by_screen'][screen] = (engagementMetrics['actions_by_screen'][screen] ?? 0) + 1;
+    engagementMetrics['actions_by_screen'][screen] =
+        (engagementMetrics['actions_by_screen'][screen] ?? 0) + 1;
 
     // Send to analytics
     await _sendAnalyticsEvent(event);
@@ -260,7 +268,8 @@ class LaunchPreparationService {
     };
 
     // Update performance metrics
-    final performanceMetrics = _analyticsData['performance_metrics'] as Map<String, double>;
+    final performanceMetrics =
+        _analyticsData['performance_metrics'] as Map<String, double>;
     performanceMetrics[metricName] = value;
 
     // Send to analytics
@@ -285,7 +294,8 @@ class LaunchPreparationService {
     };
 
     // Add to error tracking
-    final errorList = _analyticsData['error_tracking'] as List<Map<String, dynamic>>;
+    final errorList =
+        _analyticsData['error_tracking'] as List<Map<String, dynamic>>;
     errorList.add(event);
 
     // Keep only last 100 errors
@@ -295,7 +305,7 @@ class LaunchPreparationService {
 
     // Send to analytics
     await _sendAnalyticsEvent(event);
-    
+
     debugPrint('❌ Error tracked: $errorType - $errorMessage');
   }
 
@@ -364,8 +374,10 @@ Join millions of cosmic traders transforming the future of finance!
 
 Download now and begin your stellar journey! 🌟
       ''',
-      'keywords': 'trading,game,crypto,starknet,space,cosmic,planets,blockchain,finance,investment',
-      'promotional_text': 'Limited time: Get 1000 bonus Stellar Seeds on signup!',
+      'keywords':
+          'trading,game,crypto,starknet,space,cosmic,planets,blockchain,finance,investment',
+      'promotional_text':
+          'Limited time: Get 1000 bonus Stellar Seeds on signup!',
     };
   }
 
@@ -421,7 +433,8 @@ Cosmic Catalyst is available now on iOS and Android app stores.
 For more information, visit cosmic-catalyst.app
 Press contact: press@cosmic-catalyst.app
       ''',
-      'company_backgrounder': 'Detailed company background and mission statement...',
+      'company_backgrounder':
+          'Detailed company background and mission statement...',
       'founder_bios': 'Executive team biographies and photos...',
       'product_screenshots': 'High-resolution product images and videos...',
       'logo_pack': 'Brand assets and logo variations...',
@@ -512,10 +525,12 @@ Press contact: press@cosmic-catalyst.app
   // Individual test methods (simplified implementations)
   Future<TestResult> _testStartupTime() async {
     final startTime = DateTime.now();
-    await Future.delayed(const Duration(milliseconds: 800)); // Simulate app startup
+    await Future.delayed(
+      const Duration(milliseconds: 800),
+    ); // Simulate app startup
     final endTime = DateTime.now();
     final duration = endTime.difference(startTime).inMilliseconds;
-    
+
     return TestResult(
       name: 'App Startup Time',
       category: TestCategory.performance,
@@ -529,7 +544,7 @@ Press contact: press@cosmic-catalyst.app
   Future<TestResult> _testFrameRate() async {
     // Simulate frame rate testing
     final fps = 58.5; // Mock FPS measurement
-    
+
     return TestResult(
       name: 'Frame Rate',
       category: TestCategory.performance,
@@ -543,7 +558,7 @@ Press contact: press@cosmic-catalyst.app
   Future<TestResult> _testMemoryUsage() async {
     // Simulate memory usage testing
     final memoryMB = 42.3; // Mock memory usage
-    
+
     return TestResult(
       name: 'Memory Usage',
       category: TestCategory.performance,
@@ -557,7 +572,7 @@ Press contact: press@cosmic-catalyst.app
   Future<TestResult> _testBatteryUsage() async {
     // Simulate battery usage testing
     final batteryPercentPerHour = 8.5; // Mock battery drain
-    
+
     return TestResult(
       name: 'Battery Usage',
       category: TestCategory.performance,
@@ -571,7 +586,7 @@ Press contact: press@cosmic-catalyst.app
   Future<TestResult> _testNetworkPerformance() async {
     // Simulate network performance testing
     final latencyMs = 125.0; // Mock network latency
-    
+
     return TestResult(
       name: 'Network Latency',
       category: TestCategory.performance,
@@ -585,7 +600,7 @@ Press contact: press@cosmic-catalyst.app
   Future<TestResult> _testScreenReaderCompatibility() async {
     // Simulate screen reader testing
     final compatibilityScore = 95.0; // Mock compatibility score
-    
+
     return TestResult(
       name: 'Screen Reader Compatibility',
       category: TestCategory.accessibility,
@@ -599,7 +614,7 @@ Press contact: press@cosmic-catalyst.app
   Future<TestResult> _testKeyboardNavigation() async {
     // Simulate keyboard navigation testing
     final navigationScore = 88.0; // Mock navigation score
-    
+
     return TestResult(
       name: 'Keyboard Navigation',
       category: TestCategory.accessibility,
@@ -613,7 +628,7 @@ Press contact: press@cosmic-catalyst.app
   Future<TestResult> _testColorContrast() async {
     // Simulate color contrast testing
     final contrastRatio = 4.8; // Mock contrast ratio
-    
+
     return TestResult(
       name: 'Color Contrast Ratio',
       category: TestCategory.accessibility,
@@ -627,7 +642,7 @@ Press contact: press@cosmic-catalyst.app
   Future<TestResult> _testFocusManagement() async {
     // Simulate focus management testing
     final focusScore = 92.0; // Mock focus score
-    
+
     return TestResult(
       name: 'Focus Management',
       category: TestCategory.accessibility,
@@ -641,7 +656,7 @@ Press contact: press@cosmic-catalyst.app
   Future<TestResult> _testSemanticLabels() async {
     // Simulate semantic labels testing
     final semanticScore = 94.0; // Mock semantic score
-    
+
     return TestResult(
       name: 'Semantic Labels',
       category: TestCategory.accessibility,
@@ -820,17 +835,23 @@ Press contact: press@cosmic-catalyst.app
 
   // Readiness check methods
   Future<bool> _checkPerformanceReadiness() async {
-    final performanceTests = _testResults.where((test) => test.category == TestCategory.performance);
+    final performanceTests = _testResults.where(
+      (test) => test.category == TestCategory.performance,
+    );
     return performanceTests.every((test) => test.passed);
   }
 
   Future<bool> _checkAccessibilityCompliance() async {
-    final accessibilityTests = _testResults.where((test) => test.category == TestCategory.accessibility);
+    final accessibilityTests = _testResults.where(
+      (test) => test.category == TestCategory.accessibility,
+    );
     return accessibilityTests.every((test) => test.passed);
   }
 
   Future<bool> _checkViralFeaturesReadiness() async {
-    final viralTests = _testResults.where((test) => test.category == TestCategory.viral);
+    final viralTests = _testResults.where(
+      (test) => test.category == TestCategory.viral,
+    );
     return viralTests.every((test) => test.passed);
   }
 
@@ -905,11 +926,21 @@ Press contact: press@cosmic-catalyst.app
     final totalTests = _testResults.length;
     final testScore = totalTests > 0 ? (passedTests / totalTests) * 100 : 0.0;
 
-    final performanceTests = _testResults.where((test) => test.category == TestCategory.performance);
-    final accessibilityTests = _testResults.where((test) => test.category == TestCategory.accessibility);
-    final integrationTests = _testResults.where((test) => test.category == TestCategory.integration);
-    final userJourneyTests = _testResults.where((test) => test.category == TestCategory.userJourney);
-    final viralTests = _testResults.where((test) => test.category == TestCategory.viral);
+    final performanceTests = _testResults.where(
+      (test) => test.category == TestCategory.performance,
+    );
+    final accessibilityTests = _testResults.where(
+      (test) => test.category == TestCategory.accessibility,
+    );
+    final integrationTests = _testResults.where(
+      (test) => test.category == TestCategory.integration,
+    );
+    final userJourneyTests = _testResults.where(
+      (test) => test.category == TestCategory.userJourney,
+    );
+    final viralTests = _testResults.where(
+      (test) => test.category == TestCategory.viral,
+    );
 
     return LaunchReadinessReport(
       overallReadiness: _readinessStatus,
@@ -944,7 +975,13 @@ Press contact: press@cosmic-catalyst.app
 // Supporting enums and classes
 enum LaunchReadinessStatus { notReady, nearReady, ready }
 
-enum TestCategory { performance, accessibility, integration, userJourney, viral }
+enum TestCategory {
+  performance,
+  accessibility,
+  integration,
+  userJourney,
+  viral,
+}
 
 class TestResult {
   final String name;

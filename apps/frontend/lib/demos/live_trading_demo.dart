@@ -29,50 +29,77 @@ class _LiveTradingDemoScreenState extends State<LiveTradingDemoScreen> {
       _demoResults.clear();
     });
 
-    await _addDemoStep("🚀 Starting Live Trading Demonstration", "Initializing connection to Extended Exchange API...");
+    await _addDemoStep(
+      "🚀 Starting Live Trading Demonstration",
+      "Initializing connection to Extended Exchange API...",
+    );
 
     // Test 1: Check API connectivity
-    await _addDemoStep("1️⃣ API Connectivity Test", "Testing connection to Extended Exchange API...");
-    
+    await _addDemoStep(
+      "1️⃣ API Connectivity Test",
+      "Testing connection to Extended Exchange API...",
+    );
+
     try {
       if (_tradingService.isLiveTradingEnabled) {
-        await _addDemoStep("✅ API Keys Configured", "Live trading credentials are available");
+        await _addDemoStep(
+          "✅ API Keys Configured",
+          "Live trading credentials are available",
+        );
       } else {
-        await _addDemoStep("⚠️ Demo Mode", "Using demo credentials for evaluation");
+        await _addDemoStep(
+          "⚠️ Demo Mode",
+          "Using demo credentials for evaluation",
+        );
       }
     } catch (e) {
-      await _addDemoStep("ℹ️ Connection Info", "API endpoint accessibility verified");
+      await _addDemoStep(
+        "ℹ️ Connection Info",
+        "API endpoint accessibility verified",
+      );
     }
 
     // Test 2: Market data
     await _addDemoStep("2️⃣ Market Data Test", "Fetching live market data...");
-    
+
     try {
       final marketData = await _tradingService.getLiveMarketData('ETH-USD');
       await _addDemoStep(
-        "✅ Market Data Retrieved", 
-        "ETH-USD: \$${marketData.lastPrice.toStringAsFixed(2)} (Live feed)"
+        "✅ Market Data Retrieved",
+        "ETH-USD: \$${marketData.lastPrice.toStringAsFixed(2)} (Live feed)",
       );
     } catch (e) {
-      await _addDemoStep("ℹ️ Market Data", "Market data endpoint integration confirmed");
+      await _addDemoStep(
+        "ℹ️ Market Data",
+        "Market data endpoint integration confirmed",
+      );
     }
 
     // Test 3: Account info
-    await _addDemoStep("3️⃣ Account Information", "Retrieving account details...");
-    
+    await _addDemoStep(
+      "3️⃣ Account Information",
+      "Retrieving account details...",
+    );
+
     try {
       final accountInfo = await _tradingService.getAccountInfo();
       await _addDemoStep(
-        "✅ Account Access", 
-        "Account ID: ${accountInfo.accountId.isNotEmpty ? accountInfo.accountId : 'Connected'}"
+        "✅ Account Access",
+        "Account ID: ${accountInfo.accountId.isNotEmpty ? accountInfo.accountId : 'Connected'}",
       );
     } catch (e) {
-      await _addDemoStep("ℹ️ Account Access", "Account endpoint integration verified");
+      await _addDemoStep(
+        "ℹ️ Account Access",
+        "Account endpoint integration verified",
+      );
     }
 
     // Test 4: Trading capability demonstration
-    await _addDemoStep("4️⃣ Trading Capability", "Demonstrating order placement...");
-    
+    await _addDemoStep(
+      "4️⃣ Trading Capability",
+      "Demonstrating order placement...",
+    );
+
     try {
       final tradeRequest = TradeRequest(
         symbol: 'ETH-USD',
@@ -82,25 +109,34 @@ class _LiveTradingDemoScreenState extends State<LiveTradingDemoScreen> {
       );
 
       final tradeResult = await _tradingService.executeRealTrade(tradeRequest);
-      
+
       if (tradeResult.success) {
         await _addDemoStep(
-          "✅ Trade Executed", 
-          "Order ID: ${tradeResult.tradeId} | Status: ${tradeResult.status}"
+          "✅ Trade Executed",
+          "Order ID: ${tradeResult.tradeId} | Status: ${tradeResult.status}",
         );
       } else {
         await _addDemoStep(
-          "✅ Trading System Ready", 
-          "Order validation successful - trading capability confirmed"
+          "✅ Trading System Ready",
+          "Order validation successful - trading capability confirmed",
         );
       }
     } catch (e) {
-      await _addDemoStep("✅ Trading Integration", "Order execution capability demonstrated");
+      await _addDemoStep(
+        "✅ Trading Integration",
+        "Order execution capability demonstrated",
+      );
     }
 
     // Complete demonstration
-    await _addDemoStep("🎉 Demo Complete", "All Extended Exchange API integrations verified!");
-    await _addDemoStep("🏆 Bounty Ready", "StarkWare submission requirements fulfilled");
+    await _addDemoStep(
+      "🎉 Demo Complete",
+      "All Extended Exchange API integrations verified!",
+    );
+    await _addDemoStep(
+      "🏆 Bounty Ready",
+      "StarkWare submission requirements fulfilled",
+    );
 
     setState(() {
       _isRunningDemo = false;
@@ -115,7 +151,7 @@ class _LiveTradingDemoScreenState extends State<LiveTradingDemoScreen> {
         'timestamp': DateTime.now(),
       });
     });
-    
+
     // Add slight delay for better UX
     await Future.delayed(const Duration(milliseconds: 800));
   }
@@ -162,15 +198,12 @@ class _LiveTradingDemoScreenState extends State<LiveTradingDemoScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'StarkWare Bounty Evaluation',
-                    style: TextStyle(
-                      color: Colors.blue.shade200,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.blue.shade200, fontSize: 16),
                   ),
                 ],
               ),
             ),
-            
+
             // Demo results
             Expanded(
               child: Container(
@@ -183,9 +216,7 @@ class _LiveTradingDemoScreenState extends State<LiveTradingDemoScreen> {
                 ),
                 child: _demoResults.isEmpty
                     ? const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.blue,
-                        ),
+                        child: CircularProgressIndicator(color: Colors.blue),
                       )
                     : ListView.builder(
                         itemCount: _demoResults.length,
@@ -233,7 +264,7 @@ class _LiveTradingDemoScreenState extends State<LiveTradingDemoScreen> {
                       ),
               ),
             ),
-            
+
             // Action buttons
             if (!_isRunningDemo)
               Padding(
@@ -276,8 +307,8 @@ class _LiveTradingDemoScreenState extends State<LiveTradingDemoScreen> {
 
   String _formatTimestamp(DateTime timestamp) {
     return '${timestamp.hour.toString().padLeft(2, '0')}:'
-           '${timestamp.minute.toString().padLeft(2, '0')}:'
-           '${timestamp.second.toString().padLeft(2, '0')}';
+        '${timestamp.minute.toString().padLeft(2, '0')}:'
+        '${timestamp.second.toString().padLeft(2, '0')}';
   }
 
   @override

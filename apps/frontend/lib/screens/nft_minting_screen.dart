@@ -19,21 +19,17 @@ class _NFTMintingScreenState extends ConsumerState<NFTMintingScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).value;
-    
+
     if (user == null) {
       return const Scaffold(
-        body: Center(
-          child: Text('Please log in to mint NFTs'),
-        ),
+        body: Center(child: Text('Please log in to mint NFTs')),
       );
     }
 
     final eligibleAchievementsAsync = ref.watch(eligibleAchievementsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mint Genesis NFT'),
-      ),
+      appBar: AppBar(title: const Text('Mint Genesis NFT')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: eligibleAchievementsAsync.when(
@@ -59,7 +55,10 @@ class _NFTMintingScreenState extends ConsumerState<NFTMintingScreen> {
     );
   }
 
-  Widget _buildMintingContent(BuildContext context, List<EligibleAchievement> achievements) {
+  Widget _buildMintingContent(
+    BuildContext context,
+    List<EligibleAchievement> achievements,
+  ) {
     if (achievements.isEmpty) {
       return const Center(
         child: Column(
@@ -134,7 +133,11 @@ class _NFTMintingScreenState extends ConsumerState<NFTMintingScreen> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.auto_awesome, size: 48, color: Colors.purple),
+                  const Icon(
+                    Icons.auto_awesome,
+                    size: 48,
+                    color: Colors.purple,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Congratulations! You\'ve minted a ${nft.rarity} Genesis NFT.',

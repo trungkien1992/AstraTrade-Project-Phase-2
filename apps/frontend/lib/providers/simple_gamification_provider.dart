@@ -6,7 +6,7 @@ import '../services/simple_gamification_service.dart';
 /// Manages XP, levels, achievements without cosmic themes
 class SimpleGamificationProvider extends ChangeNotifier {
   final SimpleGamificationService _service = SimpleGamificationService();
-  
+
   PlayerProgress? _currentProgress;
   List<Achievement> _achievements = [];
   List<XPGainEvent> _recentEvents = [];
@@ -19,19 +19,23 @@ class SimpleGamificationProvider extends ChangeNotifier {
   List<XPGainEvent> get recentEvents => _recentEvents;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  
+
   /// Get achievements earned by player
   List<Achievement> get earnedAchievements {
     if (_currentProgress == null) return [];
-    return _achievements.where((a) => _currentProgress!.achievements.contains(a.id)).toList();
+    return _achievements
+        .where((a) => _currentProgress!.achievements.contains(a.id))
+        .toList();
   }
-  
+
   /// Get achievements available to earn
   List<Achievement> get availableAchievements {
     if (_currentProgress == null) return [];
-    return _achievements.where((a) => !_currentProgress!.achievements.contains(a.id)).toList();
+    return _achievements
+        .where((a) => !_currentProgress!.achievements.contains(a.id))
+        .toList();
   }
-  
+
   /// Get achievement progress map
   Map<String, double> get achievementProgress {
     return _service.getAchievementProgress();
@@ -42,20 +46,19 @@ class SimpleGamificationProvider extends ChangeNotifier {
     try {
       _setLoading(true);
       _error = null;
-      
+
       _currentProgress = await _service.initializePlayer(playerId);
       _achievements = _service.allAchievements;
       _recentEvents = _service.recentEvents;
-      
+
       // Award daily login bonus if applicable
       final dailyBonus = await _service.awardDailyLogin(playerId);
       if (dailyBonus != null) {
         _recentEvents = _service.recentEvents;
         _currentProgress = _service.currentProgress;
       }
-      
+
       debugPrint('🎮 Gamification provider initialized for $playerId');
-      
     } catch (e) {
       _error = 'Failed to initialize gamification: $e';
       debugPrint('❌ Gamification initialization error: $e');
@@ -78,13 +81,12 @@ class SimpleGamificationProvider extends ChangeNotifier {
         amount: amount,
         metadata: metadata,
       );
-      
+
       _currentProgress = _service.currentProgress;
       _recentEvents = _service.recentEvents;
-      
+
       notifyListeners();
       debugPrint('🎯 Practice XP awarded: ${event.xpGained}XP');
-      
     } catch (e) {
       _error = 'Failed to award practice XP: $e';
       debugPrint('❌ Practice XP error: $e');
@@ -108,13 +110,12 @@ class SimpleGamificationProvider extends ChangeNotifier {
         profit: profit,
         metadata: metadata,
       );
-      
+
       _currentProgress = _service.currentProgress;
       _recentEvents = _service.recentEvents;
-      
+
       notifyListeners();
       debugPrint('💰 Real trade XP awarded: ${event.xpGained}XP');
-      
     } catch (e) {
       _error = 'Failed to award real trade XP: $e';
       debugPrint('❌ Real trade XP error: $e');
@@ -126,18 +127,17 @@ class SimpleGamificationProvider extends ChangeNotifier {
   Future<bool> awardDailyLoginBonus(String playerId) async {
     try {
       final event = await _service.awardDailyLogin(playerId);
-      
+
       if (event != null) {
         _currentProgress = _service.currentProgress;
         _recentEvents = _service.recentEvents;
         notifyListeners();
-        
+
         debugPrint('📅 Daily bonus awarded: ${event.xpGained}XP');
         return true;
       }
-      
+
       return false; // Already claimed today
-      
     } catch (e) {
       _error = 'Failed to award daily bonus: $e';
       debugPrint('❌ Daily bonus error: $e');
@@ -156,7 +156,7 @@ class SimpleGamificationProvider extends ChangeNotifier {
         'xp_to_next': 100,
       };
     }
-    
+
     return {
       'rank': _currentProgress!.rank,
       'level': _currentProgress!.level,
@@ -180,12 +180,14 @@ class SimpleGamificationProvider extends ChangeNotifier {
         'best_streak': 0,
       };
     }
-    
+
     final stats = _currentProgress!.stats;
     final totalTrades = stats['total_trades']!;
     final profitableTrades = stats['profitable_trades']!;
-    final successRate = totalTrades > 0 ? (profitableTrades / totalTrades) : 0.0;
-    
+    final successRate = totalTrades > 0
+        ? (profitableTrades / totalTrades)
+        : 0.0;
+
     return {
       'total_trades': totalTrades,
       'practice_trades': stats['practice_trades']!,

@@ -71,17 +71,14 @@ final leaderboardServiceProvider = Provider((ref) => LeaderboardService());
 class LeaderboardNotifier extends StateNotifier<LeaderboardState> {
   final LeaderboardService _leaderboardService;
 
-  LeaderboardNotifier(this._leaderboardService) : super(const LeaderboardState());
+  LeaderboardNotifier(this._leaderboardService)
+    : super(const LeaderboardState());
 
   /// Load leaderboard data for the specified type
   Future<void> loadLeaderboard(LeaderboardType type) async {
     if (state.isLoading) return; // Prevent multiple simultaneous loads
 
-    state = state.copyWith(
-      isLoading: true,
-      error: null,
-      currentType: type,
-    );
+    state = state.copyWith(isLoading: true, error: null, currentType: type);
 
     try {
       final entries = await _leaderboardService.getLeaderboardData(type);
@@ -94,11 +91,13 @@ class LeaderboardNotifier extends StateNotifier<LeaderboardState> {
         lastUpdated: DateTime.now(),
       );
 
-      debugPrint('Loaded ${entries.length} leaderboard entries for ${type.name}');
+      debugPrint(
+        'Loaded ${entries.length} leaderboard entries for ${type.name}',
+      );
     } catch (e, stackTrace) {
       debugPrint('Error loading leaderboard: $e');
       debugPrint('Stack trace: $stackTrace');
-      
+
       state = state.copyWith(
         isLoading: false,
         error: 'Failed to load leaderboard: ${e.toString()}',
@@ -143,7 +142,7 @@ class LeaderboardNotifier extends StateNotifier<LeaderboardState> {
         if (entry.isCurrentUser) {
           final level = XPCalculator.calculateLevel(totalXP);
           final cosmicTier = CosmicTier.fromXP(totalXP);
-          
+
           return entry.copyWith(
             stellarShards: stellarShards,
             lumina: lumina,
@@ -215,7 +214,10 @@ class LeaderboardNotifier extends StateNotifier<LeaderboardState> {
     final currentUser = state.currentUserEntry;
     if (currentUser == null) return [];
 
-    final startIndex = (currentUser.rank - 1 - range).clamp(0, state.entries.length);
+    final startIndex = (currentUser.rank - 1 - range).clamp(
+      0,
+      state.entries.length,
+    );
     final endIndex = (currentUser.rank + range).clamp(0, state.entries.length);
 
     return state.entries.sublist(startIndex, endIndex);
@@ -236,9 +238,10 @@ class LeaderboardNotifier extends StateNotifier<LeaderboardState> {
 }
 
 /// Provider for leaderboard state
-final leaderboardProvider = StateNotifierProvider<LeaderboardNotifier, LeaderboardState>(
-  (ref) => LeaderboardNotifier(ref.watch(leaderboardServiceProvider)),
-);
+final leaderboardProvider =
+    StateNotifierProvider<LeaderboardNotifier, LeaderboardState>(
+      (ref) => LeaderboardNotifier(ref.watch(leaderboardServiceProvider)),
+    );
 
 /// Provider for current leaderboard type
 final currentLeaderboardTypeProvider = StateProvider<LeaderboardType>(
@@ -266,7 +269,7 @@ final topThreePlayersProvider = Provider<List<LeaderboardEntry>>((ref) {
 /// Provider that auto-refreshes leaderboard data periodically
 final autoRefreshLeaderboardProvider = StreamProvider<LeaderboardState>((ref) {
   final notifier = ref.watch(leaderboardProvider.notifier);
-  
+
   return Stream.periodic(
     const Duration(minutes: 2), // Refresh every 2 minutes
     (_) => notifier.refresh(),

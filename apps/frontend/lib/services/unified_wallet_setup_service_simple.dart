@@ -4,7 +4,8 @@ import 'mobile_starknet_service.dart';
 /// Simplified Unified Wallet Setup Service - Mobile Native
 /// Focuses only on the core functionality needed for testing
 class UnifiedWalletSetupService {
-  static final MobileStarknetService _mobileStarknetService = MobileStarknetService();
+  static final MobileStarknetService _mobileStarknetService =
+      MobileStarknetService();
 
   /// Initialize mobile Starknet service
   static Future<void> initializeMobileService({bool useMainnet = false}) async {
@@ -24,13 +25,13 @@ class UnifiedWalletSetupService {
   }) async {
     try {
       debugPrint('🆕 Creating fresh wallet with mobile-native SDK...');
-      
+
       await initializeMobileService();
-      
+
       final walletData = await _mobileStarknetService.createWallet(
         enableBiometric: true,
       );
-      
+
       debugPrint('✅ Fresh wallet created successfully');
       debugPrint('   Address: ${walletData.address}');
     } catch (e) {

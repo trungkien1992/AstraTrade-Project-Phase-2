@@ -1,11 +1,5 @@
 /// Order status enum for Extended API integration
-enum OrderStatus {
-  pending,
-  filled,
-  partiallyFilled,
-  cancelled,
-  failed,
-}
+enum OrderStatus { pending, filled, partiallyFilled, cancelled, failed }
 
 class SimpleTrade {
   final String id;
@@ -15,7 +9,7 @@ class SimpleTrade {
   final DateTime timestamp;
   final double? profitLoss;
   final bool isCompleted;
-  
+
   // Extended API fields for real trading
   final String? extendedOrderId;
   final OrderStatus? orderStatus;
@@ -99,7 +93,7 @@ class SimpleTrade {
       isCompleted: json['isCompleted'] ?? false,
       // Extended API fields
       extendedOrderId: json['extendedOrderId'],
-      orderStatus: json['orderStatus'] != null 
+      orderStatus: json['orderStatus'] != null
           ? OrderStatus.values.firstWhere(
               (e) => e.name == json['orderStatus'],
               orElse: () => OrderStatus.pending,
@@ -107,7 +101,7 @@ class SimpleTrade {
           : null,
       fillPrice: json['fillPrice']?.toDouble(),
       unrealizedPnL: json['unrealizedPnL']?.toDouble(),
-      lastUpdate: json['lastUpdate'] != null 
+      lastUpdate: json['lastUpdate'] != null
           ? DateTime.parse(json['lastUpdate'])
           : null,
     );

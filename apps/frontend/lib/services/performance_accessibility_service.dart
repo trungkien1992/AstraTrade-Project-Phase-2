@@ -6,7 +6,8 @@ import 'package:accessibility_tools/accessibility_tools.dart';
 /// Performance & Accessibility Service for Phase 4.3
 /// Achieves 60fps performance targets and implements accessibility features
 class PerformanceAccessibilityService {
-  static final PerformanceAccessibilityService _instance = PerformanceAccessibilityService._internal();
+  static final PerformanceAccessibilityService _instance =
+      PerformanceAccessibilityService._internal();
   factory PerformanceAccessibilityService() => _instance;
   PerformanceAccessibilityService._internal();
 
@@ -22,16 +23,16 @@ class PerformanceAccessibilityService {
     try {
       // Initialize performance monitoring
       await _initializePerformanceMonitoring();
-      
+
       // Configure accessibility features
       await _configureAccessibilityFeatures();
-      
+
       // Apply performance optimizations
       await _applyPerformanceOptimizations();
-      
+
       // Setup accessibility compliance
       await _setupAccessibilityCompliance();
-      
+
       _isInitialized = true;
       debugPrint('⚡ Performance & Accessibility service initialized');
     } catch (e) {
@@ -57,7 +58,7 @@ class PerformanceAccessibilityService {
 
     // Start performance monitoring
     await _startPerformanceMonitoring();
-    
+
     debugPrint('📊 Performance monitoring initialized');
   }
 
@@ -87,16 +88,16 @@ class PerformanceAccessibilityService {
 
     // Enable performance mode based on device capabilities
     await _configurePerformanceMode();
-    
+
     // Optimize widget rebuilds
     await _optimizeWidgetRebuilds();
-    
+
     // Configure memory management
     await _configureMemoryManagement();
-    
+
     // Setup frame rate targeting
     await _setupFrameRateTargeting();
-    
+
     debugPrint('⚡ Performance optimizations applied');
   }
 
@@ -104,19 +105,19 @@ class PerformanceAccessibilityService {
   Future<void> _setupAccessibilityCompliance() async {
     // Configure semantic widgets
     await _configureSemanticWidgets();
-    
+
     // Setup keyboard navigation
     await _setupKeyboardNavigation();
-    
+
     // Configure color contrast compliance
     await _configureColorContrast();
-    
+
     // Setup screen reader support
     await _setupScreenReaderSupport();
-    
+
     // Configure focus management
     await _configureFocusManagement();
-    
+
     debugPrint('♿ WCAG 2.1 AA compliance configured');
   }
 
@@ -124,43 +125,46 @@ class PerformanceAccessibilityService {
   Future<void> _startPerformanceMonitoring() async {
     // Monitor frame times
     WidgetsBinding.instance.addPostFrameCallback(_measureFrameTime);
-    
+
     // Monitor memory usage
     _startMemoryMonitoring();
-    
+
     // Monitor GPU performance
     _startGPUMonitoring();
-    
+
     // Monitor battery usage
     _startBatteryMonitoring();
   }
 
   /// Measure frame rendering time
   void _measureFrameTime(Duration timeStamp) {
-    final frameTime = timeStamp.inMicroseconds / 1000.0; // Convert to milliseconds
-    
+    final frameTime =
+        timeStamp.inMicroseconds / 1000.0; // Convert to milliseconds
+
     final frameTimes = _performanceMetrics['frame_time_ms'] as List<double>;
     frameTimes.add(frameTime);
-    
+
     // Keep only last 60 frames
     if (frameTimes.length > 60) {
       frameTimes.removeAt(0);
     }
-    
+
     // Calculate current FPS
     if (frameTimes.isNotEmpty) {
-      final avgFrameTime = frameTimes.reduce((a, b) => a + b) / frameTimes.length;
+      final avgFrameTime =
+          frameTimes.reduce((a, b) => a + b) / frameTimes.length;
       _performanceMetrics['actual_fps'] = 1000.0 / avgFrameTime;
-      
+
       // Count jank frames (>16.67ms for 60fps)
       if (frameTime > 16.67) {
-        _performanceMetrics['jank_frames'] = (_performanceMetrics['jank_frames'] as int) + 1;
+        _performanceMetrics['jank_frames'] =
+            (_performanceMetrics['jank_frames'] as int) + 1;
       }
     }
-    
+
     // Calculate performance score
     _updatePerformanceScore();
-    
+
     // Schedule next frame measurement
     WidgetsBinding.instance.addPostFrameCallback(_measureFrameTime);
   }
@@ -199,10 +203,10 @@ class PerformanceAccessibilityService {
   void _updateMemoryUsage() {
     // Simulate memory usage calculation
     final memoryUsage = 45.0 + (DateTime.now().millisecond % 20).toDouble();
-    
+
     final memoryList = _performanceMetrics['memory_usage_mb'] as List<double>;
     memoryList.add(memoryUsage);
-    
+
     if (memoryList.length > 20) {
       memoryList.removeAt(0);
     }
@@ -212,10 +216,10 @@ class PerformanceAccessibilityService {
   void _updateGPUUsage() {
     // Simulate GPU usage calculation
     final gpuUsage = 30.0 + (DateTime.now().millisecond % 40).toDouble();
-    
+
     final gpuList = _performanceMetrics['gpu_usage_percent'] as List<double>;
     gpuList.add(gpuUsage);
-    
+
     if (gpuList.length > 10) {
       gpuList.removeAt(0);
     }
@@ -225,7 +229,10 @@ class PerformanceAccessibilityService {
   void _updateBatteryUsage() {
     // Simulate battery usage calculation
     final currentUsage = _performanceMetrics['battery_usage_percent'] as double;
-    _performanceMetrics['battery_usage_percent'] = (currentUsage + 0.1).clamp(0.0, 100.0);
+    _performanceMetrics['battery_usage_percent'] = (currentUsage + 0.1).clamp(
+      0.0,
+      100.0,
+    );
   }
 
   /// Update overall performance score
@@ -233,22 +240,24 @@ class PerformanceAccessibilityService {
     final actualFPS = _performanceMetrics['actual_fps'] as double;
     final targetFPS = _performanceMetrics['target_fps'] as int;
     final jankFrames = _performanceMetrics['jank_frames'] as int;
-    
+
     // Calculate FPS score (0-100)
     final fpsScore = (actualFPS / targetFPS * 100).clamp(0.0, 100.0);
-    
+
     // Penalty for jank frames
     final jankPenalty = jankFrames * 2.0;
-    
+
     // Overall performance score
     final performanceScore = (fpsScore - jankPenalty).clamp(0.0, 100.0);
-    
+
     _performanceMetrics['performance_score'] = performanceScore;
-    
+
     // Adjust performance mode if needed
-    if (performanceScore < 70 && _currentPerformanceMode != PerformanceMode.batteryOptimized) {
+    if (performanceScore < 70 &&
+        _currentPerformanceMode != PerformanceMode.batteryOptimized) {
       _switchPerformanceMode(PerformanceMode.batteryOptimized);
-    } else if (performanceScore > 90 && _currentPerformanceMode != PerformanceMode.highPerformance) {
+    } else if (performanceScore > 90 &&
+        _currentPerformanceMode != PerformanceMode.highPerformance) {
       _switchPerformanceMode(PerformanceMode.highPerformance);
     }
   }
@@ -257,7 +266,7 @@ class PerformanceAccessibilityService {
   Future<void> _configurePerformanceMode() async {
     // Detect device performance class
     final deviceClass = await _detectDevicePerformanceClass();
-    
+
     switch (deviceClass) {
       case DevicePerformanceClass.low:
         _currentPerformanceMode = PerformanceMode.batteryOptimized;
@@ -269,17 +278,17 @@ class PerformanceAccessibilityService {
         _currentPerformanceMode = PerformanceMode.highPerformance;
         break;
     }
-    
+
     await _applyPerformanceMode(_currentPerformanceMode);
   }
 
   /// Switch performance mode
   Future<void> _switchPerformanceMode(PerformanceMode mode) async {
     if (_currentPerformanceMode == mode) return;
-    
+
     _currentPerformanceMode = mode;
     await _applyPerformanceMode(mode);
-    
+
     debugPrint('⚡ Performance mode switched to: ${mode.name}');
   }
 
@@ -291,17 +300,18 @@ class PerformanceAccessibilityService {
         PaintingBinding.instance.imageCache.maximumSize = 50;
         PaintingBinding.instance.imageCache.maximumSizeBytes = 25 << 20; // 25MB
         break;
-        
+
       case PerformanceMode.balanced:
         _performanceMetrics['target_fps'] = 60;
         PaintingBinding.instance.imageCache.maximSize = 100;
         PaintingBinding.instance.imageCache.maximumSizeBytes = 50 << 20; // 50MB
         break;
-        
+
       case PerformanceMode.highPerformance:
         _performanceMetrics['target_fps'] = 120;
         PaintingBinding.instance.imageCache.maximumSize = 200;
-        PaintingBinding.instance.imageCache.maximumSizeBytes = 100 << 20; // 100MB
+        PaintingBinding.instance.imageCache.maximumSizeBytes =
+            100 << 20; // 100MB
         break;
     }
   }
@@ -387,34 +397,43 @@ class PerformanceAccessibilityService {
 
   /// Get optimized widget configuration
   WidgetConfiguration getOptimizedWidgetConfig() {
-    final reducedMotion = _accessibilitySettings['reduced_motion_enabled'] ?? false;
-    final highContrast = _accessibilitySettings['high_contrast_enabled'] ?? false;
-    
+    final reducedMotion =
+        _accessibilitySettings['reduced_motion_enabled'] ?? false;
+    final highContrast =
+        _accessibilitySettings['high_contrast_enabled'] ?? false;
+
     return WidgetConfiguration(
       enableAnimations: !reducedMotion,
       highContrast: highContrast,
       performanceMode: _currentPerformanceMode,
       targetFPS: _performanceMetrics['target_fps'] as int,
-      enableParticleEffects: _currentPerformanceMode != PerformanceMode.batteryOptimized,
-      enable3DRendering: _currentPerformanceMode == PerformanceMode.highPerformance,
+      enableParticleEffects:
+          _currentPerformanceMode != PerformanceMode.batteryOptimized,
+      enable3DRendering:
+          _currentPerformanceMode == PerformanceMode.highPerformance,
     );
   }
 
   /// Get accessibility-optimized theme
   ThemeData getAccessibilityTheme(ThemeData baseTheme) {
-    final highContrast = _accessibilitySettings['high_contrast_enabled'] ?? false;
+    final highContrast =
+        _accessibilitySettings['high_contrast_enabled'] ?? false;
     final largeText = _accessibilitySettings['large_text_enabled'] ?? false;
-    
+
     return baseTheme.copyWith(
       // High contrast adjustments
-      colorScheme: highContrast ? _getHighContrastColorScheme(baseTheme.colorScheme) : baseTheme.colorScheme,
-      
+      colorScheme: highContrast
+          ? _getHighContrastColorScheme(baseTheme.colorScheme)
+          : baseTheme.colorScheme,
+
       // Large text adjustments
-      textTheme: largeText ? _getLargeTextTheme(baseTheme.textTheme) : baseTheme.textTheme,
-      
+      textTheme: largeText
+          ? _getLargeTextTheme(baseTheme.textTheme)
+          : baseTheme.textTheme,
+
       // Focus indicators
       focusColor: Colors.yellow.withOpacity(0.8),
-      
+
       // Button themes for accessibility
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -442,15 +461,33 @@ class PerformanceAccessibilityService {
   /// Get large text theme
   TextTheme _getLargeTextTheme(TextTheme baseTheme) {
     return baseTheme.copyWith(
-      displayLarge: baseTheme.displayLarge?.copyWith(fontSize: (baseTheme.displayLarge?.fontSize ?? 32) * 1.3),
-      displayMedium: baseTheme.displayMedium?.copyWith(fontSize: (baseTheme.displayMedium?.fontSize ?? 28) * 1.3),
-      displaySmall: baseTheme.displaySmall?.copyWith(fontSize: (baseTheme.displaySmall?.fontSize ?? 24) * 1.3),
-      headlineLarge: baseTheme.headlineLarge?.copyWith(fontSize: (baseTheme.headlineLarge?.fontSize ?? 22) * 1.3),
-      headlineMedium: baseTheme.headlineMedium?.copyWith(fontSize: (baseTheme.headlineMedium?.fontSize ?? 20) * 1.3),
-      headlineSmall: baseTheme.headlineSmall?.copyWith(fontSize: (baseTheme.headlineSmall?.fontSize ?? 18) * 1.3),
-      bodyLarge: baseTheme.bodyLarge?.copyWith(fontSize: (baseTheme.bodyLarge?.fontSize ?? 16) * 1.2),
-      bodyMedium: baseTheme.bodyMedium?.copyWith(fontSize: (baseTheme.bodyMedium?.fontSize ?? 14) * 1.2),
-      bodySmall: baseTheme.bodySmall?.copyWith(fontSize: (baseTheme.bodySmall?.fontSize ?? 12) * 1.2),
+      displayLarge: baseTheme.displayLarge?.copyWith(
+        fontSize: (baseTheme.displayLarge?.fontSize ?? 32) * 1.3,
+      ),
+      displayMedium: baseTheme.displayMedium?.copyWith(
+        fontSize: (baseTheme.displayMedium?.fontSize ?? 28) * 1.3,
+      ),
+      displaySmall: baseTheme.displaySmall?.copyWith(
+        fontSize: (baseTheme.displaySmall?.fontSize ?? 24) * 1.3,
+      ),
+      headlineLarge: baseTheme.headlineLarge?.copyWith(
+        fontSize: (baseTheme.headlineLarge?.fontSize ?? 22) * 1.3,
+      ),
+      headlineMedium: baseTheme.headlineMedium?.copyWith(
+        fontSize: (baseTheme.headlineMedium?.fontSize ?? 20) * 1.3,
+      ),
+      headlineSmall: baseTheme.headlineSmall?.copyWith(
+        fontSize: (baseTheme.headlineSmall?.fontSize ?? 18) * 1.3,
+      ),
+      bodyLarge: baseTheme.bodyLarge?.copyWith(
+        fontSize: (baseTheme.bodyLarge?.fontSize ?? 16) * 1.2,
+      ),
+      bodyMedium: baseTheme.bodyMedium?.copyWith(
+        fontSize: (baseTheme.bodyMedium?.fontSize ?? 14) * 1.2,
+      ),
+      bodySmall: baseTheme.bodySmall?.copyWith(
+        fontSize: (baseTheme.bodySmall?.fontSize ?? 12) * 1.2,
+      ),
     );
   }
 
@@ -458,27 +495,27 @@ class PerformanceAccessibilityService {
   AccessibilityReport generateAccessibilityReport() {
     final violations = <String>[];
     final recommendations = <String>[];
-    
+
     // Check color contrast
     if (!(_accessibilitySettings['high_contrast_enabled'] ?? false)) {
       recommendations.add('Enable high contrast mode for better visibility');
     }
-    
+
     // Check semantic labels
     if (!(_accessibilitySettings['semantic_labels'] ?? false)) {
       violations.add('Missing semantic labels on interactive elements');
     }
-    
+
     // Check keyboard navigation
     if (!(_accessibilitySettings['keyboard_navigation'] ?? false)) {
       violations.add('Keyboard navigation not fully implemented');
     }
-    
+
     // Check focus indicators
     if (!(_accessibilitySettings['focus_indicators'] ?? false)) {
       violations.add('Focus indicators missing on interactive elements');
     }
-    
+
     return AccessibilityReport(
       wcagLevel: violations.isEmpty ? WCAGLevel.aa : WCAGLevel.a,
       violations: violations,
@@ -491,17 +528,21 @@ class PerformanceAccessibilityService {
   /// Calculate accessibility compliance score
   double _calculateAccessibilityScore() {
     final totalFeatures = _accessibilitySettings.length;
-    final enabledFeatures = _accessibilitySettings.values.where((enabled) => enabled).length;
+    final enabledFeatures = _accessibilitySettings.values
+        .where((enabled) => enabled)
+        .length;
     return (enabledFeatures / totalFeatures) * 100;
   }
 
   // Public getters
   bool get isInitialized => _isInitialized;
   Map<String, dynamic> get performanceMetrics => Map.from(_performanceMetrics);
-  Map<String, bool> get accessibilitySettings => Map.from(_accessibilitySettings);
+  Map<String, bool> get accessibilitySettings =>
+      Map.from(_accessibilitySettings);
   PerformanceMode get currentPerformanceMode => _currentPerformanceMode;
   double get currentFPS => _performanceMetrics['actual_fps'] ?? 0.0;
-  double get performanceScore => _performanceMetrics['performance_score'] ?? 0.0;
+  double get performanceScore =>
+      _performanceMetrics['performance_score'] ?? 0.0;
   int get jankFrames => _performanceMetrics['jank_frames'] ?? 0;
 }
 

@@ -14,35 +14,37 @@ import 'unified_wallet_setup_service.dart';
 class PaymasterService {
   static PaymasterService? _instance;
   late Dio _dio;
-  
+
   final String _paymasterAddress;
   final String _apiBaseUrl;
   final String _rpcUrl;
-  
-  PaymasterService._() 
+
+  PaymasterService._()
     : _paymasterAddress = ContractConfig.paymasterAddress,
       _apiBaseUrl = ContractConfig.avnuApiBaseUrl,
       _rpcUrl = ContractConfig.avnuSepoliaRpcUrl {
-    _dio = Dio(BaseOptions(
-      baseUrl: _apiBaseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'AstraTrade/1.0',
-        'api-key': const String.fromEnvironment(
-          'AVNU_API_KEY',
-          defaultValue: '', // Set via environment variable
-        ), // Real AVNU API key
-      },
-    ));
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: _apiBaseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 30),
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'AstraTrade/1.0',
+          'api-key': const String.fromEnvironment(
+            'AVNU_API_KEY',
+            defaultValue: '', // Set via environment variable
+          ), // Real AVNU API key
+        },
+      ),
+    );
   }
-  
+
   static PaymasterService get instance {
     _instance ??= PaymasterService._();
     return _instance!;
   }
-  
+
   /// Initialize the paymaster service
   Future<void> initialize() async {
     try {
@@ -51,7 +53,9 @@ class PaymasterService {
       if (response.statusCode != 200) {
         throw PaymasterException('AVNU API not available');
       }
-      debugPrint('✅ AVNU Paymaster service initialized successfully: ${response.data}');
+      debugPrint(
+        '✅ AVNU Paymaster service initialized successfully: ${response.data}',
+      );
     } catch (e) {
       log('⚠️ Warning: Could not connect to AVNU API: $e');
       // Continue anyway for offline development
@@ -59,36 +63,50 @@ class PaymasterService {
   }
 
   /// Check if user is eligible for gasless transactions via AVNU
-  Future<AVNUEligibilityResponse> checkUserEligibility(String userAddress) async {
+  Future<AVNUEligibilityResponse> checkUserEligibility(
+    String userAddress,
+  ) async {
     debugPrint('🔍 === AVNU COMPATIBILITY CHECK ===');
     debugPrint('📍 User address: $userAddress');
-    debugPrint('🌐 API URL: $_apiBaseUrl/paymaster/v1/accounts/$userAddress/compatible');
-    
+    debugPrint(
+      '🌐 API URL: $_apiBaseUrl/paymaster/v1/accounts/$userAddress/compatible',
+    );
+
     try {
       // Use real AVNU compatibility endpoint
-      final response = await _dio.get('/paymaster/v1/accounts/$userAddress/compatible');
-      debugPrint('📥 AVNU compatibility response: ${response.statusCode} - ${response.data}');
-      
+      final response = await _dio.get(
+        '/paymaster/v1/accounts/$userAddress/compatible',
+      );
+      debugPrint(
+        '📥 AVNU compatibility response: ${response.statusCode} - ${response.data}',
+      );
+
       if (response.statusCode == 200) {
         final data = response.data;
         final isCompatible = data['isCompatible'] ?? false;
-        
+
         final eligibilityResponse = AVNUEligibilityResponse(
           isEligible: isCompatible,
-          dailyLimit: isCompatible ? 0.01 : 0.0, // 0.01 ETH daily limit for compatible accounts
+          dailyLimit: isCompatible
+              ? 0.01
+              : 0.0, // 0.01 ETH daily limit for compatible accounts
           usedToday: 0.0, // Track internally or get from separate endpoint
           reasonCode: isCompatible ? 'avnu_compatible' : 'incompatible_account',
         );
-        
-        debugPrint('✅ Real AVNU eligibility: isEligible=$isCompatible, gasOverhead=${data['gasConsumedOverhead']}');
+
+        debugPrint(
+          '✅ Real AVNU eligibility: isEligible=$isCompatible, gasOverhead=${data['gasConsumedOverhead']}',
+        );
         return eligibilityResponse;
       } else {
-        throw PaymasterException('AVNU compatibility check failed: ${response.statusCode}');
+        throw PaymasterException(
+          'AVNU compatibility check failed: ${response.statusCode}',
+        );
       }
     } catch (e) {
       debugPrint('🔴 AVNU COMPATIBILITY CHECK FAILED: $e');
       debugPrint('🎭 Using fallback eligibility');
-      
+
       // Return conservative fallback for compatibility issues
       final fallbackResponse = AVNUEligibilityResponse(
         isEligible: false,
@@ -100,22 +118,27 @@ class PaymasterService {
       return fallbackResponse;
     }
   }
-  
+
   /// Check if transaction can be sponsored by AVNU paymaster
-  Future<bool> canSponsorTransaction(String userAddress, double estimatedGasFee) async {
+  Future<bool> canSponsorTransaction(
+    String userAddress,
+    double estimatedGasFee,
+  ) async {
     try {
       final eligibility = await checkUserEligibility(userAddress);
       final remaining = eligibility.dailyLimit - eligibility.usedToday;
       final canSponsor = eligibility.isEligible && remaining >= estimatedGasFee;
-      
-      debugPrint('AVNU sponsorship check: eligible=${eligibility.isEligible}, remaining=$remaining, gasFee=$estimatedGasFee, canSponsor=$canSponsor');
+
+      debugPrint(
+        'AVNU sponsorship check: eligible=${eligibility.isEligible}, remaining=$remaining, gasFee=$estimatedGasFee, canSponsor=$canSponsor',
+      );
       return canSponsor;
     } catch (e) {
       log('Error checking AVNU sponsorship: $e');
       return false;
     }
   }
-  
+
   /// Build typed data for AVNU paymaster sponsorship
   Future<Map<String, dynamic>> buildTypedData({
     required String userAddress,
@@ -126,22 +149,32 @@ class PaymasterService {
     debugPrint('🏗️ Building typed data for AVNU sponsorship');
     debugPrint('📍 User address: $userAddress');
     debugPrint('📋 Calls: ${calls.length} operations');
-    
+
     try {
       final requestData = {
         'userAddress': userAddress,
-        'calls': calls.map((call) => {
-          'contractAddress': _formatAddressForAVNU(call['contract_address'] ?? call['contractAddress']),
-          'entrypoint': call['selector'] ?? call['entrypoint'] ?? 'execute',
-          'calldata': _formatCalldataForAVNU(call['calldata'] ?? []),
-        }).toList(),
+        'calls': calls
+            .map(
+              (call) => {
+                'contractAddress': _formatAddressForAVNU(
+                  call['contract_address'] ?? call['contractAddress'],
+                ),
+                'entrypoint':
+                    call['selector'] ?? call['entrypoint'] ?? 'execute',
+                'calldata': _formatCalldataForAVNU(call['calldata'] ?? []),
+              },
+            )
+            .toList(),
         if (gasTokenAddress != null) 'gasTokenAddress': gasTokenAddress,
         if (maxGasTokenAmount != null) 'maxGasTokenAmount': maxGasTokenAmount,
       };
-      
+
       debugPrint('📤 Sending build-typed-data request: $requestData');
-      final response = await _dio.post('/paymaster/v1/build-typed-data', data: requestData);
-      
+      final response = await _dio.post(
+        '/paymaster/v1/build-typed-data',
+        data: requestData,
+      );
+
       if (response.statusCode == 200) {
         debugPrint('✅ Typed data built successfully via AVNU API');
         return response.data;
@@ -150,25 +183,33 @@ class PaymasterService {
       }
     } catch (e) {
       debugPrint('🔴 AVNU API build-typed-data failed: $e');
-      
+
       // Check if it's an API key permission issue
-      if (e.toString().contains('Invalid api key') || e.toString().contains('401')) {
-        debugPrint('⚠️ API key lacks permissions for build-typed-data endpoint');
-        debugPrint('💡 Current key works for: status, compatibility, gas-token-prices');
+      if (e.toString().contains('Invalid api key') ||
+          e.toString().contains('401')) {
+        debugPrint(
+          '⚠️ API key lacks permissions for build-typed-data endpoint',
+        );
+        debugPrint(
+          '💡 Current key works for: status, compatibility, gas-token-prices',
+        );
         debugPrint('❌ Current key fails for: build-typed-data, execute');
-        
+
         return _buildFallbackTypedData(userAddress, calls);
       }
-      
+
       debugPrint('🔄 Using fallback typed data generation');
       return _buildFallbackTypedData(userAddress, calls);
     }
   }
 
   /// Build fallback typed data when AVNU API is unavailable
-  Map<String, dynamic> _buildFallbackTypedData(String userAddress, List<Map<String, dynamic>> calls) {
+  Map<String, dynamic> _buildFallbackTypedData(
+    String userAddress,
+    List<Map<String, dynamic>> calls,
+  ) {
     debugPrint('🛠️ Building fallback typed data for StarkNet transaction');
-    
+
     return {
       'types': {
         'StarkNetDomain': [
@@ -195,11 +236,19 @@ class PaymasterService {
         'revision': '1',
       },
       'message': {
-        'calls': calls.map((call) => {
-          'to': _formatAddressForAVNU(call['contract_address'] ?? call['contractAddress']),
-          'selector': _calculateSelector(call['selector'] ?? call['entrypoint'] ?? 'execute'),
-          'calldata': _formatCalldataForAVNU(call['calldata'] ?? []),
-        }).toList(),
+        'calls': calls
+            .map(
+              (call) => {
+                'to': _formatAddressForAVNU(
+                  call['contract_address'] ?? call['contractAddress'],
+                ),
+                'selector': _calculateSelector(
+                  call['selector'] ?? call['entrypoint'] ?? 'execute',
+                ),
+                'calldata': _formatCalldataForAVNU(call['calldata'] ?? []),
+              },
+            )
+            .toList(),
         'nonce': DateTime.now().millisecondsSinceEpoch.toString(),
         'maxFee': '0x16345785d8a0000', // 0.1 ETH max fee
       },
@@ -234,13 +283,13 @@ class PaymasterService {
   }) async {
     try {
       debugPrint('🎯 Requesting AVNU sponsorship for account: $userAddress');
-      
+
       // First build the typed data
       final typedData = await buildTypedData(
         userAddress: userAddress,
         calls: calls,
       );
-      
+
       debugPrint('✅ Typed data ready for sponsorship request');
       return AVNUSponsorshipResponse(
         isApproved: true,
@@ -250,18 +299,17 @@ class PaymasterService {
         validUntil: DateTime.now().add(const Duration(minutes: 10)),
         paymasterCalldata: ['0x1', '0x2', '0x3'],
       );
-      
     } catch (e) {
       log('Error requesting AVNU sponsorship: $e');
       throw PaymasterException('Sponsorship request failed: $e');
     }
   }
-  
+
   /// Get AVNU paymaster service status
   Future<PaymasterStatus> getPaymasterStatus() async {
     try {
       final response = await _dio.get('/status');
-      
+
       if (response.statusCode == 200) {
         final data = response.data;
         return PaymasterStatus(
@@ -279,7 +327,7 @@ class PaymasterService {
     } catch (e) {
       log('Error getting AVNU status: $e');
     }
-    
+
     // Return demo status if API unavailable
     return PaymasterStatus(
       isActive: true,
@@ -293,7 +341,7 @@ class PaymasterService {
       owner: 'AVNU',
     );
   }
-  
+
   /// Validate transaction for AVNU sponsorship
   Future<bool> validateTransaction({
     required String userAddress,
@@ -302,7 +350,7 @@ class PaymasterService {
   }) async {
     try {
       debugPrint('🔍 === TRANSACTION VALIDATION START ===');
-      
+
       // Check basic eligibility
       final eligibility = await checkUserEligibility(userAddress);
       debugPrint('🔍 Eligibility check: ${eligibility.isEligible}');
@@ -310,44 +358,47 @@ class PaymasterService {
         debugPrint('❌ Validation failed: User not eligible');
         return false;
       }
-      
+
       // Check gas limits
       debugPrint('🔍 Gas check: $estimatedGas ETH (max: 0.1 ETH)');
       if (estimatedGas > 0.1) {
         debugPrint('❌ Validation failed: Gas too high ($estimatedGas > 0.1)');
         return false; // Max 0.1 ETH gas
       }
-      
+
       // Check daily limits
       final remaining = eligibility.dailyLimit - eligibility.usedToday;
-      debugPrint('🔍 Daily limit check: remaining=$remaining, needed=$estimatedGas');
+      debugPrint(
+        '🔍 Daily limit check: remaining=$remaining, needed=$estimatedGas',
+      );
       if (remaining < estimatedGas) {
         debugPrint('❌ Validation failed: Insufficient daily limit');
         return false;
       }
-      
+
       // Validate call data
       debugPrint('🔍 Validating ${calls.length} calls...');
       for (int i = 0; i < calls.length; i++) {
         final call = calls[i];
         final allowed = _isCallAllowed(call);
-        debugPrint('🔍 Call $i: ${call['selector'] ?? call['entrypoint']} → $allowed');
+        debugPrint(
+          '🔍 Call $i: ${call['selector'] ?? call['entrypoint']} → $allowed',
+        );
         if (!allowed) {
           debugPrint('❌ Validation failed: Call $i not allowed');
           return false;
         }
       }
-      
+
       debugPrint('✅ === TRANSACTION VALIDATION PASSED ===');
       return true;
-      
     } catch (e) {
       debugPrint('❌ Validation error: $e');
       log('Error validating transaction: $e');
       return false;
     }
   }
-  
+
   /// Check if a call is allowed for sponsorship
   bool _isCallAllowed(Map<String, dynamic> call) {
     // Allow trading-related calls
@@ -357,35 +408,40 @@ class PaymasterService {
       'transfer',
       'approve',
       'execute_trade', // Allow demo trading calls
-      'execute',       // Allow general execute calls
+      'execute', // Allow general execute calls
     ];
-    
+
     final selector = call['selector'] ?? call['entrypoint'] ?? '';
-    final callAllowed = allowedSelectors.any((allowed) => selector.contains(allowed));
-    
-    debugPrint('🔍 Call validation: selector="$selector", allowed=$callAllowed');
+    final callAllowed = allowedSelectors.any(
+      (allowed) => selector.contains(allowed),
+    );
+
+    debugPrint(
+      '🔍 Call validation: selector="$selector", allowed=$callAllowed',
+    );
     return callAllowed;
   }
-  
+
   /// Get maximum gas amount that can be sponsored per transaction
   double _getMaxSponsoredGas() {
     // Set reasonable limits for sponsored transactions
     // This prevents abuse while allowing normal trading operations
     return 0.01; // 0.01 ETH equivalent in gas
   }
-  
+
   /// Check if paymaster has capacity to sponsor more transactions
   Future<bool> _checkPaymasterCapacity() async {
     try {
       final status = await getPaymasterStatus();
-      final remainingDaily = double.parse(status.dailyLimit) - double.parse(status.dailyUsed);
+      final remainingDaily =
+          double.parse(status.dailyLimit) - double.parse(status.dailyUsed);
       return remainingDaily > 0;
     } catch (e) {
       log('Error checking paymaster capacity: $e');
       return false;
     }
   }
-  
+
   /// Prepare transaction for paymaster sponsorship
   Future<PreparedTransaction> _prepareTransactionForSponsorship({
     required String accountAddress,
@@ -394,10 +450,10 @@ class PaymasterService {
   }) async {
     // Estimate gas costs using StarkNet RPC
     final estimatedGas = await _estimateGasCosts(accountAddress, calls);
-    
+
     // Get current nonce for the account
     final nonce = await _getAccountNonce(accountAddress);
-    
+
     return PreparedTransaction(
       accountAddress: accountAddress,
       calls: calls,
@@ -406,9 +462,12 @@ class PaymasterService {
       metadata: metadata ?? {},
     );
   }
-  
+
   /// Estimate gas costs for a transaction
-  Future<double> _estimateGasCosts(String accountAddress, List<TransactionCall> calls) async {
+  Future<double> _estimateGasCosts(
+    String accountAddress,
+    List<TransactionCall> calls,
+  ) async {
     try {
       // In a real implementation, this would call StarkNet RPC to estimate gas
       // For now, we'll use a reasonable estimate based on the number of calls
@@ -420,7 +479,7 @@ class PaymasterService {
       return 0.005;
     }
   }
-  
+
   /// Get account nonce from StarkNet
   Future<int> _getAccountNonce(String accountAddress) async {
     try {
@@ -432,7 +491,7 @@ class PaymasterService {
       return DateTime.now().millisecondsSinceEpoch;
     }
   }
-  
+
   /// Format calldata for AVNU API (requires StarkNet felt format with 0x prefix)
   List<String> _formatCalldataForAVNU(List<dynamic> calldata) {
     return calldata.map((item) {
@@ -465,17 +524,18 @@ class PaymasterService {
   }) async {
     try {
       debugPrint('🔐 Generating mobile-native signature for AVNU...');
-      
+
       // Use mobile-native Starknet service for signature generation
-      final signature = await UnifiedWalletSetupService.signTransactionForExtendedAPI(
-        orderData: typedData,
-      );
-      
+      final signature =
+          await UnifiedWalletSetupService.signTransactionForExtendedAPI(
+            orderData: typedData,
+          );
+
       debugPrint('✅ Mobile-native signature generated for AVNU');
       return signature;
     } catch (e) {
       log('❌ Failed to generate mobile-native signature: $e');
-      
+
       // Fallback to mock signature for development
       debugPrint('⚠️ Falling back to mock signature for AVNU development');
       return _generateMockSignature();
@@ -489,7 +549,7 @@ class PaymasterService {
     final digest = sha256.convert(bytes);
     return '0x${digest.toString()}';
   }
-  
+
   /// Execute sponsored transaction with AVNU paymaster
   Future<String> executeWithSponsorship({
     required AVNUSponsorshipResponse sponsorship,
@@ -501,60 +561,78 @@ class PaymasterService {
       debugPrint('🚀 Executing gasless transaction via AVNU');
       debugPrint('📍 User address: $userAddress');
       debugPrint('🎫 Sponsorship ID: ${sponsorship.sponsorshipId}');
-      
+
       // Build typed data first (required for AVNU execution)
       final typedData = await buildTypedData(
         userAddress: userAddress,
         calls: calls,
       );
-      
+
       // Format request according to AVNU API specification
       final requestData = {
         'account_address': userAddress,
         'typed_data': typedData, // Send as object, not JSON string
-        'signature': userSignature.split(','), // Split comma-separated signature into array
+        'signature': userSignature.split(
+          ',',
+        ), // Split comma-separated signature into array
       };
-      
+
       debugPrint('📤 Sending execution request to AVNU');
       debugPrint('📋 Request data structure:');
       debugPrint('   - account_address: $userAddress');
       debugPrint('   - typed_data keys: ${typedData.keys.toList()}');
       debugPrint('   - signature parts: ${userSignature.split(',').length}');
       debugPrint('📡 AVNU execute endpoint: /paymaster/v1/execute');
-      
-      final response = await _dio.post('/paymaster/v1/execute', data: requestData);
-      
+
+      final response = await _dio.post(
+        '/paymaster/v1/execute',
+        data: requestData,
+      );
+
       if (response.statusCode == 200) {
         final txHash = response.data['transactionHash'];
         debugPrint('✅ AVNU gasless transaction executed: $txHash');
         return txHash;
       } else {
-        throw PaymasterException('AVNU execution failed: ${response.statusCode}');
+        throw PaymasterException(
+          'AVNU execution failed: ${response.statusCode}',
+        );
       }
-      
     } catch (e) {
       debugPrint('🔴 AVNU execution error: $e');
       log('Error executing sponsored transaction: $e');
-      
+
       // Provide detailed debugging information
-      if (e.toString().contains('401') || e.toString().contains('Invalid api key')) {
-        debugPrint('🔑 API Key Issue: Current AVNU key may lack execute permissions');
+      if (e.toString().contains('401') ||
+          e.toString().contains('Invalid api key')) {
+        debugPrint(
+          '🔑 API Key Issue: Current AVNU key may lack execute permissions',
+        );
         debugPrint('💡 Key works for: status, compatibility, gas-token-prices');
-        debugPrint('❌ Key may fail for: build-typed-data, execute (requires higher permissions)');
+        debugPrint(
+          '❌ Key may fail for: build-typed-data, execute (requires higher permissions)',
+        );
       } else if (e.toString().contains('400')) {
-        debugPrint('📋 Request Format Issue: Check typed data format or signature requirements');
+        debugPrint(
+          '📋 Request Format Issue: Check typed data format or signature requirements',
+        );
       } else if (e.toString().contains('Network')) {
         debugPrint('🌐 Network Issue: AVNU API may be temporarily unavailable');
       }
-      
+
       // For development/testing, return mock transaction hash with clear indication
-      final mockTxHash = '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}mock';
-      debugPrint('⚠️ Using mock transaction hash (AVNU integration in progress): $mockTxHash');
-      debugPrint('🔧 To enable real gasless transactions, resolve the AVNU API integration issue above');
+      final mockTxHash =
+          '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}mock';
+      debugPrint(
+        '⚠️ Using mock transaction hash (AVNU integration in progress): $mockTxHash',
+      );
+      debugPrint(
+        '🔧 To enable real gasless transactions, resolve the AVNU API integration issue above',
+      );
       return mockTxHash;
     }
   }
-  
+
   /// Track sponsorship for analytics and limits
   Future<void> _trackSponsorship({
     required String accountAddress,
@@ -570,7 +648,7 @@ class PaymasterService {
         'gasSponsored': gasSponsored,
         'timestamp': DateTime.now().toIso8601String(),
       };
-      
+
       await prefs.setString(key, jsonEncode(data));
       debugPrint('Tracked sponsorship: $transactionHash, gas: $gasSponsored');
     } catch (e) {
@@ -584,13 +662,13 @@ class TransactionCall {
   final String contractAddress;
   final String functionName;
   final List<dynamic> parameters;
-  
+
   TransactionCall({
     required this.contractAddress,
     required this.functionName,
     required this.parameters,
   });
-  
+
   Map<String, dynamic> toJson() {
     return {
       'contract_address': contractAddress,
@@ -607,7 +685,7 @@ class PreparedTransaction {
   final double estimatedGas;
   final int nonce;
   final Map<String, dynamic> metadata;
-  
+
   PreparedTransaction({
     required this.accountAddress,
     required this.calls,
@@ -623,14 +701,14 @@ class AVNUEligibilityResponse {
   final double dailyLimit;
   final double usedToday;
   final String reasonCode;
-  
+
   AVNUEligibilityResponse({
     required this.isEligible,
     required this.dailyLimit,
     required this.usedToday,
     required this.reasonCode,
   });
-  
+
   factory AVNUEligibilityResponse.fromJson(Map<String, dynamic> json) {
     return AVNUEligibilityResponse(
       isEligible: json['is_eligible'] ?? false,
@@ -649,7 +727,7 @@ class AVNUSponsorshipResponse {
   final double maxFee;
   final DateTime validUntil;
   final List<String> paymasterCalldata;
-  
+
   AVNUSponsorshipResponse({
     required this.isApproved,
     required this.sponsorshipId,
@@ -658,7 +736,7 @@ class AVNUSponsorshipResponse {
     required this.validUntil,
     required this.paymasterCalldata,
   });
-  
+
   factory AVNUSponsorshipResponse.fromJson(Map<String, dynamic> json) {
     return AVNUSponsorshipResponse(
       isApproved: json['is_approved'] ?? false,
@@ -669,7 +747,7 @@ class AVNUSponsorshipResponse {
       paymasterCalldata: List<String>.from(json['paymaster_calldata'] ?? []),
     );
   }
-  
+
   bool get isValid => DateTime.now().isBefore(validUntil);
 }
 
@@ -679,14 +757,14 @@ class PaymasterResult {
   final bool isSponsored;
   final double gasSponsored;
   final String paymasterAddress;
-  
+
   PaymasterResult({
     required this.transactionHash,
     required this.isSponsored,
     required this.gasSponsored,
     required this.paymasterAddress,
   });
-  
+
   @override
   String toString() {
     return 'PaymasterResult(txHash: $transactionHash, sponsored: $isSponsored, gas: $gasSponsored)';
@@ -704,7 +782,7 @@ class PaymasterStatus {
   final int sponsoredToday;
   final String contractAddress;
   final String owner;
-  
+
   PaymasterStatus({
     required this.isActive,
     required this.balance,
@@ -716,9 +794,11 @@ class PaymasterStatus {
     required this.contractAddress,
     required this.owner,
   });
-  
-  double get remainingDaily => double.parse(dailyLimit) - double.parse(dailyUsed);
-  double get usagePercentage => double.parse(dailyUsed) / double.parse(dailyLimit);
+
+  double get remainingDaily =>
+      double.parse(dailyLimit) - double.parse(dailyUsed);
+  double get usagePercentage =>
+      double.parse(dailyUsed) / double.parse(dailyLimit);
 }
 
 extension PaymasterServiceExtension on PaymasterService {
@@ -741,34 +821,42 @@ extension PaymasterServiceExtension on PaymasterService {
   }) async {
     try {
       debugPrint('🚀 Starting mobile-native gasless transaction...');
-      
+
       // 1. Get user address from mobile wallet or parameter
       String finalUserAddress = userAddress ?? '';
       if (finalUserAddress.isEmpty) {
         final walletData = await UnifiedWalletSetupService.getStoredWallet();
         if (walletData == null) {
-          throw PaymasterException('No wallet found. Please create or import a wallet first.');
+          throw PaymasterException(
+            'No wallet found. Please create or import a wallet first.',
+          );
         }
         finalUserAddress = walletData.address;
       }
-      
+
       debugPrint('📍 Using wallet address: $finalUserAddress');
-      
+
       // 2. Check AVNU eligibility
-      final isEligible = await isEligibleForGaslessTransactions(finalUserAddress);
+      final isEligible = await isEligibleForGaslessTransactions(
+        finalUserAddress,
+      );
       if (!isEligible) {
-        throw PaymasterException('Wallet not eligible for gasless transactions via AVNU');
+        throw PaymasterException(
+          'Wallet not eligible for gasless transactions via AVNU',
+        );
       }
-      
+
       // 3. Build typed data for signature
       final typedData = await buildTypedData(
         userAddress: finalUserAddress,
         calls: calls,
       );
-      
+
       // 4. Generate mobile-native signature
-      final signature = await generateMobileNativeSignature(typedData: typedData);
-      
+      final signature = await generateMobileNativeSignature(
+        typedData: typedData,
+      );
+
       // 5. Get sponsorship (if required by AVNU)
       final sponsorship = AVNUSponsorshipResponse(
         isApproved: true,
@@ -778,7 +866,7 @@ extension PaymasterServiceExtension on PaymasterService {
         validUntil: DateTime.now().add(const Duration(minutes: 5)),
         paymasterCalldata: [],
       );
-      
+
       // 6. Execute with AVNU
       final txHash = await executeWithSponsorship(
         sponsorship: sponsorship,
@@ -786,10 +874,9 @@ extension PaymasterServiceExtension on PaymasterService {
         userAddress: finalUserAddress,
         userSignature: signature,
       );
-      
+
       debugPrint('✅ Mobile-native gasless transaction completed: $txHash');
       return txHash;
-      
     } catch (e) {
       log('❌ Mobile-native gasless transaction failed: $e');
       throw PaymasterException('Gasless transaction failed: $e');
@@ -801,9 +888,9 @@ extension PaymasterServiceExtension on PaymasterService {
 class PaymasterException implements Exception {
   final String message;
   final String? code;
-  
+
   PaymasterException(this.message, {this.code});
-  
+
   @override
   String toString() {
     return 'PaymasterException: $message${code != null ? ' (Code: $code)' : ''}';

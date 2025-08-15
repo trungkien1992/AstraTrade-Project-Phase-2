@@ -14,13 +14,13 @@ class MobileSettingsWidget extends StatefulWidget {
 class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
   final _notificationService = MobileNotificationService();
   final _hapticService = MobileHapticService();
-  
+
   bool _notificationsEnabled = true;
   bool _hapticsEnabled = true;
   double _hapticIntensity = 1.0;
   bool _dailyRemindersEnabled = false;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
-  
+
   @override
   void initState() {
     super.initState();
@@ -30,10 +30,10 @@ class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
   Future<void> _loadSettings() async {
     await _notificationService.initialize();
     await _hapticService.initialize();
-    
+
     final notificationSettings = _notificationService.getSettings();
     final hapticSettings = _hapticService.getSettings();
-    
+
     setState(() {
       _notificationsEnabled = notificationSettings['enabled'] ?? true;
       _hapticsEnabled = hapticSettings['enabled'] ?? true;
@@ -54,9 +54,9 @@ class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
           children: [
             Text(
               'Mobile Settings',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             _buildNotificationSection(),
@@ -80,14 +80,14 @@ class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
             const SizedBox(width: 8),
             Text(
               'Notifications',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Enable/Disable Notifications
         SwitchListTile(
           title: const Text('Enable Notifications'),
@@ -100,27 +100,31 @@ class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
             });
           },
         ),
-        
+
         // Daily Reminders
         SwitchListTile(
           title: const Text('Daily Reminders'),
-          subtitle: Text('Remind me to trade at ${_reminderTime.format(context)}'),
+          subtitle: Text(
+            'Remind me to trade at ${_reminderTime.format(context)}',
+          ),
           value: _dailyRemindersEnabled,
-          onChanged: _notificationsEnabled ? (value) async {
-            if (value) {
-              await _notificationService.scheduleDailyReminder(
-                hour: _reminderTime.hour,
-                minute: _reminderTime.minute,
-              );
-            } else {
-              await _notificationService.cancelAllNotifications();
-            }
-            setState(() {
-              _dailyRemindersEnabled = value;
-            });
-          } : null,
+          onChanged: _notificationsEnabled
+              ? (value) async {
+                  if (value) {
+                    await _notificationService.scheduleDailyReminder(
+                      hour: _reminderTime.hour,
+                      minute: _reminderTime.minute,
+                    );
+                  } else {
+                    await _notificationService.cancelAllNotifications();
+                  }
+                  setState(() {
+                    _dailyRemindersEnabled = value;
+                  });
+                }
+              : null,
         ),
-        
+
         // Reminder Time Picker
         if (_dailyRemindersEnabled)
           ListTile(
@@ -157,31 +161,33 @@ class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
             const SizedBox(width: 8),
             Text(
               'Haptic Feedback',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Enable/Disable Haptics
         SwitchListTile(
           title: const Text('Enable Haptic Feedback'),
-          subtitle: const Text('Vibration for trades, achievements, and interactions'),
+          subtitle: const Text(
+            'Vibration for trades, achievements, and interactions',
+          ),
           value: _hapticsEnabled,
           onChanged: (value) async {
             await _hapticService.setEnabled(value);
             setState(() {
               _hapticsEnabled = value;
             });
-            
+
             if (value) {
               await _hapticService.mediumTap();
             }
           },
         ),
-        
+
         // Haptic Intensity
         if (_hapticsEnabled) ...[
           ListTile(
@@ -222,14 +228,14 @@ class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
             const SizedBox(width: 8),
             Text(
               'Test Features',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Test Notifications
         if (_notificationsEnabled)
           ListTile(
@@ -243,7 +249,7 @@ class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
                 message: 'This is a test notification from AstraTrade!',
                 color: Colors.blue,
               );
-              
+
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -254,7 +260,7 @@ class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
               }
             },
           ),
-        
+
         // Test Haptics
         if (_hapticsEnabled) ...[
           const Text('Test Haptic Patterns:'),
@@ -286,10 +292,7 @@ class _MobileSettingsWidgetState extends State<MobileSettingsWidget> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         minimumSize: const Size(0, 36),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 12),
-      ),
+      child: Text(label, style: const TextStyle(fontSize: 12)),
     );
   }
 }

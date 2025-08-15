@@ -9,7 +9,7 @@ class PulsatingButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final Color? color;
   final bool isLoading;
-  
+
   const PulsatingButton({
     super.key,
     required this.text,
@@ -34,13 +34,9 @@ class _PulsatingButtonState extends State<PulsatingButton>
       duration: const Duration(seconds: 1),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
     _animationController.repeat(reverse: true);
   }
@@ -59,16 +55,15 @@ class _PulsatingButtonState extends State<PulsatingButton>
         return Transform.scale(
           scale: _scaleAnimation.value,
           child: CosmicHapticButton(
-            onPressed: widget.isLoading ? null : () {
-              HapticFeedback.mediumImpact();
-              widget.onPressed?.call();
-            },
+            onPressed: widget.isLoading
+                ? null
+                : () {
+                    HapticFeedback.mediumImpact();
+                    widget.onPressed?.call();
+                  },
             hapticPattern: CosmicHapticPattern.medium,
             primaryColor: widget.color ?? Theme.of(context).primaryColor,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 32,
-              vertical: 16,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             enabled: !widget.isLoading,
             child: widget.isLoading
                 ? const SizedBox(

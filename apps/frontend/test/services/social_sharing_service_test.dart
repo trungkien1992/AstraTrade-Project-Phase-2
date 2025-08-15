@@ -94,7 +94,7 @@ void main() {
 
       test('should handle different rarity types', () async {
         final rarities = ['common', 'rare', 'epic', 'legendary'];
-        
+
         for (final rarity in rarities) {
           expect(
             () => socialSharingService.shareArtifactDiscovery(

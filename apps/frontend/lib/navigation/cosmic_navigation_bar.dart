@@ -11,7 +11,8 @@ class CosmicNavigationBar extends ConsumerStatefulWidget {
   const CosmicNavigationBar({super.key});
 
   @override
-  ConsumerState<CosmicNavigationBar> createState() => _CosmicNavigationBarState();
+  ConsumerState<CosmicNavigationBar> createState() =>
+      _CosmicNavigationBarState();
 }
 
 class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
@@ -24,32 +25,24 @@ class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
   @override
   void initState() {
     super.initState();
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _glowController = AnimationController(
       duration: const Duration(milliseconds: 3000),
       vsync: this,
     )..repeat();
 
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
-    _glowAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
+    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -63,7 +56,7 @@ class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
   Widget build(BuildContext context) {
     final navigationState = ref.watch(cosmicNavigationProvider);
     final currentDestination = navigationState.currentDestination;
-    
+
     if (!navigationState.showNavigationBar) {
       return const SizedBox.shrink();
     }
@@ -80,10 +73,7 @@ class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
           ],
         ),
         border: const Border(
-          top: BorderSide(
-            color: Color(0xFF7B2CBF),
-            width: 0.5,
-          ),
+          top: BorderSide(color: Color(0xFF7B2CBF), width: 0.5),
         ),
         boxShadow: [
           BoxShadow(
@@ -110,7 +100,9 @@ class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
                     isActive: isActive,
                     onTap: () {
                       CosmicHapticFeedback.selectionClick();
-                      ref.read(cosmicNavigationProvider.notifier).navigateTo(destination);
+                      ref
+                          .read(cosmicNavigationProvider.notifier)
+                          .navigateTo(destination);
                     },
                   );
                 }).toList(),
@@ -152,12 +144,12 @@ class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  const Color(0xFF7B2CBF).withOpacity(
-                                    0.6 * _glowAnimation.value,
-                                  ),
-                                  const Color(0xFF7B2CBF).withOpacity(
-                                    0.2 * _glowAnimation.value,
-                                  ),
+                                  const Color(
+                                    0xFF7B2CBF,
+                                  ).withOpacity(0.6 * _glowAnimation.value),
+                                  const Color(
+                                    0xFF7B2CBF,
+                                  ).withOpacity(0.2 * _glowAnimation.value),
                                   Colors.transparent,
                                 ],
                                 stops: const [0.3, 0.7, 1.0],
@@ -181,14 +173,14 @@ class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
                           ),
                         ),
                       ],
-                      
+
                       // Main icon
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         child: Icon(
                           isActive ? destination.activeIcon : destination.icon,
                           size: 22,
-                          color: isActive 
+                          color: isActive
                               ? const Color(0xFF7B2CBF)
                               : Colors.grey.shade400,
                         ),
@@ -196,16 +188,16 @@ class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 6),
-                
+
                 // Label
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 200),
                   style: GoogleFonts.rajdhani(
                     fontSize: 11,
                     fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-                    color: isActive 
+                    color: isActive
                         ? const Color(0xFF7B2CBF)
                         : Colors.grey.shade500,
                   ),
@@ -215,7 +207,7 @@ class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                
+
                 // Active indicator
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -225,13 +217,15 @@ class _CosmicNavigationBarState extends ConsumerState<CosmicNavigationBar>
                   decoration: BoxDecoration(
                     color: const Color(0xFF7B2CBF),
                     borderRadius: BorderRadius.circular(1),
-                    boxShadow: isActive ? [
-                      BoxShadow(
-                        color: const Color(0xFF7B2CBF).withOpacity(0.5),
-                        blurRadius: 4,
-                        spreadRadius: 0,
-                      ),
-                    ] : null,
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                              color: const Color(0xFF7B2CBF).withOpacity(0.5),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ]
+                        : null,
                   ),
                 ),
               ],
@@ -259,11 +253,11 @@ class CosmicFloatingNavigationButton extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CosmicFloatingNavigationButton> createState() => 
+  ConsumerState<CosmicFloatingNavigationButton> createState() =>
       _CosmicFloatingNavigationButtonState();
 }
 
-class _CosmicFloatingNavigationButtonState 
+class _CosmicFloatingNavigationButtonState
     extends ConsumerState<CosmicFloatingNavigationButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
@@ -273,27 +267,19 @@ class _CosmicFloatingNavigationButtonState
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat();
 
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
-    _rotationAnimation = Tween<double>(
-      begin: 0.0,
-      end: 2 * math.pi,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.linear,
-    ));
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * math.pi).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.linear),
+    );
   }
 
   @override
@@ -322,11 +308,7 @@ class _CosmicFloatingNavigationButtonState
             elevation: 8,
             child: Transform.rotate(
               angle: _rotationAnimation.value * 0.1, // Subtle rotation
-              child: Icon(
-                widget.icon,
-                color: Colors.white,
-                size: 28,
-              ),
+              child: Icon(widget.icon, color: Colors.white, size: 28),
             ),
           ),
         );

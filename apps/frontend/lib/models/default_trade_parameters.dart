@@ -1,11 +1,11 @@
 /// Model for user's default trade parameters
 class DefaultTradeParameters {
-  final double tradeAmount;           // Default trade amount in USD
-  final String preferredSymbol;       // Preferred trading symbol
-  final double riskLevel;             // Risk level (0.1 to 1.0)
-  final bool enableAutoForge;         // Auto-execute forge when parameters are good
-  final double maxSlippage;           // Maximum acceptable slippage %
-  final Duration confirmationDelay;   // Delay before auto-execution (if enabled)
+  final double tradeAmount; // Default trade amount in USD
+  final String preferredSymbol; // Preferred trading symbol
+  final double riskLevel; // Risk level (0.1 to 1.0)
+  final bool enableAutoForge; // Auto-execute forge when parameters are good
+  final double maxSlippage; // Maximum acceptable slippage %
+  final Duration confirmationDelay; // Delay before auto-execution (if enabled)
 
   const DefaultTradeParameters({
     this.tradeAmount = 100.0,

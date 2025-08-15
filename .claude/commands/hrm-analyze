@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""
+HRM Analysis CLI for Claude Code Integration
+
+Provides easy access to HRM reasoning tools directly from Claude Code commands.
+"""
+
+import sys
+import os
+import subprocess
+from pathlib import Path
+
+def print_usage():
+    """Print usage information"""
+    print("""
+🧠 HRM Analysis CLI for Claude Code
+
+USAGE:
+  hrm-analyze <file_path>                                    # Basic analysis
+  hrm-analyze <file_path> --deep --class <name> --lines <n> # Deep impact analysis  
+  hrm-analyze <file_path> --recommend --class <name> --lines <n> # Reasoned recommendations
+  hrm-analyze <file_path> --contextual --class <name> --lines <n> # Contextual reasoning
+  hrm-analyze --batch [--count <n>]                         # Batch analysis on project
+
+EXAMPLES:
+  hrm-analyze apps/backend/domains/trading/services.py
+  hrm-analyze apps/backend/domains/nft/entities.py --deep --class GenesisNFT --lines 365
+  hrm-analyze apps/backend/domains/gamification/services.py --recommend --class GamificationDomainService --lines 461
+  hrm-analyze apps/backend/domains/financial/entities.py --contextual --class Account --lines 250
+  hrm-analyze --batch --count 5
+
+ANALYSIS TYPES:
+  • Basic      : Pattern detection, quality metrics, complexity scoring
+  • Deep       : Root cause analysis, impact assessment, cost estimation  
+  • Recommend  : Contextual recommendations with implementation guidance
+  • Contextual : Rule exception reasoning, architectural justification
+  • Batch      : Multi-file blind analysis for codebase overview
+""")
+
+def main():
+    if len(sys.argv) < 2 or sys.argv[1] in ["--help", "-h", "help"]:
+        print_usage()
+        return 1
+    
+    # Always work from project root
+    # Current file is in .claude/commands/, so go up two levels to reach project root
+    project_root = Path(__file__).absolute().parent.parent.parent  # .claude/commands -> .claude -> project_root
+    os.chdir(project_root)
+    
+    # Handle batch analysis
+    if sys.argv[1] == "--batch":
+        count = 3
+        if len(sys.argv) >= 4 and sys.argv[2] == "--count":
+            count = int(sys.argv[3])
+        cmd = [sys.executable, "tools/hrm-reasoning-assistant/blind_analysis.py", ".", str(count)]
+        return subprocess.run(cmd).returncode
+    
+    file_path = sys.argv[1]
+    
+    # Validate file exists (now we're in project root)
+    if not Path(file_path).exists():
+        print(f"❌ File not found: {file_path}")
+        return 1
+    
+    # Basic analysis (default)
+    if len(sys.argv) == 2:
+        cmd = [sys.executable, "tools/hrm-reasoning-assistant/analyze_file.py", file_path]
+        return subprocess.run(cmd).returncode
+    
+    # Parse analysis type
+    analysis_type = sys.argv[2] if len(sys.argv) > 2 else None
+    
+    if analysis_type in ["--deep", "--recommend", "--contextual"]:
+        # These require class name and line count
+        if len(sys.argv) < 7 or sys.argv[3] != "--class" or sys.argv[5] != "--lines":
+            print("❌ Missing required arguments: --class <name> --lines <count>")
+            print_usage()
+            return 1
+        
+        class_name = sys.argv[4]
+        try:
+            line_count = int(sys.argv[6])
+        except ValueError:
+            print("❌ Line count must be a number")
+            return 1
+        
+        if analysis_type == "--deep":
+            cmd = [sys.executable, "tools/hrm-reasoning-assistant/deep_impact_analyzer.py", file_path, class_name, str(line_count)]
+        elif analysis_type == "--recommend":
+            cmd = [sys.executable, "tools/hrm-reasoning-assistant/reasoning_recommender.py", file_path, class_name, str(line_count)]
+        elif analysis_type == "--contextual":
+            cmd = [sys.executable, "tools/hrm-reasoning-assistant/contextual_analyzer.py", file_path, class_name, str(line_count)]
+        
+        return subprocess.run(cmd).returncode
+    
+    else:
+        print(f"❌ Unknown analysis type: {analysis_type}")
+        print_usage()
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

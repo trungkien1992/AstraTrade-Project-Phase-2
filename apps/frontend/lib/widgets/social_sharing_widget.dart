@@ -33,12 +33,13 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
-  
+
   final SocialSharingService _sharingService = SocialSharingService();
-  final viral_service.ViralEngagementService _viralService = viral_service.ViralEngagementService();
+  final viral_service.ViralEngagementService _viralService =
+      viral_service.ViralEngagementService();
   final ViralContentService _viralContentService = ViralContentService();
   // final ScreenshotController _screenshotController = ScreenshotController(); // COMMENTED OUT - package removed
-  
+
   bool _isExpanded = false;
   bool _showMemeGenerator = false;
   bool _showFOMOEvents = false;
@@ -46,7 +47,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
   bool _isCreatingSnapshot = false;
   String _selectedMemeType = 'trading_win';
   String? _authToken;
-  
+
   List<MemeTemplate> _memeTemplates = [];
   List<FOMOEvent> _activeFOMOEvents = [];
   List<ViralContent> _userContent = [];
@@ -59,23 +60,15 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
-    
-    _opacityAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
     _loadViralData();
   }
 
@@ -108,14 +101,14 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
   /// Parse meme templates from API response
   List<MemeTemplate> _parseMemeTemplates(Map<String, dynamic> data) {
     final templates = <MemeTemplate>[];
-    
+
     for (final category in data.keys) {
       final categoryTemplates = data[category] as List<dynamic>;
       for (final templateData in categoryTemplates) {
         templates.add(MemeTemplate.fromJson(templateData));
       }
     }
-    
+
     return templates;
   }
 
@@ -163,18 +156,18 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
         children: [
           // Share Header
           _buildShareHeader(),
-          
+
           if (_isExpanded) ...[
             const SizedBox(height: 16),
             // Quick Share Options
             _buildQuickShareOptions(),
-            
+
             if (widget.showMemeOptions) ...[
               const SizedBox(height: 16),
               // Enhanced Meme Generator Toggle
               _buildMemeGeneratorToggle(),
             ],
-            
+
             if (_showMemeGenerator) ...[
               const SizedBox(height: 16),
               // Enhanced Meme Generator
@@ -190,7 +183,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               // FOMO Events Section
               _buildFOMOEventsSection(),
             ],
-            
+
             const SizedBox(height: 16),
             // Enhanced Viral Stats
             _buildEnhancedViralStats(),
@@ -209,11 +202,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
   Widget _buildShareHeader() {
     return Row(
       children: [
-        Icon(
-          Icons.share,
-          color: Colors.cyan,
-          size: 24,
-        ),
+        Icon(Icons.share, color: Colors.cyan, size: 24),
         const SizedBox(width: 8),
         const Text(
           'Share Your Cosmic Achievement!',
@@ -306,10 +295,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 12),
           ),
         ],
       ),
@@ -319,11 +305,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
   Widget _buildMemeGeneratorToggle() {
     return Row(
       children: [
-        Icon(
-          Icons.auto_awesome,
-          color: Colors.orange,
-          size: 20,
-        ),
+        Icon(Icons.auto_awesome, color: Colors.orange, size: 20),
         const SizedBox(width: 8),
         const Text(
           'Meme Generator',
@@ -378,7 +360,10 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               const Spacer(),
               if (_memeTemplates.isNotEmpty)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
@@ -394,9 +379,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
                 ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Meme type selection
           Text(
             'Choose Your Vibe',
@@ -406,24 +391,49 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               fontWeight: FontWeight.w600,
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildMemeTypeChip('trading_win', 'Epic Win', Icons.trending_up, Colors.green),
-              _buildMemeTypeChip('trading_loss', 'Learning Exp', Icons.school, Colors.blue),
-              _buildMemeTypeChip('milestone', 'Achievement', Icons.star, Colors.yellow),
-              _buildMemeTypeChip('streak', 'On Fire', Icons.local_fire_department, Colors.red),
-              _buildMemeTypeChip('constellation', 'Clan Victory', Icons.groups, Colors.purple),
+              _buildMemeTypeChip(
+                'trading_win',
+                'Epic Win',
+                Icons.trending_up,
+                Colors.green,
+              ),
+              _buildMemeTypeChip(
+                'trading_loss',
+                'Learning Exp',
+                Icons.school,
+                Colors.blue,
+              ),
+              _buildMemeTypeChip(
+                'milestone',
+                'Achievement',
+                Icons.star,
+                Colors.yellow,
+              ),
+              _buildMemeTypeChip(
+                'streak',
+                'On Fire',
+                Icons.local_fire_department,
+                Colors.red,
+              ),
+              _buildMemeTypeChip(
+                'constellation',
+                'Clan Victory',
+                Icons.groups,
+                Colors.purple,
+              ),
               _buildMemeTypeChip('nft', 'NFT Flex', Icons.diamond, Colors.cyan),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Generate button with loading state
           SizedBox(
             width: double.infinity,
@@ -440,7 +450,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -469,7 +481,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
                     ),
             ),
           ),
-          
+
           // Optimal timing suggestion
           const SizedBox(height: 12),
           Container(
@@ -485,10 +497,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
                 Expanded(
                   child: Text(
                     ViralContentService.getOptimalSharingTime(),
-                    style: const TextStyle(
-                      color: Colors.cyan,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.cyan, fontSize: 12),
                   ),
                 ),
               ],
@@ -500,12 +509,19 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
   }
 
   /// Build meme type selection chip
-  Widget _buildMemeTypeChip(String type, String label, IconData icon, Color color) {
+  Widget _buildMemeTypeChip(
+    String type,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
     final isSelected = _selectedMemeType == type;
-    
+
     return GestureDetector(
       onTap: () {
-        core_haptic.HapticFeedback.triggerHaptic(core_haptic.HapticType.selection);
+        core_haptic.HapticFeedback.triggerHaptic(
+          core_haptic.HapticType.selection,
+        );
         setState(() {
           _selectedMemeType = type;
         });
@@ -514,7 +530,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.3) : Colors.grey.withOpacity(0.2),
+          color: isSelected
+              ? color.withOpacity(0.3)
+              : Colors.grey.withOpacity(0.2),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? color : Colors.grey.withOpacity(0.5),
@@ -524,11 +542,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? color : Colors.grey,
-              size: 16,
-            ),
+            Icon(icon, color: isSelected ? color : Colors.grey, size: 16),
             const SizedBox(width: 6),
             Text(
               label,
@@ -602,7 +616,12 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
         Icon(icon, color: color, size: 20),
@@ -615,13 +634,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
             fontWeight: FontWeight.bold,
           ),
         ),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
-        ),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
       ],
     );
   }
@@ -642,17 +655,16 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
           await _generateAndShareMeme();
           break;
       }
-      
+
       // Track the share for viral engagement
       await _viralService.trackShare(
         contentType: widget.contentType,
         platform: 'general',
         metadata: widget.contentData,
       );
-      
+
       // Show success feedback
       _showShareSuccess();
-      
     } catch (e) {
       _showShareError(e.toString());
     }
@@ -662,7 +674,8 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
     switch (widget.contentType) {
       case 'achievement':
         await _sharingService.shareTradingAchievement(
-          achievement: widget.contentData['achievement'] ?? 'Cosmic Achievement',
+          achievement:
+              widget.contentData['achievement'] ?? 'Cosmic Achievement',
           stellarShards: widget.contentData['stellarShards'] ?? 0.0,
           lumina: widget.contentData['lumina'] ?? 0.0,
           level: widget.contentData['level'] ?? 1,
@@ -704,9 +717,10 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
     final referralCode = 'COSMIC_${DateTime.now().millisecondsSinceEpoch}';
     const baseUrl = 'https://astratrade.app';
     final referralLink = '$baseUrl/join?ref=$referralCode';
-    
+
     await _sharingService.shareTradingAchievement(
-      achievement: '${widget.contentData['achievement'] ?? 'Join AstraTrade'}\n\nJoin me: $referralLink',
+      achievement:
+          '${widget.contentData['achievement'] ?? 'Join AstraTrade'}\n\nJoin me: $referralLink',
       stellarShards: widget.contentData['stellarShards'] ?? 0.0,
       lumina: widget.contentData['lumina'] ?? 0.0,
       level: widget.contentData['level'] ?? 1,
@@ -766,7 +780,10 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue.withOpacity(0.2), Colors.purple.withOpacity(0.1)],
+          colors: [
+            Colors.blue.withOpacity(0.2),
+            Colors.purple.withOpacity(0.1),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -790,19 +807,16 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           const Text(
             'Create a beautiful snapshot of your cosmic trading performance',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           SizedBox(
             width: double.infinity,
             child: CosmicHapticButton(
@@ -818,7 +832,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -898,11 +914,13 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
-          ...(_activeFOMOEvents.take(2).map((event) => _buildFOMOEventCard(event))),
-          
+
+          ...(_activeFOMOEvents
+              .take(2)
+              .map((event) => _buildFOMOEventCard(event))),
+
           if (_activeFOMOEvents.length > 2) ...[
             const SizedBox(height: 8),
             Center(
@@ -912,10 +930,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
                 },
                 child: Text(
                   'View ${_activeFOMOEvents.length - 2} more events',
-                  style: GoogleFonts.orbitron(
-                    color: Colors.red,
-                    fontSize: 12,
-                  ),
+                  style: GoogleFonts.orbitron(color: Colors.red, fontSize: 12),
                 ),
               ),
             ),
@@ -934,7 +949,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
         color: Colors.black.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Color(int.parse('0xFF${event.urgencyLevelColor.substring(1)}')),
+          color: Color(
+            int.parse('0xFF${event.urgencyLevelColor.substring(1)}'),
+          ),
           width: 1,
         ),
       ),
@@ -956,7 +973,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Color(int.parse('0xFF${event.urgencyLevelColor.substring(1)}')),
+                  color: Color(
+                    int.parse('0xFF${event.urgencyLevelColor.substring(1)}'),
+                  ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -970,21 +989,18 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 4),
-          
+
           Text(
             event.description,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           Row(
             children: [
               Icon(Icons.timer, color: Colors.orange, size: 16),
@@ -1001,10 +1017,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               if (event.maxParticipants != null)
                 Text(
                   '${event.currentParticipants}/${event.maxParticipants}',
-                  style: const TextStyle(
-                    color: Colors.white60,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.white60, fontSize: 12),
                 ),
             ],
           ),
@@ -1019,7 +1032,10 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.purple.withOpacity(0.2), Colors.pink.withOpacity(0.1)],
+          colors: [
+            Colors.purple.withOpacity(0.2),
+            Colors.pink.withOpacity(0.1),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -1043,9 +1059,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           FutureBuilder<Map<String, dynamic>>(
             future: _getEnhancedViralStats(),
             builder: (context, snapshot) {
@@ -1096,9 +1112,10 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
 
   /// Build social proof section
   Widget _buildSocialProofSection() {
-    final trendingContent = _socialProofData['trending_content'] as List<dynamic>? ?? [];
+    final trendingContent =
+        _socialProofData['trending_content'] as List<dynamic>? ?? [];
     final viralMomentum = _socialProofData['viral_momentum'] as double? ?? 0.0;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1143,9 +1160,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           if (trendingContent.isNotEmpty) ...[
             Text(
               'Trending Now',
@@ -1155,9 +1172,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
                 fontWeight: FontWeight.w600,
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             ...trendingContent.take(3).map((content) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 4),
@@ -1216,7 +1233,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
 
     try {
       core_haptic.HapticFeedback.triggerHaptic(core_haptic.HapticType.heavy);
-      
+
       final meme = await _viralContentService.generateMeme(
         token: _authToken!,
         memeType: _selectedMemeType,
@@ -1226,10 +1243,9 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
 
       // Share the generated meme
       await _shareMemeToSocial(meme);
-      
+
       core_haptic.HapticFeedback.triggerHaptic(core_haptic.HapticType.success);
       _showMemeSuccess(meme);
-      
     } catch (e) {
       _showShareError('Failed to generate meme: $e');
     } finally {
@@ -1252,17 +1268,16 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
 
     try {
       core_haptic.HapticFeedback.triggerHaptic(core_haptic.HapticType.medium);
-      
+
       final snapshot = await _viralContentService.createEcosystemSnapshot(
         token: _authToken!,
       );
 
       // Share the snapshot
       await _shareSnapshotToSocial(snapshot);
-      
+
       core_haptic.HapticFeedback.triggerHaptic(core_haptic.HapticType.success);
       _showSnapshotSuccess(snapshot);
-      
     } catch (e) {
       _showShareError('Failed to create snapshot: $e');
     } finally {
@@ -1301,10 +1316,16 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
           token: _authToken!,
           limit: 100,
         );
-        
-        final totalShares = userContent.fold<int>(0, (sum, content) => sum + content.shareCount);
-        final totalViralScore = userContent.fold<double>(0, (sum, content) => sum + content.viralScore);
-        
+
+        final totalShares = userContent.fold<int>(
+          0,
+          (sum, content) => sum + content.shareCount,
+        );
+        final totalViralScore = userContent.fold<double>(
+          0,
+          (sum, content) => sum + content.viralScore,
+        );
+
         return {
           'totalContent': userContent.length,
           'totalShares': totalShares,
@@ -1315,7 +1336,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
     } catch (e) {
       debugPrint('Failed to get enhanced viral stats: $e');
     }
-    
+
     // Fallback to basic stats
     return {
       'totalContent': 0,
@@ -1366,9 +1387,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
                 children: [
                   Text(
                     'Meme created successfully! 🎉',
-                    style: GoogleFonts.orbitron(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: GoogleFonts.orbitron(fontWeight: FontWeight.bold),
                   ),
                   Text(
                     'Viral score: ${meme.viralScore}',
@@ -1400,9 +1419,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget>
                 children: [
                   Text(
                     'Performance snapshot created! 📊',
-                    style: GoogleFonts.orbitron(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: GoogleFonts.orbitron(fontWeight: FontWeight.bold),
                   ),
                   Text(
                     'Share your cosmic progress!',

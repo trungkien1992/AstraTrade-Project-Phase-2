@@ -13,12 +13,10 @@ class NFTCollectionScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).value;
-    
+
     if (user == null) {
       return const Scaffold(
-        body: Center(
-          child: Text('Please log in to view your NFT collection'),
-        ),
+        body: Center(child: Text('Please log in to view your NFT collection')),
       );
     }
 
@@ -50,7 +48,8 @@ class NFTCollectionScreen extends ConsumerWidget {
                 Text('Error loading collection: $error'),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => ref.invalidate(userNFTCollectionProvider(user.id)),
+                  onPressed: () =>
+                      ref.invalidate(userNFTCollectionProvider(user.id)),
                   child: const Text('Retry'),
                 ),
               ],
@@ -61,7 +60,10 @@ class NFTCollectionScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCollectionContent(BuildContext context, NFTCollection collection) {
+  Widget _buildCollectionContent(
+    BuildContext context,
+    NFTCollection collection,
+  ) {
     if (collection.totalNfts == 0) {
       return const Center(
         child: Column(
@@ -90,9 +92,9 @@ class NFTCollectionScreen extends ConsumerWidget {
         children: [
           // Collection stats
           NFTCollectionStatsWidget(collection: collection),
-          
+
           const SizedBox(height: 24),
-          
+
           // Featured NFT
           if (collection.featuredNft != null) ...[
             const Text(
@@ -103,7 +105,7 @@ class NFTCollectionScreen extends ConsumerWidget {
             NFTCardWidget(nft: collection.featuredNft!),
             const SizedBox(height: 24),
           ],
-          
+
           // Recent NFTs
           const Text(
             'Recent NFTs',

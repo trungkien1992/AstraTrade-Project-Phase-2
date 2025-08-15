@@ -21,18 +21,14 @@ class CosmicPageTransitions {
           position: Tween<Offset>(
             begin: beginOffset,
             end: Offset.zero,
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          )),
+          ).animate(CurvedAnimation(parent: animation, curve: curve)),
           child: FadeTransition(
-            opacity: Tween<double>(
-              begin: 0.0,
-              end: 1.0,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Interval(0.0, 0.8, curve: curve),
-            )),
+            opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Interval(0.0, 0.8, curve: curve),
+              ),
+            ),
             child: child,
           ),
         );
@@ -59,18 +55,14 @@ class CosmicPageTransitions {
           scale: Tween<double>(
             begin: 0.8,
             end: 1.0,
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          )),
+          ).animate(CurvedAnimation(parent: animation, curve: curve)),
           child: FadeTransition(
-            opacity: Tween<double>(
-              begin: 0.0,
-              end: 1.0,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Interval(0.2, 1.0, curve: Curves.easeInOut),
-            )),
+            opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Interval(0.2, 1.0, curve: Curves.easeInOut),
+              ),
+            ),
             child: child,
           ),
         );
@@ -95,10 +87,7 @@ class CosmicPageTransitions {
           opacity: Tween<double>(
             begin: 0.0,
             end: 1.0,
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          )),
+          ).animate(CurvedAnimation(parent: animation, curve: curve)),
           child: child,
         );
       },
@@ -122,10 +111,10 @@ class CosmicPageTransitions {
         return AnimatedBuilder(
           animation: animation,
           builder: (context, child) {
-            final rotationValue = clockwise 
+            final rotationValue = clockwise
                 ? animation.value * math.pi * 0.5
                 : -animation.value * math.pi * 0.5;
-            
+
             return Transform(
               alignment: Alignment.center,
               transform: Matrix4.identity()
@@ -179,24 +168,20 @@ class CosmicPageTransitions {
                 );
               },
             ),
-            
+
             // Main page content
             ScaleTransition(
               scale: Tween<double>(
                 begin: 0.3,
                 end: 1.0,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: curve,
-              )),
+              ).animate(CurvedAnimation(parent: animation, curve: curve)),
               child: FadeTransition(
-                opacity: Tween<double>(
-                  begin: 0.0,
-                  end: 1.0,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Interval(0.3, 1.0, curve: Curves.easeInOut),
-                )),
+                opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Interval(0.3, 1.0, curve: Curves.easeInOut),
+                  ),
+                ),
                 child: child,
               ),
             ),
@@ -216,27 +201,24 @@ class CosmicPageTransitions {
   }) {
     // Determine transition based on route hierarchy
     final isForward = _isForwardNavigation(previousRoute, currentRoute);
-    
+
     if (isForward) {
       return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(1.0, 0.0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeInOutCubic,
-        )),
+        position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero)
+            .animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic),
+            ),
         child: child,
       );
     } else {
       return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(-0.3, 0.0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeInOutCubic,
-        )),
+        position:
+            Tween<Offset>(
+              begin: const Offset(-0.3, 0.0),
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic),
+            ),
         child: child,
       );
     }
@@ -250,14 +232,14 @@ class CosmicPageTransitions {
       '/planet',
       '/constellations',
     ];
-    
+
     if (from == null) return true;
-    
+
     final fromIndex = navigationHierarchy.indexOf(from);
     final toIndex = navigationHierarchy.indexOf(to);
-    
+
     if (fromIndex == -1 || toIndex == -1) return true;
-    
+
     return toIndex > fromIndex;
   }
 }
@@ -267,18 +249,20 @@ class CosmicTransitionDelegate extends TransitionDelegate<void> {
   @override
   Iterable<RouteTransitionRecord> resolve({
     required List<RouteTransitionRecord> newPageRouteHistory,
-    required Map<RouteTransitionRecord?, RouteTransitionRecord> locationToExitingPageRoute,
-    required Map<RouteTransitionRecord?, List<RouteTransitionRecord>> pageRouteToPagelessRoutes,
+    required Map<RouteTransitionRecord?, RouteTransitionRecord>
+    locationToExitingPageRoute,
+    required Map<RouteTransitionRecord?, List<RouteTransitionRecord>>
+    pageRouteToPagelessRoutes,
   }) {
     final results = <RouteTransitionRecord>[];
-    
+
     for (final pageRoute in newPageRouteHistory) {
       if (pageRoute.isWaitingForEnteringDecision) {
         pageRoute.markForAdd();
       }
       results.add(pageRoute);
     }
-    
+
     for (final exitingPageRoute in locationToExitingPageRoute.values) {
       if (exitingPageRoute.isWaitingForExitingDecision) {
         exitingPageRoute.markForRemove();
@@ -291,7 +275,7 @@ class CosmicTransitionDelegate extends TransitionDelegate<void> {
       }
       results.add(exitingPageRoute);
     }
-    
+
     return results;
   }
 }
@@ -302,10 +286,10 @@ class CosmicCurves {
   static const Curve quantumBounce = Curves.elasticOut;
   static const Curve cosmicPulse = Curves.easeInOutSine;
   static const Curve orbitalMotion = Curves.easeInOutQuart;
-  
+
   /// Custom curve for stellar navigation
   static const Curve stellarNavigation = Cubic(0.25, 0.1, 0.25, 1.0);
-  
+
   /// Custom curve for planet interactions
   static const Curve planetInteraction = Cubic(0.4, 0.0, 0.2, 1.0);
 }

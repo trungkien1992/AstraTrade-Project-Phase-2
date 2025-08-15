@@ -1,0 +1,346 @@
+version: '3.8'
+
+services:
+  # Redis Sentinel setup for high availability
+  redis-master:
+    image: redis:7.2-alpine
+    container_name: astratrade-redis-master
+    command: redis-server /etc/redis/redis.conf
+    volumes:
+      - ./redis-tournament.conf:/etc/redis/redis.conf:ro
+      - redis-master-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - tournament-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  redis-sentinel-1:
+    image: redis:7.2-alpine
+    container_name: astratrade-redis-sentinel-1
+    command: redis-sentinel /etc/redis-sentinel/sentinel.conf
+    volumes:
+      - ./redis-sentinel.conf:/etc/redis-sentinel/sentinel.conf:ro
+    ports:
+      - "26379:26379"
+    networks:
+      - tournament-network
+    depends_on:
+      - redis-master
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "sentinel", "masters"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  redis-sentinel-2:
+    image: redis:7.2-alpine
+    container_name: astratrade-redis-sentinel-2
+    command: redis-sentinel /etc/redis-sentinel/sentinel.conf
+    volumes:
+      - ./redis-sentinel.conf:/etc/redis-sentinel/sentinel.conf:ro
+    ports:
+      - "26380:26379"
+    networks:
+      - tournament-network
+    depends_on:
+      - redis-master
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "sentinel", "masters"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  redis-sentinel-3:
+    image: redis:7.2-alpine
+    container_name: astratrade-redis-sentinel-3
+    command: redis-sentinel /etc/redis-sentinel/sentinel.conf
+    volumes:
+      - ./redis-sentinel.conf:/etc/redis-sentinel/sentinel.conf:ro
+    ports:
+      - "26381:26379"
+    networks:
+      - tournament-network
+    depends_on:
+      - redis-master
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "sentinel", "masters"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Competition Service
+  competition-service:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.competition
+    container_name: astratrade-competition-service
+    environment:
+      - REDIS_HOST=redis-master
+      - REDIS_PORT=6379
+      - REDIS_SENTINEL_HOSTS=redis-sentinel-1:26379,redis-sentinel-2:26379,redis-sentinel-3:26379
+      - REDIS_SENTINEL_MASTER_NAME=astratrade-master
+      - AI_TRADING_CYCLE_INTERVAL=30
+      - TOURNAMENT_DURATION_HOURS=24
+      - MAX_AI_TRADERS=25
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=production
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - tournament-network
+    depends_on:
+      - redis-master
+      - redis-sentinel-1
+      - redis-sentinel-2
+      - redis-sentinel-3
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+      replicas: 2
+
+  # API Gateway with WebSocket support
+  api-gateway:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.gateway
+    container_name: astratrade-api-gateway
+    environment:
+      - REDIS_HOST=redis-master
+      - REDIS_PORT=6379
+      - COMPETITION_SERVICE_URL=http://competition-service:8001
+      - WEBSOCKET_MAX_CONNECTIONS=2000
+      - CORS_ORIGINS=https://astratrade.com,https://app.astratrade.com
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=production
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - tournament-network
+    depends_on:
+      - competition-service
+      - redis-master
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+      replicas: 3
+
+  # AI Trading Scheduler (runs AI trading cycles)
+  ai-trading-scheduler:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.scheduler
+    container_name: astratrade-ai-scheduler
+    environment:
+      - REDIS_HOST=redis-master
+      - REDIS_PORT=6379
+      - COMPETITION_SERVICE_URL=http://competition-service:8001
+      - AI_CYCLE_INTERVAL=30
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=production
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - tournament-network
+    depends_on:
+      - competition-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://competition-service:8001/health')"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # NGINX Load Balancer for WebSocket connections
+  nginx-lb:
+    image: nginx:1.25-alpine
+    container_name: astratrade-nginx-lb
+    volumes:
+      - ./nginx-websocket.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - tournament-network
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: astratrade-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=7d'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - tournament-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Grafana for monitoring dashboards
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: astratrade-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=astratrade_admin_2024
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_DOMAIN=monitoring.astratrade.com
+      - GF_SERVER_ROOT_URL=https://monitoring.astratrade.com
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    networks:
+      - tournament-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Exporter for Prometheus metrics
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.54.0
+    container_name: astratrade-redis-exporter
+    environment:
+      - REDIS_ADDR=redis://redis-master:6379
+    ports:
+      - "9121:9121"
+    networks:
+      - tournament-network
+    depends_on:
+      - redis-master
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9121/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    container_name: astratrade-node-exporter
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - '/:/host:ro,rslave'
+    ports:
+      - "9100:9100"
+    networks:
+      - tournament-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9100/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# Networks
+networks:
+  tournament-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  redis-master-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+# Health check and monitoring
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+# Apply logging to all services
+logging: *default-logging
