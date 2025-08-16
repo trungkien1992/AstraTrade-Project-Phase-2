@@ -11,32 +11,36 @@ import 'starknet_address_service.dart';
 import '../config/contract_addresses.dart';
 
 class StarknetService {
-  static const String _sepoliaRpcUrl = 'https://starknet-sepolia.public.blastapi.io/rpc/v0_7';
-  static const String _mainnetRpcUrl = 'https://starknet-mainnet.public.blastapi.io/rpc/v0_7';
-  
+  static const String _sepoliaRpcUrl =
+      'https://starknet-sepolia.public.blastapi.io/rpc/v0_7';
+  static const String _mainnetRpcUrl =
+      'https://starknet-mainnet.public.blastapi.io/rpc/v0_7';
+
   // ETH and STRK contract addresses on Starknet
-  static const String _ethContractAddress = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7';
-  static const String _strkContractAddress = '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d';
-  
+  static const String _ethContractAddress =
+      '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7';
+  static const String _strkContractAddress =
+      '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d';
+
   // Fallback RPC URLs for redundancy
   static const List<String> _sepoliaFallbackUrls = [
     'https://starknet-sepolia.public.blastapi.io/rpc/v0_7',
     'https://free-rpc.nethermind.io/sepolia-juno',
   ];
-  
+
   static const List<String> _mainnetFallbackUrls = [
     'https://starknet-mainnet.public.blastapi.io/rpc/v0_7',
     'https://free-rpc.nethermind.io/mainnet-juno',
   ];
-  
+
   late JsonRpcProvider _provider;
   final bool _useMainnet;
   int _currentProviderIndex = 0;
-  
+
   StarknetService({bool useMainnet = false}) : _useMainnet = useMainnet {
     _initializeProvider();
   }
-  
+
   /// Initialize the provider with fallback support
   void _initializeProvider() {
     final urls = _useMainnet ? _mainnetFallbackUrls : _sepoliaFallbackUrls;
@@ -51,46 +55,51 @@ class StarknetService {
     // Currently just ensures the provider is initialized
     await Future.delayed(Duration(milliseconds: 100));
   }
-  
+
   /// Switch to next fallback provider on network failure
   Future<bool> _switchToFallbackProvider() async {
     final urls = _useMainnet ? _mainnetFallbackUrls : _sepoliaFallbackUrls;
-    
+
     if (_currentProviderIndex < urls.length - 1) {
       _currentProviderIndex++;
       _initializeProvider();
       log('Switched to fallback provider: ${urls[_currentProviderIndex]}');
       return true;
     }
-    
+
     // Reset to first provider and log exhaustion
     _currentProviderIndex = 0;
     _initializeProvider();
     log('All providers exhausted, reset to primary');
     return false;
   }
-  
+
   /// Execute a provider call with automatic fallback
-  Future<T> _executeWithFallback<T>(Future<T> Function() operation, {int maxRetries = 3}) async {
+  Future<T> _executeWithFallback<T>(
+    Future<T> Function() operation, {
+    int maxRetries = 3,
+  }) async {
     int attempts = 0;
     Exception? lastError;
-    
+
     while (attempts < maxRetries) {
       try {
         return await operation();
       } catch (e) {
         lastError = e as Exception;
         log('Provider operation failed (attempt ${attempts + 1}): $e');
-        
+
         if (attempts < maxRetries - 1) {
           await _switchToFallbackProvider();
-          await Future.delayed(Duration(milliseconds: 500 * (attempts + 1))); // Exponential backoff
+          await Future.delayed(
+            Duration(milliseconds: 500 * (attempts + 1)),
+          ); // Exponential backoff
         }
-        
+
         attempts++;
       }
     }
-    
+
     throw StarknetNetworkException(
       'All network providers failed after $maxRetries attempts',
       lastError: lastError,
@@ -98,19 +107,22 @@ class StarknetService {
   }
 
   /// Creates a Starknet account from a private key using the current SDK pattern
-  Future<Map<String, String>> createAccountFromPrivateKey(String privateKey) async {
+  Future<Map<String, String>> createAccountFromPrivateKey(
+    String privateKey,
+  ) async {
     try {
       // Normalize private key
-      final cleanPrivateKey = privateKey.startsWith('0x') ? privateKey.substring(2) : privateKey;
-      
+      final cleanPrivateKey = privateKey.startsWith('0x')
+          ? privateKey.substring(2)
+          : privateKey;
+
       // Derive address using the address service (simplified)
-      final address = StarknetAddressService.deriveAddressFromPrivateKey(privateKey);
-      
+      final address = StarknetAddressService.deriveAddressFromPrivateKey(
+        privateKey,
+      );
+
       debugPrint('✅ Created StarkNet account: $address');
-      return {
-        'address': address,
-        'privateKey': '0x$cleanPrivateKey',
-      };
+      return {'address': address, 'privateKey': '0x$cleanPrivateKey'};
     } catch (e) {
       debugPrint('❌ Failed to create account: $e');
       throw StarknetAccountException('Failed to create account: $e');
@@ -125,86 +137,152 @@ class StarknetService {
   }) async {
     debugPrint('🔐 === SIGNATURE GENERATION FOCUS ===');
     debugPrint('📋 Calls: ${calls.length} operations');
-    
+
     try {
       // Focus on signature generation rather than full transaction execution
       final account = await createAccountFromPrivateKey(privateKey);
       debugPrint('✅ Account created: ${account['address']}');
-      
+
       // Generate signature for the transaction
       final signature = await generateGaslessTransactionSignature(
         privateKey: privateKey,
         userAddress: account['address']!,
         calls: calls,
       );
-      
-      debugPrint('✅ Transaction signature generated: ${signature.substring(0, 50)}...');
-      
+
+      debugPrint(
+        '✅ Transaction signature generated: ${signature.substring(0, 50)}...',
+      );
+
       // Return mock transaction hash with signature embedded for verification
-      final mockTxHash = '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}enhanced';
+      final mockTxHash =
+          '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}enhanced';
       debugPrint('📝 Mock transaction hash (signature verified): $mockTxHash');
-      
+
       return mockTxHash;
-      
     } catch (e) {
       debugPrint('❌ Signature generation failed: $e');
       throw StarknetTransactionException('Signature generation failed: $e');
     }
   }
 
-  /// Wait for transaction to be accepted on L2
-  Future<void> waitForTransactionAcceptance(String txHash, {
+  /// Wait for transaction to be accepted on L2 with proper status monitoring
+  Future<void> waitForTransactionAcceptance(
+    String txHash, {
     Duration timeout = const Duration(minutes: 5),
     Duration pollInterval = const Duration(seconds: 10),
   }) async {
     debugPrint('⏳ Waiting for transaction acceptance: $txHash');
-    
+    debugPrint('🔗 Monitor on Starkscan: https://sepolia.starkscan.co/tx/$txHash');
+
     final startTime = DateTime.now();
     final txHashFelt = Felt.fromHexString(txHash);
-    
+    int attemptCount = 0;
+
     while (DateTime.now().difference(startTime) < timeout) {
+      attemptCount++;
+      final elapsed = DateTime.now().difference(startTime);
+      debugPrint('🔍 Attempt $attemptCount (${elapsed.inSeconds}s elapsed)');
+
       try {
-        final receipt = await _executeWithFallback(() => 
-          _provider.getTransactionReceipt(txHashFelt)
+        final receipt = await _executeWithFallback(
+          () => _provider.getTransactionReceipt(txHashFelt),
         );
-        
-        debugPrint('📊 Transaction receipt received');
-        
-        // Simplified status check - assume success for enhanced implementation
-        debugPrint('✅ Transaction accepted on L2!');
-        return;
-        
+
+        return receipt.when(
+          result: (receiptResult) {
+            debugPrint('📊 Transaction receipt received successfully');
+            
+            // Check the execution status from the receipt
+            final executionStatus = receiptResult.executionStatus;
+            final finalityStatus = receiptResult.finalityStatus;
+            
+            debugPrint('📈 Execution status: $executionStatus');
+            debugPrint('🏁 Finality status: $finalityStatus');
+            debugPrint('💰 Actual fee: ${receiptResult.actualFee?.toHex() ?? 'N/A'}');
+            
+            // Check if transaction was successful
+            if (executionStatus == ExecutionStatus.succeeded) {
+              debugPrint('✅ Transaction SUCCESSFULLY accepted on L2!');
+              debugPrint('🎯 Block number: ${receiptResult.blockNumber?.toHex() ?? 'N/A'}');
+              return;
+            } else if (executionStatus == ExecutionStatus.reverted) {
+              debugPrint('❌ Transaction REVERTED on L2!');
+              throw StarknetTransactionException('Transaction reverted: $txHash');
+            } else {
+              debugPrint('⏳ Transaction still processing...');
+              // Continue polling for pending transactions
+            }
+          },
+          error: (error) {
+            debugPrint('📊 Receipt error: $error');
+            throw StarknetTransactionException('Receipt error: $error');
+          },
+        );
       } catch (e) {
         // Transaction might not be found yet, continue polling
-        debugPrint('⏳ Transaction pending... ${e.toString().substring(0, 50)}');
+        final errorStr = e.toString();
+        if (errorStr.contains('Transaction hash not found') || 
+            errorStr.contains('TRANSACTION_HASH_NOT_FOUND')) {
+          debugPrint('⏳ Transaction not yet available on chain (attempt $attemptCount)');
+        } else {
+          debugPrint('⚠️ Receipt check error: ${errorStr.length > 100 ? errorStr.substring(0, 100) : errorStr}...');
+        }
       }
-      
+
       await Future.delayed(pollInterval);
     }
-    
-    throw StarknetTransactionException('Transaction timeout: $txHash');
+
+    debugPrint('⏰ Transaction timeout after ${timeout.inMinutes} minutes');
+    throw StarknetTransactionException('Transaction timeout after ${timeout.inMinutes} minutes: $txHash');
   }
 
-  /// Check transaction status
+  /// Check real transaction status with detailed information
   Future<Map<String, dynamic>> getTransactionStatus(String txHash) async {
     try {
+      debugPrint('🔍 Checking transaction status: $txHash');
       final txHashFelt = Felt.fromHexString(txHash);
-      final receipt = await _executeWithFallback(() => 
-        _provider.getTransactionReceipt(txHashFelt)
-      );
       
-      return {
-        'hash': txHash,
-        'status': 'SUCCEEDED',
-        'actualFee': '0x0',
-        'blockNumber': '1',
-        'blockHash': '0x1',
-      };
+      final receipt = await _executeWithFallback(
+        () => _provider.getTransactionReceipt(txHashFelt),
+      );
+
+      return receipt.when(
+        result: (receiptResult) {
+          final status = receiptResult.executionStatus;
+          final finalityStatus = receiptResult.finalityStatus;
+          
+          return {
+            'hash': txHash,
+            'status': status.toString().toUpperCase(),
+            'finality_status': finalityStatus.toString().toUpperCase(),
+            'actualFee': receiptResult.actualFee?.toHex() ?? '0x0',
+            'blockNumber': receiptResult.blockNumber?.toHex() ?? 'N/A',
+            'blockHash': receiptResult.blockHash?.toHex() ?? 'N/A',
+            'transactionIndex': receiptResult.transactionIndex?.toString() ?? 'N/A',
+            'verifyUrl': 'https://sepolia.starkscan.co/tx/$txHash',
+            'success': status == ExecutionStatus.succeeded,
+          };
+        },
+        error: (error) {
+          debugPrint('⚠️ Transaction status error: $error');
+          return {
+            'hash': txHash, 
+            'status': 'PENDING',
+            'error': error.toString(),
+            'verifyUrl': 'https://sepolia.starkscan.co/tx/$txHash',
+            'success': false,
+          };
+        },
+      );
     } catch (e) {
+      debugPrint('❌ Failed to get transaction status: $e');
       return {
-        'hash': txHash,
-        'status': 'PENDING',
+        'hash': txHash, 
+        'status': 'UNKNOWN',
         'error': e.toString(),
+        'verifyUrl': 'https://sepolia.starkscan.co/tx/$txHash',
+        'success': false,
       };
     }
   }
@@ -243,10 +321,11 @@ class StarknetService {
     required String operation, // 'approve' or 'trade' or 'paymaster'
   }) {
     debugPrint('🏗️ Building trading transaction: $operation');
-    
+
     // Use deployed contract addresses
-    final defaultExchangeAddress = exchangeAddress ?? ContractAddresses.paymasterContract;
-    
+    final defaultExchangeAddress =
+        exchangeAddress ?? ContractAddresses.paymasterContract;
+
     switch (operation.toLowerCase()) {
       case 'paymaster':
         // Interact with deployed paymaster contract
@@ -254,7 +333,7 @@ class StarknetService {
           'contractAddress': ContractAddresses.paymasterContract,
           'entrypoint': 'get_dummy',
           'calldata': [],
-          'operation': 'paymaster_call'
+          'operation': 'paymaster_call',
         };
       case 'approve':
         return {
@@ -266,7 +345,7 @@ class StarknetService {
             '0x0', // amount low (assuming amount fits in high part)
           ],
         };
-      
+
       case 'trade':
         // This would be specific to Extended Exchange API format
         return {
@@ -278,16 +357,18 @@ class StarknetService {
             // Add additional trade parameters based on Extended Exchange API
           ],
         };
-      
+
       default:
         throw StarknetException('Unknown trading operation: $operation');
     }
   }
-  
+
   /// Computes account address using standard Starknet derivation
   Future<String> _computeAccountAddress(String privateKey) async {
     // Use standardized address derivation service
-    final address = StarknetAddressService.deriveAddressFromPrivateKey(privateKey);
+    final address = StarknetAddressService.deriveAddressFromPrivateKey(
+      privateKey,
+    );
     return address;
   }
 
@@ -296,13 +377,13 @@ class StarknetService {
     return await _executeWithFallback(() async {
       try {
         final addressFelt = Felt.fromHexString(address);
-        
+
         // Try to get the contract's class hash
         final classHashResult = await _provider.getClassHashAt(
           contractAddress: addressFelt,
           blockId: BlockId.latest,
         );
-        
+
         return classHashResult.when(
           result: (classHash) => classHash != Felt.zero,
           error: (error) {
@@ -317,24 +398,59 @@ class StarknetService {
     });
   }
 
-  /// Executes a transaction on Starknet using simplified signature method
-  Future<String> executeTransaction(String privateKey, List<Map<String, dynamic>> calls) async {
+  /// Executes a real transaction on Starknet using Account class
+  Future<String> executeTransaction(
+    String privateKey,
+    List<Map<String, dynamic>> calls,
+  ) async {
     try {
-      debugPrint('🔐 Executing transaction with enhanced signature generation');
-      
-      // Use our enhanced signature generation for the transaction
-      final signature = await generateGaslessTransactionSignature(
-        privateKey: privateKey,
-        userAddress: await _computeAccountAddress(privateKey),
-        calls: calls,
+      debugPrint('🚀 Executing REAL transaction on Starknet');
+      debugPrint('📋 Calls: ${calls.length} operations');
+
+      // Create real Starknet account with the private key
+      final accountAddress = await _computeAccountAddress(privateKey);
+      debugPrint('📍 Account address: $accountAddress');
+
+      // Create Account instance with real provider and signer
+      final signer = Signer(privateKey: Felt.fromHex(privateKey));
+      final account = Account(
+        provider: _provider,
+        signer: signer,
+        accountAddress: Felt.fromHex(accountAddress),
       );
-      
-      // Return mock transaction hash with signature verification
-      final txHash = '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}enhanced';
-      debugPrint('✅ Transaction executed with enhanced signature: $txHash');
-      
-      return txHash;
+
+      // Convert calls to proper format for Account.execute()
+      final contractCalls = calls.map((call) {
+        return Call(
+          to: Felt.fromHex(call['contractAddress'] ?? call['contract_address'] ?? '0x1'),
+          selector: Felt.fromHex(call['selector'] ?? call['entrypoint'] ?? '0x1'),
+          calldata: (call['calldata'] as List<dynamic>? ?? [])
+              .map((data) => Felt.fromHex(data.toString()))
+              .toList(),
+        );
+      }).toList();
+
+      debugPrint('🔗 Prepared ${contractCalls.length} contract calls');
+
+      // Execute the real transaction using Account.execute()
+      final response = await _executeWithFallback(() async {
+        return await account.execute(contractCalls);
+      });
+
+      return response.when(
+        result: (executeResponse) {
+          final txHash = executeResponse.transactionHash.toHex();
+          debugPrint('✅ REAL transaction executed on Starknet: $txHash');
+          debugPrint('🔗 Verify on Starkscan: https://sepolia.starkscan.co/tx/$txHash');
+          return txHash;
+        },
+        error: (error) {
+          debugPrint('❌ Real transaction execution failed: $error');
+          throw StarknetTransactionException('Transaction execution failed: $error');
+        },
+      );
     } catch (e) {
+      debugPrint('❌ Failed to execute real transaction: $e');
       log('Failed to execute transaction: $e');
       throw Exception('Failed to execute transaction: ${e.toString()}');
     }
@@ -344,11 +460,12 @@ class StarknetService {
   Future<BigInt> getBalance(String address, {String? tokenAddress}) async {
     try {
       final addressFelt = Felt.fromHexString(address);
-      
+
       // Default to ETH token if no token address specified
-      final ethTokenAddress = tokenAddress ?? 
-        '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'; // ETH on both networks
-      
+      final ethTokenAddress =
+          tokenAddress ??
+          '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'; // ETH on both networks
+
       // Call the balanceOf function on the token contract with fallback
       final callResult = await _executeWithFallback(() async {
         return await _provider.call(
@@ -360,7 +477,7 @@ class StarknetService {
           blockId: BlockId.latest,
         );
       });
-      
+
       return callResult.when(
         result: (result) {
           if (result.isNotEmpty) {
@@ -396,7 +513,7 @@ class StarknetService {
     try {
       // Generate client order ID if not provided
       clientOrderId ??= _generateClientOrderId();
-      
+
       // Create the payload that needs to be signed
       final payloadData = {
         'market': market,
@@ -409,18 +526,20 @@ class StarknetService {
         'postOnly': postOnly,
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       };
-      
+
       // Convert payload to canonical string for signing
       final payloadString = _createCanonicalPayloadString(payloadData);
-      
+
       // Create signature using simplified method (can be enhanced later)
       final signature = _createFallbackSignature(
         privateKey: privateKey,
         payload: payloadString,
       );
-      
-      debugPrint('Created trade payload signature for market: $market, side: $side');
-      
+
+      debugPrint(
+        'Created trade payload signature for market: $market, side: $side',
+      );
+
       return SignedTradePayload(
         market: market,
         side: side,
@@ -433,13 +552,12 @@ class StarknetService {
         signature: signature,
         timestamp: payloadData['timestamp'] as int,
       );
-      
     } catch (e) {
       log('Failed to sign trade payload: $e');
       throw Exception('Failed to sign trade payload: ${e.toString()}');
     }
   }
-  
+
   /// Validates that a trading payload can be signed
   bool canSignTradePayload(String privateKey) {
     try {
@@ -449,19 +567,19 @@ class StarknetService {
       return false;
     }
   }
-  
+
   /// Generates a unique client order ID
   String _generateClientOrderId() {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final random = math.Random().nextInt(999999);
     return 'ASTRA_${timestamp}_$random';
   }
-  
+
   /// Creates a canonical string representation of the payload for signing
   String _createCanonicalPayloadString(Map<String, dynamic> payload) {
     // Sort keys to ensure consistent ordering
     final sortedKeys = payload.keys.toList()..sort();
-    
+
     final canonicalParts = <String>[];
     for (final key in sortedKeys) {
       final value = payload[key];
@@ -469,10 +587,10 @@ class StarknetService {
         canonicalParts.add('$key=${value.toString()}');
       }
     }
-    
+
     return canonicalParts.join('&');
   }
-  
+
   /// Creates a Starknet-compatible ECDSA signature for Extended Exchange API payloads
   Map<String, dynamic> _createFallbackSignature({
     required String privateKey,
@@ -480,7 +598,9 @@ class StarknetService {
   }) {
     try {
       // Normalize private key
-      final cleanPrivateKey = privateKey.startsWith('0x') ? privateKey.substring(2) : privateKey;
+      final cleanPrivateKey = privateKey.startsWith('0x')
+          ? privateKey.substring(2)
+          : privateKey;
       final privateKeyBigInt = BigInt.parse(cleanPrivateKey, radix: 16);
 
       // Create a simple but valid message hash for the payload
@@ -490,7 +610,10 @@ class StarknetService {
       final messageHashBigInt = BigInt.parse(messageHash.toString(), radix: 16);
 
       // Generate Starknet-compatible signature components
-      final signatureComponents = _signMessageWithStarknet(privateKeyBigInt, messageHashBigInt);
+      final signatureComponents = _signMessageWithStarknet(
+        privateKeyBigInt,
+        messageHashBigInt,
+      );
 
       return {
         'r': signatureComponents['r'],
@@ -500,17 +623,21 @@ class StarknetService {
         'algorithm': 'ECDSA_STARKNET',
         'message_hash': '0x${messageHashBigInt.toRadixString(16)}',
       };
-
     } catch (e) {
-      log('Failed to create Starknet ECDSA signature, falling back to mock: $e');
-      
+      log(
+        'Failed to create Starknet ECDSA signature, falling back to mock: $e',
+      );
+
       // Fallback to the original mock signature for compatibility
       return _createMockSignature(privateKey, payload);
     }
   }
 
   /// Sign a message hash using proper Starknet ECDSA cryptography
-  Map<String, String> _signMessageWithStarknet(BigInt privateKey, BigInt messageHash) {
+  Map<String, String> _signMessageWithStarknet(
+    BigInt privateKey,
+    BigInt messageHash,
+  ) {
     try {
       // Use proper ECDSA with Starknet curve parameters
       return _generateProperECDSASignature(privateKey, messageHash);
@@ -522,38 +649,53 @@ class StarknetService {
   }
 
   /// Generate enhanced ECDSA signature using advanced deterministic methods
-  Map<String, String> _generateProperECDSASignature(BigInt privateKey, BigInt messageHash) {
+  Map<String, String> _generateProperECDSASignature(
+    BigInt privateKey,
+    BigInt messageHash,
+  ) {
     try {
       debugPrint('🔐 Generating enhanced ECDSA signature');
-      
+
       // Use enhanced deterministic signature generation based on RFC 6979 principles
       // This provides cryptographically sound signatures without requiring pointycastle
-      
+
       // Starknet curve order (approximation)
-      final starkCurveOrder = BigInt.parse('0x800000000000011000000000000000000000000000000000000000000000001');
-      
+      final starkCurveOrder = BigInt.parse(
+        '0x800000000000011000000000000000000000000000000000000000000000001',
+      );
+
       // Generate secure deterministic k using enhanced method
-      final k = _generateSecureDeterministicK(privateKey, messageHash, starkCurveOrder);
-      
+      final k = _generateSecureDeterministicK(
+        privateKey,
+        messageHash,
+        starkCurveOrder,
+      );
+
       // Calculate r using enhanced elliptic curve simulation
       final r = _calculateEnhancedR(k, starkCurveOrder);
-      
+
       // Calculate s using proper ECDSA formula: s = k^-1 * (messageHash + r * privateKey) mod n
       final kInv = k.modInverse(starkCurveOrder);
       final s = (kInv * (messageHash + r * privateKey)) % starkCurveOrder;
-      
+
       // Ensure s is in canonical form (lower half of curve order)
       final canonicalS = s > starkCurveOrder >> 1 ? starkCurveOrder - s : s;
-      
+
       debugPrint('🎯 === ENHANCED ECDSA SIGNATURE DETAILS ===');
       debugPrint('✅ Generated enhanced ECDSA signature');
-      debugPrint('   📝 Signature r: 0x${r.toRadixString(16).substring(0, math.min(20, r.toRadixString(16).length))}...');
-      debugPrint('   📝 Signature s: 0x${canonicalS.toRadixString(16).substring(0, math.min(20, canonicalS.toRadixString(16).length))}...');
+      debugPrint(
+        '   📝 Signature r: 0x${r.toRadixString(16).substring(0, math.min(20, r.toRadixString(16).length))}...',
+      );
+      debugPrint(
+        '   📝 Signature s: 0x${canonicalS.toRadixString(16).substring(0, math.min(20, canonicalS.toRadixString(16).length))}...',
+      );
       debugPrint('   🔧 Type: Enhanced deterministic ECDSA');
       debugPrint('   📏 r length: ${r.toRadixString(16).length} chars');
-      debugPrint('   📏 s length: ${canonicalS.toRadixString(16).length} chars');
+      debugPrint(
+        '   📏 s length: ${canonicalS.toRadixString(16).length} chars',
+      );
       debugPrint('🎯 === END ENHANCED ECDSA DETAILS ===');
-      
+
       return {
         'r': '0x${r.toRadixString(16).padLeft(64, '0')}',
         's': '0x${canonicalS.toRadixString(16).padLeft(64, '0')}',
@@ -565,25 +707,32 @@ class StarknetService {
   }
 
   /// Generate secure deterministic k value using enhanced RFC 6979 approach
-  BigInt _generateSecureDeterministicK(BigInt privateKey, BigInt messageHash, BigInt curveOrder) {
+  BigInt _generateSecureDeterministicK(
+    BigInt privateKey,
+    BigInt messageHash,
+    BigInt curveOrder,
+  ) {
     // Enhanced deterministic k generation with multiple rounds of hashing
     final round1Hash = sha256.convert([
       ...privateKey.toRadixString(16).padLeft(64, '0').codeUnits,
       ...messageHash.toRadixString(16).padLeft(64, '0').codeUnits,
       ...DateTime.now().millisecondsSinceEpoch.toString().codeUnits,
     ]);
-    
+
     final round2Hash = sha256.convert([
       ...round1Hash.bytes,
       ...'enhanced_starknet_k_generation'.codeUnits,
     ]);
-    
+
     final kBytes = round2Hash.bytes;
-    final k = BigInt.parse(kBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join(), radix: 16);
-    
+    final k = BigInt.parse(
+      kBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
+      radix: 16,
+    );
+
     // Ensure k is in valid range [1, n-1]
     final validK = (k % (curveOrder - BigInt.one)) + BigInt.one;
-    
+
     return validK;
   }
 
@@ -591,37 +740,51 @@ class StarknetService {
   BigInt _calculateEnhancedR(BigInt k, BigInt curveOrder) {
     // Enhanced R calculation using multiple mathematical operations to simulate elliptic curve point multiplication
     // This provides better distribution than simple modular arithmetic
-    
+
     final basePoint = BigInt.from(2); // Simplified generator point
     final enhancedR = (k * basePoint + k.pow(2)) % curveOrder;
-    
+
     // Apply additional mixing to improve distribution
-    final mixedR = (enhancedR + BigInt.from(sha256.convert(k.toRadixString(16).codeUnits).bytes[0])) % curveOrder;
-    
+    final mixedR =
+        (enhancedR +
+            BigInt.from(
+              sha256.convert(k.toRadixString(16).codeUnits).bytes[0],
+            )) %
+        curveOrder;
+
     return mixedR;
   }
 
   /// Fallback deterministic signature for compatibility
-  Map<String, String> _generateDeterministicSignature(BigInt privateKey, BigInt messageHash) {
+  Map<String, String> _generateDeterministicSignature(
+    BigInt privateKey,
+    BigInt messageHash,
+  ) {
     try {
       // Enhanced deterministic method that's more cryptographically sound
-      final starkCurveOrder = BigInt.parse('0x800000000000011000000000000000000000000000000000000000000000001');
-      
+      final starkCurveOrder = BigInt.parse(
+        '0x800000000000011000000000000000000000000000000000000000000000001',
+      );
+
       // Use RFC 6979 style deterministic k generation
-      final k = _generateDeterministicK(privateKey, messageHash, starkCurveOrder);
-      
+      final k = _generateDeterministicK(
+        privateKey,
+        messageHash,
+        starkCurveOrder,
+      );
+
       // Calculate r = (k * G).x mod n (simplified)
       final r = (k * BigInt.from(2) + messageHash) % starkCurveOrder;
-      
+
       // Calculate s = k^-1 * (messageHash + r * privateKey) mod n (simplified)
       final kInv = k.modInverse(starkCurveOrder);
       final s = (kInv * (messageHash + r * privateKey)) % starkCurveOrder;
-      
+
       // Ensure s is in canonical form (lower half)
       final canonicalS = s > starkCurveOrder >> 1 ? starkCurveOrder - s : s;
-      
+
       debugPrint('⚠️ Generated deterministic signature (fallback)');
-      
+
       return {
         'r': '0x${r.toRadixString(16).padLeft(64, '0')}',
         's': '0x${canonicalS.toRadixString(16).padLeft(64, '0')}',
@@ -633,16 +796,23 @@ class StarknetService {
   }
 
   /// Generate deterministic k value using simplified RFC 6979 approach
-  BigInt _generateDeterministicK(BigInt privateKey, BigInt messageHash, BigInt curveOrder) {
+  BigInt _generateDeterministicK(
+    BigInt privateKey,
+    BigInt messageHash,
+    BigInt curveOrder,
+  ) {
     // Simplified deterministic k generation based on private key and message
     final combinedHash = sha256.convert([
       ...privateKey.toRadixString(16).padLeft(64, '0').codeUnits,
       ...messageHash.toRadixString(16).padLeft(64, '0').codeUnits,
     ]);
-    
+
     final kBytes = combinedHash.bytes;
-    final k = BigInt.parse(kBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join(), radix: 16);
-    
+    final k = BigInt.parse(
+      kBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
+      radix: 16,
+    );
+
     // Ensure k is in valid range [1, n-1]
     return (k % (curveOrder - BigInt.one)) + BigInt.one;
   }
@@ -651,11 +821,11 @@ class StarknetService {
   Uint8List _generateSecureRandomBytes(int length) {
     final bytes = Uint8List(length);
     final secureRand = math.Random.secure();
-    
+
     for (int i = 0; i < length; i++) {
       bytes[i] = secureRand.nextInt(256);
     }
-    
+
     return bytes;
   }
 
@@ -663,12 +833,12 @@ class StarknetService {
   Uint8List _bigIntToBytes(BigInt bigInt, int length) {
     final hexString = bigInt.toRadixString(16).padLeft(length * 2, '0');
     final bytes = Uint8List(length);
-    
+
     for (int i = 0; i < length; i++) {
       final byteHex = hexString.substring(i * 2, i * 2 + 2);
       bytes[i] = int.parse(byteHex, radix: 16);
     }
-    
+
     return bytes;
   }
 
@@ -681,7 +851,7 @@ class StarknetService {
   }) async {
     try {
       debugPrint('🔐 Generating real signature for gasless transaction');
-      
+
       // Create transaction payload for signing
       final transactionData = {
         'account_address': userAddress,
@@ -689,29 +859,33 @@ class StarknetService {
         'nonce': nonce ?? DateTime.now().millisecondsSinceEpoch.toString(),
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       };
-      
+
       // Convert to canonical string for signing
       final payloadString = _createCanonicalPayloadString(transactionData);
-      
+
       // Generate signature using enhanced ECDSA
       final signature = _createFallbackSignature(
         privateKey: privateKey,
         payload: payloadString,
       );
-      
+
       // Convert signature to string format expected by AVNU
-      final signatureString = '${signature['r']},${signature['s']},${signature['recovery_id']}';
-      
+      final signatureString =
+          '${signature['r']},${signature['s']},${signature['recovery_id']}';
+
       debugPrint('✅ Generated real gasless transaction signature');
       debugPrint('   Type: ${signature['type']}');
       debugPrint('   Algorithm: ${signature['algorithm']}');
-      debugPrint('   Signature r: ${signature['r']?.toString().substring(0, 20)}...');
-      debugPrint('   Signature s: ${signature['s']?.toString().substring(0, 20)}...');
+      debugPrint(
+        '   Signature r: ${signature['r']?.toString().substring(0, 20)}...',
+      );
+      debugPrint(
+        '   Signature s: ${signature['s']?.toString().substring(0, 20)}...',
+      );
       debugPrint('   Recovery ID: ${signature['recovery_id']}');
       debugPrint('   Length: ${signatureString.length} chars');
-      
+
       return signatureString;
-      
     } catch (e) {
       debugPrint('❌ Real signature generation failed: $e');
       // Fallback to clearly labeled mock for safety
@@ -724,14 +898,16 @@ class StarknetService {
     final combinedData = '$privateKey:$payload';
     final bytes = utf8.encode(combinedData);
     final hash = sha256.convert(bytes);
-    
+
     final hashBytes = hash.bytes;
     final rBytes = hashBytes.take(16).toList();
     final sBytes = hashBytes.skip(16).take(16).toList();
-    
-    final r = '0x${rBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join()}';
-    final s = '0x${sBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join()}';
-    
+
+    final r =
+        '0x${rBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join()}';
+    final s =
+        '0x${sBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join()}';
+
     return {
       'r': r,
       's': s,
@@ -740,9 +916,12 @@ class StarknetService {
       'algorithm': 'ECDSA_MOCK',
     };
   }
-  
+
   /// Test paymaster integration by checking if gasless transactions are supported
-  Future<bool> testPaymasterIntegration(String accountAddress, String paymasterAddress) async {
+  Future<bool> testPaymasterIntegration(
+    String accountAddress,
+    String paymasterAddress,
+  ) async {
     try {
       // Check if account is deployed
       final isDeployed = await isAccountDeployed(accountAddress);
@@ -750,18 +929,18 @@ class StarknetService {
         log('Account not deployed, paymaster test skipped');
         return false;
       }
-      
+
       // Check if paymaster contract exists
       final paymasterDeployed = await isAccountDeployed(paymasterAddress);
       if (!paymasterDeployed) {
         log('Paymaster contract not found');
         return false;
       }
-      
+
       // Get account balance to ensure it can receive gasless transactions
       final balance = await getBalance(accountAddress);
       log('Account balance for paymaster test: $balance wei');
-      
+
       log('Paymaster integration test passed');
       return true;
     } catch (e) {
@@ -769,24 +948,36 @@ class StarknetService {
       return false;
     }
   }
-  
+
   /// Get ETH balance for a Starknet address
   Future<double> getEthBalance(String address) async {
-    return await _getTokenBalance(address, _ethContractAddress, 18); // ETH has 18 decimals
+    return await _getTokenBalance(
+      address,
+      _ethContractAddress,
+      18,
+    ); // ETH has 18 decimals
   }
-  
+
   /// Get STRK balance for a Starknet address
   Future<double> getStrkBalance(String address) async {
-    return await _getTokenBalance(address, _strkContractAddress, 18); // STRK has 18 decimals
+    return await _getTokenBalance(
+      address,
+      _strkContractAddress,
+      18,
+    ); // STRK has 18 decimals
   }
-  
+
   /// Generic method to get token balance
-  Future<double> _getTokenBalance(String address, String tokenContract, int decimals) async {
+  Future<double> _getTokenBalance(
+    String address,
+    String tokenContract,
+    int decimals,
+  ) async {
     try {
       // Convert address to Felt if it's a string
       final addressFelt = Felt.fromHexString(address);
       final contractFelt = Felt.fromHexString(tokenContract);
-      
+
       // Call the balanceOf function on the token contract with fallback
       final callResult = await _executeWithFallback(() async {
         return await _provider.call(
@@ -798,7 +989,7 @@ class StarknetService {
           blockId: BlockId.latest,
         );
       });
-      
+
       return callResult.when(
         result: (result) {
           if (result.isNotEmpty) {
@@ -862,7 +1053,7 @@ class SignedTradePayload {
       'timestamp': timestamp,
     };
   }
-  
+
   @override
   String toString() {
     return 'SignedTradePayload(market: $market, side: $side, type: $type, size: $size)';
@@ -873,9 +1064,9 @@ class SignedTradePayload {
 class StarknetNetworkException implements Exception {
   final String message;
   final Exception? lastError;
-  
+
   StarknetNetworkException(this.message, {this.lastError});
-  
+
   @override
   String toString() {
     final errorDetails = lastError != null ? ' (Last error: $lastError)' : '';
@@ -886,9 +1077,9 @@ class StarknetNetworkException implements Exception {
 /// Custom exception for Starknet account-related errors
 class StarknetAccountException implements Exception {
   final String message;
-  
+
   StarknetAccountException(this.message);
-  
+
   @override
   String toString() => 'StarknetAccountException: $message';
 }
@@ -896,9 +1087,9 @@ class StarknetAccountException implements Exception {
 /// Custom exception for Starknet transaction-related errors
 class StarknetTransactionException implements Exception {
   final String message;
-  
+
   StarknetTransactionException(this.message);
-  
+
   @override
   String toString() => 'StarknetTransactionException: $message';
 }
@@ -906,9 +1097,9 @@ class StarknetTransactionException implements Exception {
 /// Custom exception for general Starknet errors
 class StarknetException implements Exception {
   final String message;
-  
+
   StarknetException(this.message);
-  
+
   @override
   String toString() => 'StarknetException: $message';
 }
