@@ -39,6 +39,14 @@ from ..api.v1.prestige import router as prestige_router
 from ..api.v1.viral_content import router as viral_content_router
 from ..api.v1.nft_integration import router as nft_router
 
+# Import Blockchain Domain API routers (Phase 1)
+from ..api.v1.blockchain.wallets import router as blockchain_wallets_router
+from ..api.v1.blockchain.transactions import router as blockchain_transactions_router
+from ..api.v1.blockchain.gasless import router as blockchain_gasless_router
+
+# Import Phase 3.5 Signing API router
+from ..api.v1.blockchain.signing import router as blockchain_signing_router
+
 # Import clan battle monitor
 from ..tasks.clan_battle_monitor import start_battle_monitor, stop_battle_monitor
 
@@ -99,6 +107,14 @@ app.include_router(constellations_router, prefix="/api/v1")
 app.include_router(prestige_router, prefix="/api/v1")
 app.include_router(viral_content_router, prefix="/api/v1")
 app.include_router(nft_router, prefix="/api/v1")
+
+# Blockchain Domain API routes (Phase 1)
+app.include_router(blockchain_wallets_router, prefix="/api/v1/blockchain")
+app.include_router(blockchain_transactions_router, prefix="/api/v1/blockchain")
+app.include_router(blockchain_gasless_router, prefix="/api/v1/blockchain")
+
+# Phase 3.5 Signing API routes
+app.include_router(blockchain_signing_router, prefix="/api/v1/blockchain")
 
 
 @app.middleware("http")
